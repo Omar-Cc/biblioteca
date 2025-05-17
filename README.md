@@ -1,21 +1,21 @@
 # BiblioVirtual 📚
 
 ## 📚 Tabla de Contenidos
-1. [Vista General](#vista-general)
-2. [Tecnologías Utilizadas](#-tecnologías-utilizadas)
-   - [Backend](#backend)
-   - [Frontend](#frontend)
-3. [Características Principales](#-características-principales)
-   - [Para Usuarios](#para-usuarios)
-   - [Para Administradores](#para-administradores)
-4. [Instalación](#-instalación)
-5. [Estructura del Proyecto](#-estructura-del-proyecto)
-6. [Arquitectura Frontend](#-arquitectura-frontend)
-7. [Seguridad](#-seguridad)
-8. [Configuración](#configuración)
-9. [Desarrollo](#desarrollo)
+1. [ℹ️ Vista General](#vista-general)
+2. [🛠️ Tecnologías Utilizadas](#-tecnologías-utilizadas)
+   - [🖥️ Backend](#backend)
+   - [🎨 Frontend](#frontend)
+3. [✨ Características Principales](#-características-principales)
+   - [👤 Para Usuarios](#para-usuarios)
+   - [👑 Para Administradores](#para-administradores)
+4. [🚀 Instalación](#-instalación)
+5. [📁 Estructura del Proyecto](#-estructura-del-proyecto)
+6. [🖼️ Arquitectura Frontend](#-arquitectura-frontend)
+7. [🔐 Seguridad](#-seguridad)
+8. [⚙️ Configuración](#configuración)
+9. [👨‍💻 Desarrollo](#desarrollo)
 
-## Vista General
+## ℹ️ Vista General
 BiblioVirtual es una plataforma digital innovadora que ofrece una experiencia completa de gestión bibliotecaria. Diseñada tanto para usuarios como para administradores, permite la catalogación, préstamo y seguimiento de recursos bibliográficos de manera eficiente y moderna.
 
 Esta aplicación surge como respuesta a la necesidad de modernizar las bibliotecas tradicionales, facilitando el acceso a materiales educativos y recreativos a través de una interfaz intuitiva y responsive. Nuestro sistema integra todas las funcionalidades esenciales de una biblioteca física, potenciadas con las ventajas del entorno digital.
@@ -28,7 +28,7 @@ BiblioVirtual no solo gestiona libros, sino que también permite administrar div
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.5-green)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-Latest-green)
 ![Lombok](https://img.shields.io/badge/Lombok-Latest-blue)
-![MapStruct](https://img.shields.io/badge/MapStruct-Latest-blue)
+![MapStruct](https://img.shields.io/badge/MapStruct-1.5.5.Final-blue)
 
 ### 🎨 Frontend
 ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-Latest-green)
@@ -40,13 +40,13 @@ BiblioVirtual no solo gestiona libros, sino que también permite administrar div
 
 ## ✨ Características Principales
 
-### Para Usuarios
+### 👤 Para Usuarios
 - Registro y gestión de perfiles personalizados
 - Catálogo de obras con búsqueda avanzada
 - Sistema de préstamos y reservas
 - Planes de suscripción con beneficios
 - Interfaz responsive para acceso desde cualquier dispositivo
-### Para Administradores
+### 👑 Para Administradores
 - Panel de administración completo
 - Gestión de usuarios y lectores
 - Control de obras y contenidos
@@ -74,7 +74,6 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-
 ## 📁 Estructura del Proyecto
 
 ```bash
@@ -99,7 +98,7 @@ src/
 │       └── application.properties # ⚙️ Configuración general
 ```
 
-## 🎨 Arquitectura Frontend
+## 🖼️ Arquitectura Frontend
 La interfaz de usuario está construida con Thymeleaf y Bootstrap, siguiendo una estructura modular:
 
 ### Layouts Base
@@ -123,10 +122,10 @@ El proyecto implementa Spring Security para la autenticación y autorización de
 - Gestión de roles y permisos (ADMIN, USER, LECTOR)
 - Validación y políticas de contraseñas
 
-## Configuración
-La aplicación utiliza archivos JSON para almacenar datos iniciales (seed data) y configuraciones específicas. Estos se encuentran en: `src/main/resources/data/`.
+## ⚙️ Configuración
+La aplicación utiliza archivos JSON ubicados en `src/main/resources/data/` principalmente para la carga inicial de datos (seed data) al iniciar la aplicación.
 
-## Desarrollo
+## 👨‍💻 Desarrollo
 Para el desarrollo se recomienda utilizar los siguientes comandos:
 
 Ejecutar en modo desarrollo con recarga automática: ```mvn spring-boot:run```
