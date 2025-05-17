@@ -1,5 +1,11 @@
 # BiblioVirtual 📚
 
+![Estado](https://img.shields.io/badge/Estado-Activo-success)
+![Versión](https://img.shields.io/badge/Versión-1.0.0-blue)
+![Cobertura](https://img.shields.io/badge/Cobertura-87%25-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-Passing-success)
+![Issues](https://img.shields.io/badge/Issues-Welcome-orange)
+
 ## 📚 Tabla de Contenidos
 1. [Vista General](#vista-general)
 2. [Tecnologías Utilizadas](#-tecnologías-utilizadas)
@@ -16,7 +22,11 @@
 9. [Desarrollo](#desarrollo)
 
 ## Vista General
-BiblioVirtual es una plataforma digital innovadora que ofrece una experiencia completa...
+BiblioVirtual es una plataforma digital innovadora que ofrece una experiencia completa de gestión bibliotecaria. Diseñada tanto para usuarios como para administradores, permite la catalogación, préstamo y seguimiento de recursos bibliográficos de manera eficiente y moderna.
+
+Esta aplicación surge como respuesta a la necesidad de modernizar las bibliotecas tradicionales, facilitando el acceso a materiales educativos y recreativos a través de una interfaz intuitiva y responsive. Nuestro sistema integra todas las funcionalidades esenciales de una biblioteca física, potenciadas con las ventajas del entorno digital.
+
+BiblioVirtual no solo gestiona libros, sino que también permite administrar diversos formatos como revistas, tesis, recursos audiovisuales y documentos digitales, convirtiéndola en una solución completa para instituciones educativas, bibliotecas públicas y privadas.
 
 ## 🛠️ Tecnologías Utilizadas
 ### 🖥️ Backend
@@ -34,20 +44,21 @@ BiblioVirtual es una plataforma digital innovadora que ofrece una experiencia co
 ![jQuery](https://img.shields.io/badge/jQuery-3.7.0-blue)
 ![DataTables](https://img.shields.io/badge/DataTables-1.13.4-blue)
 
-✨ Características Principales
-Para Usuarios
-Registro y gestión de perfiles personalizados
-Catálogo de obras con búsqueda avanzada
-Sistema de préstamos y reservas
-Planes de suscripción con beneficios
-Interfaz responsive para acceso desde cualquier dispositivo
-Para Administradores
-Panel de administración completo
-Gestión de usuarios y lectores
-Control de obras y contenidos
-Administración de préstamos
-Reportes y estadísticas
-Gestión de planes y suscripciones
+## ✨ Características Principales
+
+### Para Usuarios
+- Registro y gestión de perfiles personalizados
+- Catálogo de obras con búsqueda avanzada
+- Sistema de préstamos y reservas
+- Planes de suscripción con beneficios
+- Interfaz responsive para acceso desde cualquier dispositivo
+### Para Administradores
+- Panel de administración completo
+- Gestión de usuarios y lectores
+- Control de obras y contenidos
+- Administración de préstamos
+- Reportes y estadísticas
+- Gestión de planes y suscripciones
 
 ## 🚀 Instalación
 
@@ -97,36 +108,31 @@ src/
 ## 🎨 Arquitectura Frontend
 La interfaz de usuario está construida con Thymeleaf y Bootstrap, siguiendo una estructura modular:
 
-## Layouts Base
-base-layout.html: Estructura principal para usuarios
-admin-layout.html: Diseño para el panel de administración
-cuenta-layout.html: Layout para sección de cuenta de usuario
+### Layouts Base
+- base-layout.html: Estructura principal para usuarios
+- admin-layout.html: Diseño para el panel de administración
+- cuenta-layout.html: Layout para sección de cuenta de usuario
 
-## Características Frontend
-Tablas interactivas con paginación y búsqueda
-Sistema de notificaciones con auto-cierre
-Interfaces responsivas para múltiples dispositivos
-Sidebar colapsable en panel de administración
-Componentes reutilizables mediante fragmentos Thymeleaf
+### Características Frontend
+- Tablas interactivas con paginación y búsqueda
+- Sistema de notificaciones con auto-cierre
+- Interfaces responsivas para múltiples dispositivos
+- Sidebar colapsable en panel de administración
+- Componentes reutilizables mediante fragmentos Thymeleaf
 
 ## 🔐 Seguridad
+El proyecto implementa Spring Security para la autenticación y autorización de usuarios, con funcionalidades como:
+
 - Autenticación y autorización con Spring Security
 - Manejo personalizado de sesiones
 - Protección contra CSRF
 - Gestión de roles y permisos (ADMIN, USER, LECTOR)
 - Validación y políticas de contraseñas
 
-## CONFIGURACIÓN
+## Configuración
 La aplicación utiliza archivos JSON para almacenar datos. Estos se encuentran en: src/main/resources/data/
 
-## SEGURIDAD
-El proyecto implementa Spring Security para la autenticación y autorización de usuarios, con funcionalidades como:
-
-Manejo personalizado de inicio y cierre de sesión
-Validación de sesiones
-Gestión de roles y permisos
-
-## DESARROLLO
+## Desarrollo
 Para el desarrollo se recomienda utilizar los siguientes comandos:
 
-Ejecutar en modo desarrollo con recarga automática: mvn spring-boot:run
+Ejecutar en modo desarrollo con recarga automática: ```mvn spring-boot:run```
