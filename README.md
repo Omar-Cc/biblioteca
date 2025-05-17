@@ -1,13 +1,13 @@
 # BiblioVirtual 📚
 
 ## 📚 Tabla de Contenidos
-1. [ℹ️ Vista General](#vista-general)
+1. [ℹ️ Vista General](#-vista-general)
 2. [🛠️ Tecnologías Utilizadas](#-tecnologías-utilizadas)
-   - [🖥️ Backend](#backend)
-   - [🎨 Frontend](#frontend)
+   - [🖥️ Backend](#-backend)
+   - [🎨 Frontend](#-frontend)
 3. [✨ Características Principales](#-características-principales)
-   - [👤 Para Usuarios](#para-usuarios)
-   - [👑 Para Administradores](#para-administradores)
+   - [👤 Para Usuarios](#-para-usuarios)
+   - [👑 Para Administradores](#-para-administradores)
 4. [🚀 Instalación](#-instalación)
 5. [📁 Estructura del Proyecto](#-estructura-del-proyecto)
 6. [🖼️ Arquitectura Frontend](#-arquitectura-frontend)
