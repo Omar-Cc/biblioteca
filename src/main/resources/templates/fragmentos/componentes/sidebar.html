@@ -1,0 +1,192 @@
+<div th:fragment="sidebar" class="sidebar bg-dark text-white">
+  <!-- Estilos para las flechas blancas -->
+  <style>
+    .sidebar .accordion-button::after {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+
+    .sidebar .accordion-button:not(.collapsed)::after {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+  </style>
+
+  <div class="sidebar-header p-3 border-bottom border-secondary">
+    <h3 class="fs-5 mb-0">
+      <i class="bi bi-speedometer2 me-2"></i>
+      Panel de Administración
+    </h3>
+  </div>
+
+  <!-- Enlaces principales siempre visibles -->
+  <div class="list-group list-group-flush bg-dark">
+    <a class="list-group-item list-group-item-action bg-dark text-white border-0" th:href="@{/admin/dashboard}"
+      th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
+      <i class="bi bi-house-door me-2"></i> Dashboard
+    </a>
+  </div>
+
+  <!-- Accordions para categorías -->
+  <div class="accordion accordion-flush" id="sidebarAdminAccordion">
+
+    <!-- Contenido de la biblioteca -->
+    <div class="accordion-item bg-dark">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          data-bs-target="#collapseContenido"
+          th:aria-expanded="${#lists.contains({'contenidos', 'obras', 'autores', 'editoriales', 'generos'}, activeTab)}">
+          <i class="bi bi-journal-bookmark me-2"></i> Biblioteca
+        </button>
+      </h2>
+      <div id="collapseContenido" class="accordion-collapse collapse bg-dark"
+        th:class="${#lists.contains({'contenidos', 'obras', 'autores', 'editoriales', 'generos'}, activeTab)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
+        data-bs-parent="#sidebarAdminAccordion">
+        <div class="list-group list-group-flush">
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/contenidos}" th:classappend="${activeTab == 'contenidos' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-journal-bookmark me-2"></i> Contenidos
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/obras}"
+            th:classappend="${activeTab == 'obras' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-book me-2"></i> Obras
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/autores}"
+            th:classappend="${activeTab == 'autores' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-person-badge me-2"></i> Autores
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/editoriales}" th:classappend="${activeTab == 'editoriales' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-building me-2"></i> Editoriales
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/generos}"
+            th:classappend="${activeTab == 'generos' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-tags me-2"></i> Géneros
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Usuarios y Lectores -->
+    <div class="accordion-item bg-dark">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          data-bs-target="#collapseUsuarios"
+          th:aria-expanded="${#lists.contains({'usuarios', 'lectores', 'prestamos'}, activeTab)}">
+          <i class="bi bi-people me-2"></i> Usuarios
+        </button>
+      </h2>
+      <div id="collapseUsuarios" class="accordion-collapse collapse bg-dark"
+        th:class="${#lists.contains({'usuarios', 'lectores', 'prestamos'}, activeTab)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
+        data-bs-parent="#sidebarAdminAccordion">
+        <div class="list-group list-group-flush">
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/usuarios}" th:classappend="${activeTab == 'usuarios' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-people me-2"></i> Usuarios
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/lectores}" th:classappend="${activeTab == 'lectores' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-person-vcard me-2"></i> Lectores
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/prestamos}" th:classappend="${activeTab == 'prestamos' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-arrow-left-right me-2"></i> Préstamos
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Planes y Suscripciones -->
+    <div class="accordion-item bg-dark">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          data-bs-target="#collapseComercial"
+          th:aria-expanded="${#lists.contains({'planes', 'beneficios', 'planes-beneficios', 'suscripciones'}, activeTab)}">
+          <i class="bi bi-card-list me-2"></i> Comercial
+        </button>
+      </h2>
+      <div id="collapseComercial" class="accordion-collapse collapse bg-dark"
+        th:class="${#lists.contains({'planes', 'beneficios', 'planes-beneficios', 'suscripciones'}, activeTab)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
+        data-bs-parent="#sidebarAdminAccordion">
+        <div class="list-group list-group-flush">
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/planes}"
+            th:classappend="${activeTab == 'planes' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-card-list me-2"></i> Planes
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/beneficios}" th:classappend="${activeTab == 'beneficios' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-gift me-2"></i> Beneficios
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/planes-beneficios}" th:classappend="${activeTab == 'planes-beneficios' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-link-45deg me-2"></i> Planes-Beneficios
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/suscripciones}" th:classappend="${activeTab == 'suscripciones' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-calendar-check me-2"></i> Suscripciones
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagos y Finanzas -->
+    <div class="accordion-item bg-dark">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          data-bs-target="#collapseFinanzas"
+          th:aria-expanded="${#lists.contains({'metodosPago', 'pagos', 'ordenes', 'facturas'}, activeTab)}">
+          <i class="bi bi-cash-coin me-2"></i> Finanzas
+        </button>
+      </h2>
+      <div id="collapseFinanzas" class="accordion-collapse collapse bg-dark"
+        th:class="${#lists.contains({'metodosPago', 'pagos', 'ordenes', 'facturas'}, activeTab)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
+        data-bs-parent="#sidebarAdminAccordion">
+        <div class="list-group list-group-flush">
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/metodos-pago}" th:classappend="${activeTab == 'metodosPago' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-credit-card me-2"></i> Métodos de Pago
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/pagos}"
+            th:classappend="${activeTab == 'pagos' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-cash-coin me-2"></i> Pagos
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/ordenes}"
+            th:classappend="${activeTab == 'ordenes' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-cart-check me-2"></i> Órdenes
+          </a>
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/facturas}" th:classappend="${activeTab == 'facturas' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-receipt me-2"></i> Facturas
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reportes y Salir -->
+    <div class="accordion-item bg-dark">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          data-bs-target="#collapseReportes" th:aria-expanded="${activeTab == 'informes'}">
+          <i class="bi bi-bar-chart me-2"></i> Reportes
+        </button>
+      </h2>
+      <div id="collapseReportes" class="accordion-collapse collapse bg-dark"
+        th:class="${activeTab == 'informes'} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
+        data-bs-parent="#sidebarAdminAccordion">
+        <div class="list-group list-group-flush">
+          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
+            th:href="@{/admin/informes}" th:classappend="${activeTab == 'informes' ? 'active' : 'bg-dark'}">
+            <i class="bi bi-bar-chart me-2"></i> Informes
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cerrar Sesión siempre visible -->
+  <div class="list-group list-group-flush bg-dark mt-3">
+    <form th:action="@{/logout}" method="post">
+      <button type="submit" class="list-group-item list-group-item-action bg-dark text-white border-0">
+        <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,138 @@
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.badge-plan {
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+}
+
+.plan-card {
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.plan-card.current {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.plan-card:hover:not(.current) {
+  transform: translateY(-5px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.settings-label {
+  font-weight: 500;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-darkest) 100%);
+  color: white;
+}
+
+.avatar-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.profile-stats {
+  font-size: 0.9rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-links-bar {
+  overflow: hidden;
+}
+
+.quick-link-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  color: var(--bs-dark);
+  text-decoration: none;
+  position: relative;
+  transition: background-color 0.2s;
+  font-weight: 500;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.quick-link-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--bs-primary);
+}
+
+.quick-link-item i {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background-color: var(--bs-danger);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recommendation-widget {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.recommendation-cover {
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+}
+
+.recommendation-title {
+  font-size: 0.9rem;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 200px;
+}
+
+@media (max-width: 767.98px) {
+  .quick-link-item {
+    padding: 0.75rem;
+    width: 50%;
+    justify-content: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .recommendation-widget {
+    padding: 1rem !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Beneficios',
+          pageAdditionalCss=~{::beneficiosCss},
+          pageContent=~{::beneficiosContent},
+          pageAdditionalScripts=~{::beneficiosScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="beneficiosCss">
+    <!-- CSS específico para la página de beneficios -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="beneficiosContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Administración de Beneficios</h1>
+      <a th:href="@{/admin/beneficios/nuevo}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Nuevo Beneficio
+      </a>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      <span th:text="${mensaje}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Tabla de beneficios -->
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive p-3">
+          <table class="table table-striped datatable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Tipo de Dato</th>
+                <th>Descripción</th>
+                <th>Icono</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="beneficio : ${beneficios}">
+                <td th:text="${beneficio.id}"></td>
+                <td th:text="${beneficio.nombre}"></td>
+                <td th:text="${beneficio.tipoDato}"></td>
+                <td th:text="${beneficio.descripcion}"></td>
+                <td>
+                  <i th:if="${beneficio.icono}" th:class="${beneficio.icono}"></i>
+                  <span th:unless="${beneficio.icono}">-</span>
+                </td>
+                <td>
+                  <span th:if="${beneficio.activo}" class="badge bg-success">Activo</span>
+                  <span th:unless="${beneficio.activo}" class="badge bg-danger">Inactivo</span>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a th:href="@{/admin/beneficios/{id}/editar(id=${beneficio.id})}"
+                      class="btn btn-sm btn-outline-primary" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a th:href="@{/admin/planes-beneficios/beneficio/{id}(id=${beneficio.id})}"
+                      class="btn btn-sm btn-outline-info" title="Ver Planes Asociados">
+                      <i class="bi bi-link-45deg"></i>
+                    </a>
+                    <form th:action="@{/admin/beneficios/{id}/eliminar(id=${beneficio.id})}" method="post"
+                      style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar este beneficio?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="beneficiosScripts">
+  </th:block>
+</body>
+
+</html>

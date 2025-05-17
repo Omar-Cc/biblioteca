@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragmentos/general :: head('Detalle de Lector', ~{::link})}">
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+
+<body>
+  <nav th:replace="~{fragmentos/general :: navbar}"></nav>
+
+  <div class="container py-5">
+    <!-- Alertas -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      <span th:text="${successMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="${errorMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row">
+      <!-- Información del lector -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Información del lector</h5>
+            <div>
+              <span class="badge rounded-pill me-2"
+                th:classappend="${lector.activo ? 'bg-success' : 'bg-danger'}"
+                th:text="${lector.activo ? 'Activo' : 'Inactivo'}">
+                Estado
+              </span>
+              <span class="badge rounded-pill"
+                th:classappend="${lector.estadoCuenta == 'ACTIVO' ? 'bg-success' : 
+                              lector.estadoCuenta == 'SUSPENDIDO' ? 'bg-danger' : 
+                              lector.estadoCuenta == 'MULTADO' ? 'bg-warning text-dark' : 'bg-secondary'}"
+                th:text="${lector.estadoCuenta}">
+                ACTIVO
+              </span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <h6 class="fw-bold">Datos personales</h6>
+                <p class="mb-1">
+                  <strong>Nombre:</strong> <span th:text="${lector.nombre + ' ' + lector.apellido}">Nombre Apellido</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Usuario:</strong> <span th:text="${lector.username}">username</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Email:</strong> <span th:text="${lector.email}">email@example.com</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Teléfono:</strong> <span th:text="${lector.telefono}">+1234567890</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Dirección:</strong> <span th:text="${lector.direccion}">Dirección, Ciudad</span>
+                </p>
+                <p class="mb-0">
+                  <strong>Fecha de nacimiento:</strong> <span th:text="${#dates.format(lector.fechaNacimiento, 'dd/MM/yyyy')}">01/01/1990</span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <h6 class="fw-bold">Datos de la cuenta</h6>
+                <p class="mb-1">
+                  <strong>ID:</strong> <span th:text="${lector.id}">1</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Fecha de registro:</strong> <span th:text="${#dates.format(lector.fechaRegistro, 'dd/MM/yyyy HH:mm')}">01/01/2025</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Última actividad:</strong> <span th:text="${#dates.format(lector.ultimaActividad, 'dd/MM/yyyy HH:mm')}">01/01/2025</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Estado de cuenta:</strong> <span th:text="${lector.estadoCuenta}">ACTIVO</span>
+                </p>
+                <p class="mb-0">
+                  <strong>Multas pendientes:</strong> <span th:text="${lector.multasPendientes}">0</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel de acciones -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="card-title mb-0">Acciones</h5>
+          </div>
+          <div class="card-body">
+            <!-- Cambiar estado de cuenta -->
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3">Cambiar estado de cuenta</h6>
+              <form th:action="@{/admin/lectores/{username}(username=${lector.username})/cambiar-estado}" method="post">
+                <div class="mb-3">
+                  <select class="form-select" name="nuevoEstado" required>
+                    <option value="">Seleccionar estado</option>
+                    <option value="ACTIVO" th:selected="${lector.estadoCuenta == 'ACTIVO'}">ACTIVO</option>
+                    <option value="SUSPENDIDO" th:selected="${lector.estadoCuenta == 'SUSPENDIDO'}">SUSPENDIDO</option>
+                    <option value="MULTADO" th:selected="${lector.estadoCuenta == 'MULTADO'}">MULTADO</option>
+                    <option value="INACTIVO" th:selected="${lector.estadoCuenta == 'INACTIVO'}">INACTIVO</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-circle me-1"></i> Actualizar estado
+                </button>
+              </form>
+            </div>
+
+            <!-- Actualizar multas -->
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3">Actualizar multas pendientes</h6>
+              <form th:action="@{/admin/lectores/{username}(username=${lector.username}/actualizar-multas/)}" method="post">
+                <div class="mb-3">
+                  <div class="input-group">
+                    <input type="number" class="form-control" name="nuevoValor" min="0" 
+                          th:value="${lector.multasPendientes}" required>
+                    <span class="input-group-text">€</span>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-circle me-1"></i> Actualizar multas
+                </button>
+              </form>
+            </div>
+
+            <!-- Otras acciones -->
+            <h6 class="fw-bold mb-3">Otras acciones</h6>
+            <div class="d-grid gap-2">
+              <a th:href="@{/usuarios/admin/detalle/{id}(id=${lector.id})}" class="btn btn-outline-secondary">
+                <i class="bi bi-person me-1"></i> Ver detalles de usuario
+              </a>
+              <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                <i class="bi bi-trash me-1"></i> Eliminar usuario
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteUserModalLabel">Confirmar eliminación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>¿Estás seguro de que deseas eliminar al usuario <strong th:text="${lector.nombre + ' ' + lector.apellido}">Nombre Apellido</strong>?</p>
+            <p class="text-danger">Esta acción no se puede deshacer.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <form th:action="@{/usuarios/admin/eliminar/{id}(id=${lector.id})}" method="post">
+              <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer th:replace="~{fragmentos/general :: footer}"></footer>
+</body>
+
+</html>

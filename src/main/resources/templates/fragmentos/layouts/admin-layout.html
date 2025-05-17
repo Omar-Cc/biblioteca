@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+  th:fragment="fullPage(pageTitle, pageAdditionalCss, pageContent, pageAdditionalScripts)">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${pageTitle} + ' | Administración BiblioVirtual'">Administración BiblioVirtual</title>
+
+  <!-- Estilos base -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <!-- CSS adicional específico de la página -->
+  <th:block th:if="${pageAdditionalCss != null}" th:insert="${pageAdditionalCss}"></th:block>
+  <!-- CSS base -->
+  <link rel="stylesheet" th:href="@{/css/custom-theme.css}" />
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+</head>
+
+<body class="admin-layout">
+
+  <!-- Sidebar -->
+  <nav th:replace="~{fragmentos/componentes/sidebar :: sidebar}"></nav>
+
+  <div class="admin-content">
+    <!-- Navbar -->
+    <nav th:replace="~{fragmentos/componentes/navbarAdmin :: navbarAdmin}"></nav>
+
+    <!-- Contenido principal de la página -->
+    <main th:replace="${pageContent}">
+      <div th:replace="~{fragmentos/componentes/alerts :: alerts}"></div>
+
+      <div class="container">
+        <p>Contenido principal no especificado.</p>
+      </div>
+    </main>
+  </div>
+  <!-- Scripts base -->
+  <div th:replace="~{fragmentos/componentes/scriptsAdmin :: scriptsAdmin} ?: ~{}"></div>
+
+  <!-- Scripts adicionales específicos de la página -->
+  <th:block th:if="${pageAdditionalScripts != null}" th:insert="${pageAdditionalScripts}"></th:block>
+</body>
+
+</html>

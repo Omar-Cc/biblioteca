@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle=${autorId != null ? 'Editar Autor' : 'Nuevo Autor'},
+          pageAdditionalCss=~{::autorFormCss},
+          pageContent=~{::autorFormContent},
+          pageAdditionalScripts=~{::autorFormScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="autorFormCss">
+    <!-- CSS específico para el formulario de autores -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="autorFormContent" class="container-fluid py-4">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <h1 class="h2 mb-0" th:text="${autorId != null ? 'Editar Autor' : 'Nuevo Autor'}">Gestión de Autor</h1>
+          <a th:href="@{/admin/autores}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver a la lista
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas de errores -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <span th:text="${errorMessage}">Error en la operación</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <form th:object="${autorRequestDTO}"
+              th:action="${autorId != null ? '/admin/autores/actualizar/' + autorId : '/admin/autores/guardar'}"
+              method="post">
+
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre *</label>
+                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="nacionalidad" class="form-label">Nacionalidad</label>
+                <input type="text" class="form-control" id="nacionalidad" th:field="*{nacionalidad}">
+                <div class="text-danger" th:if="${#fields.hasErrors('nacionalidad')}" th:errors="*{nacionalidad}"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                <input type="date" class="form-control" id="fechaNacimiento" th:field="*{fechaNacimiento}"
+                  th:value="${#temporals.format(fechaNacimiento, 'dd-MM-yyyy')}">
+                <div class="text-danger" th:if="${#fields.hasErrors('fechaNacimiento')}" th:errors="*{fechaNacimiento}">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="biografia" class="form-label">Biografía</label>
+                <textarea class="form-control" id="biografia" th:field="*{biografia}" rows="4"></textarea>
+                <div class="text-danger" th:if="${#fields.hasErrors('biografia')}" th:errors="*{biografia}"></div>
+              </div>
+
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <a th:href="@{/admin/autores}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-save me-1"></i>
+                  <span th:text="${autorId != null ? 'Actualizar' : 'Guardar'}">Guardar</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="autorFormScripts">
+    <!-- Scripts específicos para el formulario de autores -->
+    <script th:inline="javascript">
+      document.addEventListener('DOMContentLoaded', function () {
+        // Obtener la fecha del modelo
+        const fechaNacimiento = /*[[${autorRequestDTO.fechaNacimiento}]]*/ null;
+
+        if (fechaNacimiento) {
+          // Formatear la fecha al formato yyyy-MM-dd que espera el input
+          const inputFecha = document.getElementById('fechaNacimiento');
+          inputFecha.value = fechaNacimiento;
+          console.log('Fecha establecida:', inputFecha.value);
+        }
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

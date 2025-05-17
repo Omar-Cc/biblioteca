@@ -1,0 +1,785 @@
+Bloque 1: Núcleo de Obras y Contenidos: Este diagrama se centra en la obra intelectual, sus autores, géneros, y las diferentes formas (contenidos) en las que se puede presentar, ya sean físicas o digitales. {
+
+  classDiagram
+  direction LR
+    class Obra {
+      +id: int
+      +titulo: string
+      +descripcion: string
+      +anioPublicacion: int
+      +isbn: string
+      +editorialId: int
+      +idioma: List<string>
+      +fechaCreacion: date
+      +fechaActualizacion: date
+    }
+
+    class Autor {
+        +id: int
+        +nombre: string
+        +biografia: string
+        +fechaNacimiento: date
+        +nacionalidad: string
+        +foto: string
+    }
+
+    class AutorObra {
+        +obraId: int
+        +autorId: int
+        +rol: string  // "principal", "colaborador", "editor"
+    }
+
+    class Editorial {
+        +id: int
+        +nombre: string
+        +pais: string
+        +website: string
+    }
+
+    class Genero {
+        +id: int
+        +nombre: string
+        +descripcion: string
+    }
+
+    class ObraGenero {
+        +obraId: int
+        +generoId: int
+    }
+
+    class Contenido {
+        +id: int
+        +obraId: int
+        +editorialId: int
+        +portada: string
+        +precio: decimal
+        +enVenta: boolean
+        +tipo: TipoContenido
+        +puedeSerPrestado: bool
+        +fechaCreacion: date
+    }
+
+    class ContenidoDigital {
+        +tamanioArchivo: decimal
+        +formato: string
+        +permiteDescarga: bool
+        +tipoLicencia: TipoLicenciaDigital
+        +licencias: int
+    }
+
+    class AudioLibro {
+        +duracion: TimeSpan
+        +narrador: string
+        +calidad: string
+    }
+
+    class MaterialEducativo {
+        +nivelEducativo: string
+        +asignatura: string
+        +recursos: string
+    }
+
+    class ContenidoMultimedia {
+        +duracion: TimeSpan
+        +calidad: string
+        +requisitosReproduccion: string
+    }
+
+    class ContenidoFisico {
+        +stockDisponible: int
+        +minStock: int
+        +ubicacionFisica: string
+        +formatoFisico: FormatoFisico
+    }
+
+    class LibroFisico {
+        +paginas: int
+    }
+
+    class PublicacionIlustradaFisica {
+        +ilustrador: string
+        +volumen: int
+    }
+
+    class Manga {
+        +sentidoLectura: string
+    }
+
+    class Comic {
+        +colorido: bool
+    }
+
+    class RevistaPeriodica {
+        +periodicidad: string
+        +edicion: string
+        +issn: string
+    }
+
+    class Serie {
+        +id: int
+        +nombre: string
+        +descripcion: string
+        +numeroVolumenes: int
+        +completa: boolean
+    }
+
+    class ContenidoSerie {
+        +serieId: int
+        +contenidoId: int
+        +orden: int
+    }
+
+    enum TipoLicenciaDigital {
+      USUARIO_UNICO
+      MULTIUSUARIO
+      PERPETUA
+      SUSCRIPCION
+      POR_USO
+      LIMITADA_PRESTAMOS
+      ACCESO_ABIERTO
+    }
+
+    enum FormatoFisico {
+      TAPA_DURA,
+      TAPA_BLANDA,
+      RUSTICA,
+      ENCUADERNADO,
+      GRAPA,
+      OTRO
+    }
+
+    enum TipoContenido {
+      LIBRO_FISICO,
+      MANGA_DIGITAL,
+      AUDIO_LIBRO,
+      etc
+    }
+
+    %% Relaciones del Bloque 1
+    Obra "1" -- "1..*" Contenido : se_materializa_en
+    Contenido "1..*" -- "1" Obra : representa_la_obra
+    Editorial "1" -- "0..*" Obra : publica
+    Contenido "1" -- "0..1" Editorial : publicado_por_edicion_especifica
+
+    Obra "1" -- "0..*" AutorObra : escrita_por
+    AutorObra "1" -- "1" Obra : pertenece_a_obra
+    AutorObra "1" -- "1" Autor : asocia_a_autor
+
+    Obra "1" -- "0..*" ObraGenero  : tiene_generos_asociados
+    Genero "1" -- "0..*" ObraGenero  : tiene_obras_asociados
+    ObraGenero  "1" -- "1" Obra : pertenece_a_obra
+    ObraGenero  "1" -- "1" Genero : define_genero
+
+    Contenido <|-- ContenidoDigital
+    Contenido <|-- ContenidoFisico
+    ContenidoDigital <|-- AudioLibro
+    ContenidoDigital <|-- MaterialEducativo
+    ContenidoDigital <|-- ContenidoMultimedia
+    ContenidoFisico <|-- LibroFisico
+    ContenidoFisico <|-- PublicacionIlustradaFisica
+    ContenidoFisico <|-- RevistaPeriodica
+    PublicacionIlustradaFisica <|-- Manga
+    PublicacionIlustradaFisica <|-- Comic
+
+    Serie "1" -- "0..*" ContenidoSerie : contiene
+    ContenidoSerie "1" -- "1" Contenido : asocia_contenido
+    ContenidoSerie "1" -- "1" Serie : pertenece_a_serie
+
+}
+
+
+Bloque 2: Usuarios, Perfiles y Acceso: Este diagrama se enfoca en los usuarios, sus perfiles, roles, permisos y cómo acceden al sistema. {
+
+  classDiagram
+  direction LR
+
+  class Usuario {
+      +id: int
+      +email: string
+      +password: string
+      +planId: int  // Relación con Plan (Bloque 3)
+      +fechaRegistro: date
+      +ultimaActividad: date
+  }
+
+  class Perfil {
+      +id: int
+      +usuarioId: int
+      +nombreVisible: string
+      +fotoPerfil: string
+      +idiomaPreferido: string
+      +limitePrestamosDesignado: int
+      +esInfantil: boolean
+      +activo: boolean
+      +esPerfilPrincipal: boolean
+  }
+
+  class Lector {
+      +nombre: string
+      +apellido: string
+      +direccion: string
+      +telefono: string
+      +fechaNacimiento: date
+      +multasPendientes: decimal
+      +estadoCuenta: string
+  }
+
+  class Empleado {
+      +departamento: string
+      +cargo: string
+  }
+
+  class SesionUsuario {
+      +usuarioId: int
+      +perfilId: int
+      +tokenSesion: string
+      +fechaInicio: date
+      +fechaExpiracion: date
+  }
+
+  class Rol {
+      +id: int
+      +nombre: string
+      +descripcion: string
+  }
+
+  class PermisoRol {
+      +rolId: int
+      +permiso: string
+  }
+
+  class UsuarioRol {
+      +usuarioId: int
+      +rolId: int
+  }
+
+  %% Relaciones del Bloque 2
+  Usuario <|-- Lector
+  Usuario <|-- Empleado
+
+  Usuario "1" -- "0..*" Perfil : tiene
+  Perfil "1" -- "1" Usuario : es_de_usuario
+
+  Usuario "1" -- "0..*" SesionUsuario : tiene_sesiones
+  SesionUsuario "1" -- "1" Usuario : pertenece_a_usuario
+  SesionUsuario "1" -- "1" Perfil : tiene_asociado_perfil
+
+  Usuario "1" -- "0..*" UsuarioRol : tiene_asignaciones_rol
+  Rol "1" -- "0..*" UsuarioRol : tiene_usuarios_asignados
+  UsuarioRol "1" -- "1" Usuario : asignado_a_usuario
+  UsuarioRol "1" -- "1" Rol : define_rol
+
+  Rol "1" -- "0..*" PermisoRol : tiene_permisos
+
+  %% Referencia a Plan (definido en Bloque 3)
+  Usuario --> Plan : tiene_asignado_plan
+
+}
+
+
+Bloque 3: Comercial - Planes, Suscripciones, Carrito, Órdenes y Pagos: Este diagrama cubre la parte comercial: planes de suscripción, el carrito de compras, las órdenes y el proceso de pago.. {
+
+  classDiagram
+  direction LR
+    class Plan {
+        +id: int
+        +nombre: String
+        +precioMensual: decimal
+        +precioAnual: decimal
+        +diasPrueba: int
+        +activo: boolean
+    }
+
+    class Beneficio {
+        +id: int
+        +categoriaId: int
+        +nombre: String
+        +descripcion: String
+        +icono: String
+        +tipoDato: String
+        +activo: boolean
+    }
+
+    class PlanBeneficioAssociation {
+        +planId: int
+        +beneficioId: int
+        +valor: String
+        +activo: boolean
+    }
+
+    class Suscripcion {
+        +id: int
+        +usuarioId: int  // Relación con Usuario (Bloque 2)
+        +planId: int
+        +fechaInicio: date
+        +fechaRenovacion: date
+        +estado: string
+        +metodoPagoId: int
+    }
+
+    class HistorialPagoSuscripcion {
+        +id: int
+        +suscripcionId: int
+        +monto: decimal
+        +fechaPago: date
+        +periodo: string
+        +estado: string
+    }
+
+    class Carrito {
+        +id: int
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +fechaCreacion: date
+    }
+
+    class ItemCarrito {
+        +id: int
+        +carritoId: int
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +cantidad: int
+        +precio: decimal
+        +descuento: int
+    }
+
+    class Orden {
+        +id: int
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +carritoId: int
+        +fechaCreacion: date
+        +estadoOrden: string
+        +totalOrden: decimal
+    }
+
+    class ItemOrden {
+        +id: int
+        +ordenId: int
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +cantidad: int
+        +precioAlComprar: decimal
+        +descuentoAplicado: decimal
+    }
+
+    class Pago {
+        +id: int
+        +ordenId: int
+        +monto: decimal
+        +fechaPago: date
+        +metodoPagoId: int
+        +referenciaPago: string
+        +estado: string
+    }
+
+    class MetodoPago {
+        +id: int
+        +nombre: string
+        +descripcion: string
+        +requiereAutorizacion: boolean
+        +activo: boolean
+    }
+
+    class Factura {
+        +id: int
+        +ordenId: int
+        +numeroFactura: string
+        +fechaEmision: date
+        +subtotal: decimal
+        +impuestos: decimal
+        +total: decimal
+        +datosFacturacion: string
+    }
+
+    %% Relaciones del Bloque 3
+    Plan "1" -- "0..*" PlanBeneficioAssociation : define_beneficios
+    Beneficio "1" -- "0..*" PlanBeneficioAssociation : es_parte_de_planes
+    PlanBeneficioAssociation "1" -- "1" Plan : asociado_a_plan
+    PlanBeneficioAssociation "1" -- "1" Beneficio : describe_beneficio
+
+    Suscripcion "1" -- "1" Plan : corresponde_a_plan
+    Suscripcion "1" -- "1" MetodoPago : usa_metodo_pago
+    Suscripcion "1" -- "0..*" HistorialPagoSuscripcion : tiene_historial_pagos
+    HistorialPagoSuscripcion "1" -- "1" Suscripcion : de_suscripcion
+    HistorialPagoSuscripcion "0..*" -- "0..1" Pago : registrado_como_pago_general
+
+    Carrito "1" -- "0..*" ItemCarrito : contiene_items
+    ItemCarrito "1" -- "1" Carrito : pertenece_a_carrito
+    %% ItemCarrito --> Contenido : referencia_contenido (Contenido en Bloque 1)
+
+    Orden "1" -- "0..1" Carrito : originada_por_carrito
+    Orden "1" -- "1..*" ItemOrden : contiene_items
+    ItemOrden "1" -- "1" Orden : pertenece_a_orden
+    %% ItemOrden --> Contenido : referencia_contenido (Contenido en Bloque 1)
+
+    Orden "1" -- "0..*" Pago : tiene_pagos
+    Pago "1" -- "1" Orden : pertenece_a_orden
+    Pago "1" -- "1" MetodoPago : utiliza_metodo_pago
+
+    Orden "1" -- "0..1" Factura : genera_factura
+    Factura "1" -- "1" Orden : de_la_orden
+
+    %% Relaciones con otros bloques (mencionadas como referencia)
+    %% Usuario (Bloque 2) "1" -- "1" Plan : tiene_asignado_plan
+    %% Suscripcion --> Usuario (Bloque 2) : pertenece_a_usuario
+    %% Carrito --> Perfil (Bloque 2) : pertenece_a_perfil
+    %% Orden --> Perfil (Bloque 2) : realizada_por_perfil
+
+}
+
+
+Bloque 4: Interacción del Usuario y Personalización: Este diagrama agrupa las clases relacionadas con cómo los usuarios interactúan con los contenidos (reseñas, favoritos, préstamos, historial) y la personalización (colecciones, notificaciones).. {
+
+  classDiagram
+  direction LR
+    class Resena {
+        +id: int
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +calificacion: int
+        +comentario: string
+        +fechaCreacion: date
+        +esVisible: boolean
+    }
+
+    class Favorito {
+        +id: int
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +fechaAgregado: date
+    }
+
+    class Prestamo {
+        +id: int
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +fechaPrestamo: date
+        +fechaDevolucion: date
+        +estado: string
+        +fechaRetorno: date
+        %% +sucursalId: int // Relación con Sucursal (Bloque 6)
+    }
+
+    class HistorialOperacion {
+        +id: int
+        +usuarioId: int // Relación con Usuario (Bloque 2)
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +tipoOperacion: string
+        +fechaOperacion: date
+    }
+
+    class DetalleOperacion {
+        <<Abstract>>
+        +descripcion: string
+    }
+
+    class DetalleModificacionContenido {
+        +campoModificado: string
+        +valorAnterior: string
+        +valorNuevo: string
+    }
+
+    class DetalleResenaEliminada {
+        +resenaId: int
+        +motivo: string
+    }
+
+    class DetalleMarcadoFavorito {
+        +esFavorito: boolean
+    }
+
+    class Coleccion {
+        +id: int
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +nombre: string
+        +esPublica: bool
+        +fechaCreacion: date
+    }
+
+    class ColeccionContenido {
+        +coleccionId: int
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +fechaAgregado: date
+    }
+
+    class HistorialLectura {
+        +id: int
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +progreso: decimal
+        +paginaActual: int
+        +tiempoLectura: int
+        +fechaUltimaLectura: date
+    }
+
+    class Marcador {
+        +id: int
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +posicion: string
+        +titulo: string
+        +nota: string
+        +fechaCreacion: date
+    }
+
+    class Notificacion {
+        +id: int
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +titulo: string
+        +mensaje: string
+        +tipo: string
+        +fechaCreacion: date
+        +fechaLectura: date
+        +leida: boolean
+    }
+
+    class PreferenciaNotificacion {
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +tipoNotificacion: string
+        +medioPreferido: string
+        +activo: boolean
+    }
+
+    %% Relaciones del Bloque 4
+    DetalleOperacion <|-- DetalleModificacionContenido
+    DetalleOperacion <|-- DetalleResenaEliminada
+    DetalleOperacion <|-- DetalleMarcadoFavorito
+
+    HistorialOperacion "1" -- "1" DetalleOperacion : describe_con_detalle
+    %% HistorialOperacion --> Usuario (Bloque 2) : realizado_por_usuario
+    %% HistorialOperacion --> Contenido (Bloque 1) : sobre_contenido
+
+    %% Resena --> Perfil (Bloque 2) : escrita_por_perfil
+    %% Resena --> Contenido (Bloque 1) : es_para_contenido
+
+    %% Favorito --> Perfil (Bloque 2) : marcado_por_perfil
+    %% Favorito --> Contenido (Bloque 1) : es_de_contenido
+
+    %% Prestamo --> Perfil (Bloque 2) : realizado_por_perfil
+    %% Prestamo --> Contenido (Bloque 1) : es_sobre_contenido
+    %% Prestamo --> Sucursal (Bloque 6) : gestionado_en_sucursal
+
+    %% Coleccion --> Perfil (Bloque 2) : pertenece_a_perfil
+    Coleccion "1" -- "0..*" ColeccionContenido : contiene_elementos
+    ColeccionContenido "1" -- "1" Coleccion : parte_de_coleccion
+    %% ColeccionContenido --> Contenido (Bloque 1) : incluye_contenido
+
+    %% HistorialLectura --> Perfil (Bloque 2) : pertenece_a_perfil
+    %% HistorialLectura --> Contenido (Bloque 1) : registra_lectura_de_contenido
+
+    %% Marcador --> Perfil (Bloque 2) : creado_por_perfil
+    %% Marcador --> Contenido (Bloque 1) : ubicado_en_contenido
+
+    %% Notificacion --> Perfil (Bloque 2) : dirigida_a_perfil
+    Notificacion "0..*" -- "0..1" Prestamo : informa_sobre_prestamo
+    %% Notificacion "0..*" -- "0..1" Orden (Bloque 3) : informa_sobre_orden
+
+    %% PreferenciaNotificacion --> Perfil (Bloque 2) : configurada_por_perfil
+
+}
+
+
+Bloque 5: Social - Grupos de Lectura y Discusiones: Este diagrama se centra en las funcionalidades sociales como grupos de lectura y las discusiones asociadas. {
+
+  %% elk
+  classDiagram
+  direction LR
+    class GrupoLectura {
+        +id: int
+        +nombre: string
+        +descripcion: string
+        +perfilId: int // Creador, Relación con Perfil (Bloque 2)
+        +esPrivado: boolean
+        +fechaCreacion: date
+    }
+
+    class MiembroGrupo {
+        +grupoId: int
+        +perfilId: int // Miembro, Relación con Perfil (Bloque 2)
+        +rol: string // "admin", "miembro"
+        +fechaUnion: date
+    }
+
+    class Discusion { // Asumo es la "Discusion" de "Nuevas Clases"
+        +id: int
+        +grupoId: int
+        +contenidoId: int // Opcional, si la discusión es sobre un contenido específico (Bloque 1)
+        +titulo: string
+        +descripcion: string
+        +fechaCreacion: date
+        +creadorId: int // PerfilId del creador (Bloque 2)
+        +activa: boolean
+    }
+
+    class DiscusionContenido { // Para enlazar discusiones con múltiples contenidos
+        +discusionId: int
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +perfilId: int // Quién agregó el contenido a la discusión (Bloque 2)
+        +fechaAgregado: date
+    }
+
+    class AutorGrupoLectura {
+        +autorId: int // Relación con Autor (Bloque 1)
+        +grupoLecturaId: int
+        +tipoInteres: string // "autor favorito", "siguiendo novedades"
+        +fechaDesde: date
+    }
+
+    %% Relaciones del Bloque 5
+    %% GrupoLectura --> Perfil (Bloque 2) : creado_por_perfil
+    GrupoLectura "1" -- "0..*" MiembroGrupo : tiene_miembros
+    MiembroGrupo "1" -- "1" GrupoLectura : pertenece_a_grupo
+    %% MiembroGrupo --> Perfil (Bloque 2) : representa_a_perfil
+
+    GrupoLectura "1" -- "0..*" Discusion : contiene_discusiones
+    Discusion "1" -- "1" GrupoLectura : pertenece_a_grupo
+    %% Discusion --> Perfil (Bloque 2) : iniciada_por_perfil
+    %% Discusion --> Contenido (Bloque 1) : (opcional) sobre_contenido_principal
+
+    Discusion "1" -- "0..*" DiscusionContenido : menciona_contenidos
+    %% DiscusionContenido --> Contenido (Bloque 1) : refiere_a_contenido
+    DiscusionContenido "1" -- "1" Discusion : parte_de_discusion
+    %% DiscusionContenido --> Perfil (Bloque 2) : agregado_por_perfil
+
+    GrupoLectura "1" -- "0..*" AutorGrupoLectura : tiene_foco_en_autores
+    %% AutorGrupoLectura --> Autor (Bloque 1) : refiere_a_autor
+    AutorGrupoLectura "1" -- "1" GrupoLectura : pertenece_a_grupo_lectura
+    %% AutorGrupoLectura --> Autor (Bloque 1) : refiere_a_autor
+
+}
+
+
+Bloque 6: Gestión Física - Sucursales y Ubicaciones: Este diagrama se enfoca en la gestión de inventario físico, sucursales y dónde se encuentran los contenidos físicos. {
+
+  classDiagram
+  direction LR
+    class Sucursal {
+        +id: int
+        +nombre: string
+        +direccion: string
+        +telefono: string
+        +horarioAtencion: string
+        +empleadoId: int // Supervisor, Relación con Empleado (Bloque 2)
+    }
+
+    class Estanteria {
+        +id: int
+        +sucursalId: int
+        +codigo: string
+        +descripcion: string
+        +capacidad: int
+    }
+
+    class UbicacionContenido {
+        +contenidoId: int // Refiere a ContenidoFisico (Bloque 1)
+        +sucursalId: int
+        +estanteriaId: int
+        +posicionExacta: string
+        +cantidad: int
+    }
+
+    %% Relaciones del Bloque 6
+    %% Sucursal --> Empleado (Bloque 2) : supervisada_por_empleado
+    Sucursal "1" -- "0..*" Estanteria : contiene_estanterias
+    Estanteria "1" -- "1" Sucursal : ubicada_en_sucursal
+
+    Estanteria "1" -- "0..*" UbicacionContenido : almacena_contenidos
+    UbicacionContenido "1" -- "1" Estanteria : en_estanteria
+    %% UbicacionContenido --> ContenidoFisico (Bloque 1) : ubica_contenido_fisico
+    UbicacionContenido "1" -- "1" Sucursal : localizada_en_sucursal
+
+    %% Relaciones con otros bloques (mencionadas como referencia)
+    %% Prestamo (Bloque 4) "0..*" -- "1" Sucursal : gestionado_en_sucursal
+    %% Orden (Bloque 3) "0..*" -- "0..1" Sucursal : entrega_en_sucursal
+
+}
+
+
+Bloque 7: Estadísticas, Tendencias y Recomendaciones: Este diagrama agrupa las clases destinadas al análisis de datos, seguimiento de tendencias y generación de recomendaciones personalizadas. {
+
+  classDiagram
+  direction LR
+    class EstadisticaObra {
+        +obraId: int // Relación con Obra (Bloque 1)
+        +vistas: int
+        +busquedas: int
+        +calificacionPromedio: decimal
+        +popularidadGeneral: decimal
+        +fechaActualizacion: date
+    }
+
+    class EstadisticaContenido {
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +ventasTotal: int
+        +ventasMes: int
+        +ventasSemana: int
+        +prestamosTotal: int
+        +prestamosMes: int
+        +adquisicionesDigital: int
+        +lecturasTotales: int
+        +tiempoPromedioLectura: int  // minutos
+        +fechaActualizacion: date
+    }
+
+    class TendenciaObra {
+        +obraId: int // Relación con Obra (Bloque 1)
+        +tendencia: decimal
+        +puntajeTendencia: int
+        +posicionRanking: int
+        +categoriaRanking: string
+        +fechaCalculada: date
+    }
+
+    class RecomendacionPersonalizada {
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +obraId: int? // Relación con Obra (Bloque 1)
+        +contenidoId: int? // Relación con Contenido (Bloque 1)
+        +puntuacion: decimal
+        +razon: string
+        +activa: boolean
+        +fechaCreacion: date
+    }
+
+    class SimilitudObras {
+        +obraBaseId: int // Relación con Obra (Bloque 1)
+        +obraSimilarId: int // Relación con Obra (Bloque 1)
+        +puntuacion: decimal
+        +tipoSimilitud: string
+        +fechaCalculo: date
+    }
+
+    class HistorialInteraccion { // Diferente de HistorialOperacion, más enfocado a analítica
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +obraId: int // Relación con Obra (Bloque 1)
+        +contenidoId: int // Relación con Contenido (Bloque 1)
+        +tipoInteraccion: string // "vista", "compra", "préstamo", "lectura", "búsqueda"
+        +duracion: int  // segundos, si aplica
+        +fechaInteraccion: date
+    }
+
+    class PerfilLector { // Perfil analítico del lector
+        +perfilId: int // Relación con Perfil (Bloque 2)
+        +generosPreferidos: List<int> // Lista de Ids de Genero (Bloque 1)
+        +autoresPreferidos: List<int> // Lista de Ids de Autor (Bloque 1)
+        +formatosPreferidos: List<string>
+        +horarioLectura: string
+        +duracionPromedioSesion: int
+        +fechaActualizacion: date
+    }
+
+    %% Relaciones del Bloque 7
+    %% Obra (Bloque 1) "1" -- "0..1" EstadisticaObra : tiene_estadisticas_obra
+    %% Contenido (Bloque 1) "1" -- "0..1" EstadisticaContenido : tiene_estadisticas_contenido
+    %% Obra (Bloque 1) "1" -- "0..1" TendenciaObra : tiene_tendencia_obra
+
+    %% Perfil (Bloque 2) "1" -- "0..*" RecomendacionPersonalizada : recibe_recomendaciones
+    %% RecomendacionPersonalizada --> Obra (Bloque 1) : recomienda_obra
+    %% RecomendacionPersonalizada --> Contenido (Bloque 1) : recomienda_contenido
+
+    %% Obra (Bloque 1) "1" -- "0..*" SimilitudObras : es_similar_a_obras (como obraBase)
+    %% Obra (Bloque 1) "1" -- "0..*" SimilitudObras : es_obra_similar_para (como obraSimilar)
+
+    %% Perfil (Bloque 2) "1" -- "0..*" HistorialInteraccion : genera_historial_interacciones
+    %% HistorialInteraccion --> Obra (Bloque 1) : sobre_obra
+    %% HistorialInteraccion --> Contenido (Bloque 1) : sobre_contenido
+
+    %% Perfil (Bloque 2) "1" -- "0..1" PerfilLector : tiene_perfil_lector_analitico
+
+}

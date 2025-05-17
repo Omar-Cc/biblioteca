@@ -1,0 +1,20 @@
+[
+  {
+    "nombre": "Watchmen",
+    "descripcion": "Serie de cómics escrita por Alan Moore e ilustrada por Dave Gibbons",
+    "numeroVolumenes": 1,
+    "completa": true
+  },
+  {
+    "nombre": "Death Note",
+    "descripcion": "Serie de manga sobre un estudiante que encuentra un cuaderno sobrenatural",
+    "numeroVolumenes": 12,
+    "completa": true
+  },
+  {
+    "nombre": "One Piece",
+    "descripcion": "Serie de anime y manga sobre piratas en busca del legendario tesoro",
+    "numeroVolumenes": 103,
+    "completa": false
+  }
+]

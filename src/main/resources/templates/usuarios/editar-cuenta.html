@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Editar Información | Biblioteca Virtual', 
+        paramCss=~{usuarios/editar-cuenta :: editarPageCss},
+        paramScripts=~{usuarios/editar-cuenta :: editarPageScripts},
+        activeMenu='informacion', 
+        pageSpecificContent=~{usuarios/editar-cuenta :: editarPageContent}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico -->
+  <th:block th:fragment="editarPageCss">
+    <link rel="stylesheet" th:href="@{/css/usuario.css}">
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido específico -->
+  <th:block th:fragment="editarPageContent">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Editar Información Personal</h5>
+      </div>
+      <div class="card-body">
+        <!-- Mensajes de error -->
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span th:text="${errorMessage}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <form th:action="@{/mi-cuenta/editar}" th:object="${usuarioDataDTO}" method="post"
+          class="needs-validation" novalidate>
+          <!-- Email -->
+          <div class="mb-4">
+            <label for="email" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="email" th:field="*{email}" required>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+              Por favor, ingresa un correo válido.
+            </div>
+            <div class="form-text">Este correo se usará para notificaciones y recuperación de cuenta.</div>
+          </div>
+
+          <!-- Datos de lector si existen -->
+          <div th:if="${lectorDTO != null}">
+            <h5 class="mb-3 mt-4 border-bottom pb-2">Datos de Lector</h5>
+
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="nombre" th:field="*{lectorDTO.nombre}" required>
+              <div class="invalid-feedback" th:if="${#fields.hasErrors('lectorDTO.nombre')}"
+                th:errors="*{lectorDTO.nombre}">
+                Por favor, ingresa tu nombre.
+              </div>
+            </div>
+
+            <!-- Apellido -->
+            <div class="mb-3">
+              <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="apellido" th:field="*{lectorDTO.apellido}" required>
+              <div class="invalid-feedback" th:if="${#fields.hasErrors('lectorDTO.apellido')}"
+                th:errors="*{lectorDTO.apellido}">
+                Por favor, ingresa tu apellido.
+              </div>
+            </div>
+
+            <!-- Dirección -->
+            <div class="mb-3">
+              <label for="direccion" class="form-label">Dirección <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="direccion" th:field="*{lectorDTO.direccion}" rows="2"
+                required></textarea>
+              <div class="invalid-feedback" th:if="${#fields.hasErrors('lectorDTO.direccion')}"
+                th:errors="*{lectorDTO.direccion}">
+                Por favor, ingresa tu dirección.
+              </div>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="mb-3">
+              <label for="telefono" class="form-label">Teléfono <span class="text-danger">*</span></label>
+              <input type="tel" class="form-control" id="telefono" th:field="*{lectorDTO.telefono}" required>
+              <div class="invalid-feedback" th:if="${#fields.hasErrors('lectorDTO.telefono')}"
+                th:errors="*{lectorDTO.telefono}">
+                Por favor, ingresa un número de teléfono válido.
+              </div>
+            </div>
+
+            <!-- Fecha Nacimiento -->
+            <div class="mb-4">
+              <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento <span
+                  class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="fechaNacimiento" th:field="*{lectorDTO.fechaNacimiento}"
+                required>
+              <div class="invalid-feedback" th:if="${#fields.hasErrors('lectorDTO.fechaNacimiento')}"
+                th:errors="*{lectorDTO.fechaNacimiento}">
+                Por favor, selecciona tu fecha de nacimiento.
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a th:href="@{/mi-cuenta}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save me-1"></i> Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </th:block>
+
+  <!-- Scripts específicos -->
+  <th:block th:fragment="editarPageScripts">
+    <script>
+      // Validación del formulario
+      (function () {
+        'use strict';
+
+        var forms = document.querySelectorAll('.needs-validation');
+
+        Array.from(forms).forEach(function (form) {
+          form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+
+            form.classList.add('was-validated');
+          }, false);
+        });
+      })();
+    </script>
+  </th:block>
+</body>
+
+</html>

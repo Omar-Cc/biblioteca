@@ -1,0 +1,32 @@
+[
+  {
+    "username": "usuario1",
+    "password": "password1",
+    "email": "usuario1@biblioteca.com",
+    "activo": true,
+    "fechaRegistro": "2023-05-10T08:30:00",
+    "ultimaActividad": "2023-05-14T15:45:00",
+    "ultimaActualizacionPassword": "2023-05-10T08:30:00",
+    "roles": ["ROLE_USER"]
+  },
+  {
+    "username": "bibliotecario1",
+    "password": "biblioteca123",
+    "email": "bibliotecario1@biblioteca.com",
+    "activo": true,
+    "fechaRegistro": "2023-04-15T10:20:00",
+    "ultimaActividad": "2023-05-13T09:30:00",
+    "ultimaActualizacionPassword": "2023-04-15T10:20:00",
+    "roles": ["ROLE_USER", "ROLE_BIBLIOTECARIO"]
+  },
+  {
+    "username": "editor1",
+    "password": "editor123",
+    "email": "editor@biblioteca.com",
+    "activo": true,
+    "fechaRegistro": "2023-03-20T11:45:00",
+    "ultimaActividad": "2023-05-12T16:20:00",
+    "ultimaActualizacionPassword": "2023-03-20T11:45:00",
+    "roles": ["ROLE_USER", "ROLE_EDITOR"]
+  }
+]

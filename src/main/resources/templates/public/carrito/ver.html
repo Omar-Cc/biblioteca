@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Mi Carrito de Compras - Mi Cuenta',
+          pageAdditionalCss=~{::carritoCss},
+          pageContent=~{::carritoContent},
+          pageAdditionalScripts=~{::carritoScripts}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico -->
+  <th:block th:fragment="carritoCss">
+    <style>
+      .item-carrito-img {
+        width: 100px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+      }
+
+      .item-carrito-img:hover {
+        transform: scale(1.05);
+      }
+
+      .resumen-pedido {
+        position: sticky;
+        top: 100px;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+      }
+
+      .cantidad-input {
+        width: 70px;
+        border-radius: 20px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+      }
+
+      .cantidad-input:focus {
+        border-color: rgba(45, 110, 126, 0.5);
+        box-shadow: 0 0 0 0.2rem rgba(45, 110, 126, 0.25);
+      }
+
+      .table th,
+      .table td {
+        vertical-align: middle;
+        padding: 1rem 0.75rem;
+      }
+
+      .precio-original {
+        text-decoration: line-through;
+        color: #6c757d;
+        font-size: 0.9em;
+      }
+
+      .precio-descuento {
+        color: var(--bs-danger);
+        font-weight: bold;
+      }
+
+      .card {
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-color: rgba(45, 110, 126, 0.2);
+      }
+
+      .card:hover {
+        box-shadow: 0 0.75rem 1.5rem rgba(45, 110, 126, 0.1);
+      }
+
+      .card-header {
+        border-bottom: 1px solid rgba(45, 110, 126, 0.1);
+        background-color: rgba(45, 110, 126, 0.05);
+        padding: 1rem 1.25rem;
+      }
+
+      .btn {
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+      }
+
+      .btn-primary {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+      }
+
+      .btn-primary:hover {
+        background-color: var(--bs-primary-darker);
+        border-color: var(--bs-primary-darker);
+        transform: translateY(-2px);
+      }
+
+      .btn-outline-secondary:hover,
+      .btn-outline-danger:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-danger {
+        background-color: var(--bs-danger);
+        border-color: var(--bs-danger);
+        border-radius: 0.5rem;
+      }
+
+      .btn-danger:hover {
+        background-color: var(--bs-danger-darker);
+        border-color: var(--bs-danger-darker);
+      }
+
+      .carrito-vacio-container {
+        padding: 4rem 0;
+        background-color: rgba(245, 245, 240, 0.6);
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .carrito-vacio-icon {
+        font-size: 6rem;
+        color: var(--bs-secondary);
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+
+        50% {
+          transform: scale(1.05);
+        }
+
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .list-group-item {
+        padding: 1rem 0;
+        border-color: rgba(45, 110, 126, 0.1);
+      }
+
+      .cupon-container {
+        background-color: rgba(45, 110, 126, 0.05);
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+        margin: 1.5rem 0;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .producto-info {
+        transition: all 0.2s ease;
+      }
+
+      .producto-info:hover {
+        background-color: rgba(45, 110, 126, 0.03);
+      }
+
+      .acciones-btn {
+        opacity: 0.8;
+        transition: all 0.2s ease;
+      }
+
+      .acciones-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+
+      .progress-container {
+        margin: 1.5rem 0;
+      }
+
+      .progress {
+        height: 0.5rem;
+        border-radius: 1rem;
+      }
+
+      .progress-bar {
+        background-color: var(--bs-success);
+      }
+
+      .btn-outline-primary {
+        color: var(--bs-primary);
+        border-color: var(--bs-primary);
+      }
+
+      .btn-outline-primary:hover {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+        color: white;
+      }
+
+      .badge.bg-light {
+        color: var(--bs-dark);
+        border: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .section-header {
+        color: var(--bs-primary);
+        border-bottom: 2px solid rgba(45, 110, 126, 0.1);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .resumen-item {
+        transition: all 0.2s ease;
+      }
+
+      .resumen-item:hover {
+        background-color: rgba(45, 110, 126, 0.03);
+      }
+
+      .empty-cart-btn {
+        background-color: var(--bs-secondary);
+        border-color: var(--bs-secondary);
+        color: var(--bs-dark);
+      }
+
+      .empty-cart-btn:hover {
+        background-color: var(--bs-secondary-darker);
+        border-color: var(--bs-secondary-darker);
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido principal -->
+  <th:block th:fragment="carritoContent">
+    <div class="container py-3">
+      <div class="row mb-4">
+        <div class="col">
+          <h1 class="display-5 fw-bold text-primary section-header">Mi Carrito de Compras</h1>
+          <p class="text-muted">Revisa tus productos y procede al pago cuando estés listo.</p>
+        </div>
+      </div>
+
+      <!-- Mensajes de alerta -->
+      <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Carrito Vacío -->
+      <div th:if="${carritoVacio == true || (carrito != null && (carrito.items == null || carrito.items.isEmpty()))}"
+        class="text-center py-5 carrito-vacio-container">
+        <i class="bi bi-cart-x carrito-vacio-icon"></i>
+        <h3 class="mt-3 fw-bold text-primary">Tu carrito está vacío</h3>
+        <p class="text-muted mb-4">Parece que aún no has añadido ningún producto a tu carrito.</p>
+        <a th:href="@{/catalogo}" class="btn btn-primary mt-3 px-4 py-2">
+          <i class="bi bi-arrow-left me-2"></i>Explorar catálogo
+        </a>
+      </div>
+
+      <!-- Carrito con Items -->
+      <div th:if="${carritoVacio == false && carrito != null && carrito.items != null && !carrito.items.isEmpty()}"
+        class="row">
+        <div class="col-lg-8">
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-primary-subtle border-bottom-0">
+              <h5 class="mb-0 fw-bold text-primary"
+                th:text="${'Tienes ' + #lists.size(carrito.items) + ' producto(s) en tu carrito'}">
+                Productos en tu carrito</h5>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead>
+                    <tr class="bg-light">
+                      <th scope="col" colspan="2">Producto</th>
+                      <th scope="col" class="text-center">Cantidad</th>
+                      <th scope="col" class="text-end">Precio Unit.</th>
+                      <th scope="col" class="text-end">Subtotal</th>
+                      <th scope="col" class="text-center">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="item : ${carrito.items}" class="producto-info">
+                      <td style="width: 120px;">
+                        <img th:src="${item.contenidoImagen ?: '/img/portada-default.jpg'}"
+                          th:alt="${item.contenidoTitulo ?: 'Producto'}" class="item-carrito-img img-fluid" />
+                      </td>
+                      <td>
+                        <h6 class="mb-1 fw-bold text-primary"
+                          th:text="${item.contenidoTitulo ?: 'Nombre del Producto'}">Nombre del
+                          Producto</h6>
+                        <span class="badge bg-light text-dark mb-2"
+                          th:text="${item.contenidoTipoDescripcion ?: 'Tipo no especificado'}">Tipo de Contenido</span>
+                      </td>
+                      <td class="text-center">
+                        <form th:action="@{/mi-cuenta/carrito/actualizar/{itemId}(itemId=${item.id})}" method="post"
+                          class="d-inline-flex align-items-center">
+                          <input type="number" name="cantidad" th:value="${item.cantidad}" min="1"
+                            class="form-control form-control-sm cantidad-input text-center me-2" />
+                          <button type="submit" class="btn btn-sm btn-outline-secondary acciones-btn"
+                            title="Actualizar cantidad">
+                            <i class="bi bi-arrow-repeat"></i>
+                          </button>
+                        </form>
+                      </td>
+                      <td class="text-end">
+                        <span th:if="${item.descuento != null && item.descuento > 0}" class="precio-original d-block"
+                          th:text="${'S/ ' + #numbers.formatDecimal(item.precio / 100.0, 1, 'COMMA', 2, 'POINT')}">S/
+                          0.00</span>
+                        <span th:classappend="${item.descuento != null && item.descuento > 0 ? 'precio-descuento' : ''}"
+                          th:text="${'S/ ' + #numbers.formatDecimal((item.precio - (item.descuento ?: 0)) / 100.0, 1, 'COMMA', 2, 'POINT')}">S/
+                          0.00</span>
+                      </td>
+                      <td class="text-end fw-bold"
+                        th:text="${'S/ ' + #numbers.formatDecimal((item.subtotal ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT')}">
+                        S/ 0.00
+                      </td>
+                      <td class="text-center">
+                        <form th:action="@{/mi-cuenta/carrito/eliminar/{itemId}(itemId=${item.id})}" method="post"
+                          class="d-inline">
+                          <button type="submit" class="btn btn-sm btn-outline-danger acciones-btn" title="Eliminar item"
+                            onclick="return confirm('¿Estás seguro de que quieres eliminar este producto del carrito?');">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <a th:href="@{/catalogo}" class="btn btn-outline-primary">
+              <i class="bi bi-arrow-left me-2"></i>Seguir comprando
+            </a>
+            <form th:action="@{/mi-cuenta/carrito/vaciar}" method="post" class="d-inline">
+              <button type="submit" class="btn btn-danger empty-cart-btn"
+                onclick="return confirm('¿Estás seguro de que quieres vaciar todo el carrito?');">
+                <i class="bi bi-cart-x me-2"></i>Vaciar Carrito
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card shadow-sm border-0 resumen-pedido">
+            <div class="card-header bg-primary text-white border-bottom-0">
+              <h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Resumen del Pedido</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0 resumen-item">
+                  Subtotal
+                  <span
+                    th:text="${'S/ ' + #numbers.formatDecimal((carrito.subtotal ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT')}">
+                    S/ 0.00
+                  </span>
+                </li>
+                <li th:if="${carrito.totalDescuentos != null && carrito.totalDescuentos > 0}"
+                  class="list-group-item d-flex justify-content-between align-items-center px-0 text-danger resumen-item">
+                  <span><i class="bi bi-tag-fill me-2"></i>Descuentos Aplicados</span>
+                  <span>- <span
+                      th:text="${'S/ ' + #numbers.formatDecimal((carrito.totalDescuentos ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT')}">S/
+                      0.00</span></span>
+                </li>
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold h5 mt-2 resumen-item">
+                  Total
+                  <span class="text-primary"
+                    th:text="${'S/ ' + #numbers.formatDecimal((carrito.total ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT')}">S/
+                    0.00</span>
+                </li>
+              </ul>
+
+              <div class="progress-container">
+                <p class="small mb-1" style="color: var(--bs-success);">¡Estás a un paso de completar tu compra!</p>
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0"
+                    aria-valuemax="100"></div>
+                </div>
+              </div>
+
+              <div class="cupon-container">
+                <form th:action="@{/mi-cuenta/carrito/aplicar-cupon}" method="post">
+                  <label for="codigoCupon" class="form-label fw-bold text-primary"><i
+                      class="bi bi-ticket-perforated me-2"></i>¿Tienes un cupón de descuento?</label>
+                  <div class="input-group">
+                    <input type="text" name="codigoCupon" id="codigoCupon" class="form-control"
+                      placeholder="Ingresa tu código">
+                    <button type="submit" class="btn btn-outline-primary">Aplicar</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="d-grid mt-4">
+                <a th:href="@{/mi-cuenta/carrito/comprar}" class="btn btn-primary btn-lg">
+                  <i class="bi bi-credit-card me-2"></i>Proceder al Pago
+                </a>
+                <p class="text-center small mt-3" style="color: var(--bs-success);">
+                  <i class="bi bi-shield-lock me-1"></i> Pago seguro garantizado
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="carritoScripts">
+    <script>
+      // Animaciones para mejorar la experiencia de usuario
+      document.addEventListener('DOMContentLoaded', function () {
+        // Efecto de hover en las filas de productos
+        const productoRows = document.querySelectorAll('.producto-info');
+        productoRows.forEach(row => {
+          row.addEventListener('mouseenter', () => {
+            row.style.backgroundColor = 'rgba(45, 110, 126, 0.05)';
+          });
+          row.addEventListener('mouseleave', () => {
+            row.style.backgroundColor = '';
+          });
+        });
+
+        // Animación para el botón de proceder al pago
+        const checkoutBtn = document.querySelector('.btn-primary.btn-lg');
+        if (checkoutBtn) {
+          setInterval(() => {
+            checkoutBtn.classList.add('shadow-pulse');
+            setTimeout(() => {
+              checkoutBtn.classList.remove('shadow-pulse');
+            }, 1000);
+          }, 3000);
+        }
+      });
+    </script>
+    <style>
+      .shadow-pulse {
+        animation: shadowPulse 1s ease-out;
+      }
+
+      @keyframes shadowPulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(45, 110, 126, 0.5);
+        }
+
+        70% {
+          box-shadow: 0 0 0 10px rgba(45, 110, 126, 0);
+        }
+
+        100% {
+          box-shadow: 0 0 0 0 rgba(45, 110, 126, 0);
+        }
+      }
+    </style>
+  </th:block>
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Administración de Editoriales',
+          pageAdditionalCss=~{::editorialCss},
+          pageContent=~{::editorialContent},
+          pageAdditionalScripts=~{::editorialScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="editorialCss">
+    <!-- CSS específico para la lista de editoriales -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="editorialContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h2 mb-0">Gestión de Editoriales</h1>
+      <a th:href="@{/admin/editoriales/nueva}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Nueva Editorial
+      </a>
+    </div>
+
+    <!-- Alertas de mensajes -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      <span th:text="${successMessage}">Operación exitosa</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <span th:text="${errorMessage}">Error en la operación</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Tabla de editoriales -->
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div th:if="${editoriales == null || editoriales.isEmpty()}" class="alert alert-info mb-0">
+          <i class="bi bi-info-circle-fill me-2"></i>No hay editoriales registradas.
+        </div>
+        <div th:unless="${editoriales == null || editoriales.isEmpty()}" class="table-responsive p-3">
+          <table class="table table-hover tabla-datos">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>País</th>
+                <th>Sitio Web</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="editorial : ${editoriales}">
+                <td th:text="${editorial.id}">1</td>
+                <td th:text="${editorial.nombre}">Nombre de la Editorial</td>
+                <td th:text="${editorial.pais ?: 'No especificado'}">País</td>
+                <td>
+                  <a th:if="${editorial.website}" th:href="${editorial.website}" target="_blank" th:text="${editorial.website}">www.editorial.com</a>
+                  <span th:unless="${editorial.website}">No especificado</span>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a th:href="@{/admin/editoriales/editar/{id}(id=${editorial.id})}" class="btn btn-sm btn-outline-primary" title="Editar">
+                      <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar" 
+                            th:data-editorial-id="${editorial.id}" th:data-editorial-nombre="${editorial.nombre}"
+                            onclick="confirmarEliminacion(this.getAttribute('data-editorial-id'), this.getAttribute('data-editorial-nombre'))">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro de que deseas eliminar la editorial <span id="editorialNombre"></span>?
+            Esta acción no se puede deshacer.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <form id="deleteForm" method="post">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="editorialScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar DataTables
+        if (document.querySelector('.tabla-datos')) {
+          new DataTable('.tabla-datos', {
+            language: {
+              url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+            }
+          });
+        }
+      });
+
+      function confirmarEliminacion(id, nombre) {
+        document.getElementById('editorialNombre').textContent = nombre;
+        document.getElementById('deleteForm').action = '/admin/editoriales/eliminar/' + id;
+        
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+      }
+    </script>
+  </th:block>
+</body>
+</html>

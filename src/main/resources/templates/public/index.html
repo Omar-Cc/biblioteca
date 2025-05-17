@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Biblioteca Virtual - Inicio',
+          pageAdditionalCss=~{::indexCss},
+          pageContent=~{::indexContent},
+          pageAdditionalScripts=~{::indexScripts}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico -->
+  <th:block th:fragment="indexCss">
+    <style>
+      .book-card {
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        height: 100%;
+      }
+
+      .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .book-cover-home {
+        height: 250px;
+        object-fit: cover;
+      }
+
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2rem;
+      }
+
+      .cta-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.8),
+            rgba(0, 0, 0, 0.8)),
+          url("https://images.unsplash.com/photo-1535905557558-afc4877a26fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
+        padding: 80px 0;
+      }
+
+      .hover-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      .category-card {
+        transition: transform 0.3s;
+        border: none;
+      }
+
+      .category-card:hover {
+        transform: scale(1.03);
+      }
+
+      .testimonial-card {
+        transition: transform 0.3s;
+      }
+
+      .testimonial-card:hover {
+        transform: translateY(-5px);
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido principal -->
+  <th:block th:fragment="indexContent">
+    <!-- Hero Section -->
+    <section class="hero-section text-center py-5"
+      style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80'); background-size: cover; background-position: center; color: white;">
+      <div class="container py-4">
+        <h1 class="display-3 fw-bold mb-3 animate__animated animate__fadeIn">Tu Biblioteca Digital</h1>
+        <p class="lead fs-4 mb-4 animate__animated animate__fadeIn animate__delay-1s">
+          Explora nuestra colección de miles de libros disponibles para préstamo en cualquier momento y lugar
+        </p>
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-6">
+            <form id="searchForm" class="d-flex shadow-lg mb-3" th:action="@{/catalogo}" method="get">
+              <input class="form-control form-control-lg me-2" type="search" name="tituloObra"
+                placeholder="¿Qué quieres leer hoy?" aria-label="Buscar" aria-describedby="button-search" required />
+              <button class="btn btn-primary btn-lg" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+            <div class="d-flex justify-content-center gap-3 mt-4 animate__animated animate__fadeIn animate__delay-2s">
+              <a th:href="@{/catalogo}" class="btn btn-outline-light">Ver catálogo</a>
+              <a th:href="@{/suscripciones}" class="btn btn-light">Planes <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Características principales -->
+    <section class="container pb-5">
+      <h2 class="text-center mb-5 fw-bold">¿Por qué elegir BiblioVirtual?</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card text-center h-100 border-0 shadow-sm hover-card">
+            <div class="card-body p-4">
+              <div class="feature-icon bg-primary-subtle text-primary mb-4">
+                <i class="bi bi-laptop"></i>
+              </div>
+              <h3 class="card-title h4 mb-3">Lee en cualquier dispositivo</h3>
+              <p class="card-text text-muted">
+                Accede a tu biblioteca personal desde cualquier dispositivo: ordenadores, tablets,
+                smartphones e incluso lectores de e-books.
+              </p>
+              <div class="mt-4">
+                <a href="#" class="text-decoration-none">Más información <i class="bi bi-arrow-right ms-1"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center h-100 border-0 shadow-sm hover-card">
+            <div class="card-body p-4">
+              <div class="feature-icon bg-success-subtle text-success mb-4">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <h3 class="card-title h4 mb-3">Disponible 24/7</h3>
+              <p class="card-text text-muted">
+                Nuestra biblioteca virtual nunca cierra. Accede cuando quieras, donde quieras, sin esperas
+                ni horarios limitados.
+              </p>
+              <div class="mt-4">
+                <a href="#" class="text-decoration-none">Más información <i class="bi bi-arrow-right ms-1"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center h-100 border-0 shadow-sm hover-card">
+            <div class="card-body p-4">
+              <div class="feature-icon bg-danger-subtle text-danger mb-4">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <h3 class="card-title h4 mb-3">100% Seguro</h3>
+              <p class="card-text text-muted">
+                Tu información personal y hábitos de lectura están protegidos con los más altos estándares
+                de seguridad y privacidad.
+              </p>
+              <div class="mt-4">
+                <a href="#" class="text-decoration-none">Más información <i class="bi bi-arrow-right ms-1"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categorías Populares -->
+    <section class="container pb-5">
+      <h2 class="text-center mb-5 fw-bold">Explora por categorías</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card text-white h-100 overflow-hidden category-card">
+            <img
+              src="https://images.unsplash.com/photo-1519791883288-dc8bd696e667?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
+              class="card-img" alt="Ficción">
+            <div class="card-img-overlay d-flex flex-column justify-content-end"
+              style="background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2));">
+              <h5 class="card-title h3 fw-bold">Ficción</h5>
+              <p class="card-text">
+                Explora mundos imaginarios y cautivadoras historias.
+              </p>
+              <a th:href="@{/catalogo(genero=Ficción)}" class="btn btn-primary mt-2">Ver libros</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white h-100 overflow-hidden category-card">
+            <img
+              src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
+              class="card-img" alt="No Ficción">
+            <div class="card-img-overlay d-flex flex-column justify-content-end"
+              style="background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2));">
+              <h5 class="card-title h3 fw-bold">No Ficción</h5>
+              <p class="card-text">
+                Descubre conocimientos y hechos del mundo real.
+              </p>
+              <a th:href="@{/catalogo(genero='No Ficción')}" class="btn btn-success mt-2">Ver libros</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white h-100 overflow-hidden category-card">
+            <img
+              src="https://images.unsplash.com/photo-1471970471555-19d4b113e9ed?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
+              class="card-img" alt="Infantil">
+            <div class="card-img-overlay d-flex flex-column justify-content-end"
+              style="background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2));">
+              <h5 class="card-title h3 fw-bold">Infantil</h5>
+              <p class="card-text">
+                Literatura para los pequeños lectores.
+              </p>
+              <a th:href="@{/catalogo(genero=Infantil)}" class="btn btn-danger mt-2">Ver libros</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <a th:href="@{/catalogo}" class="btn btn-outline-dark">Ver todas las categorías <i
+            class="bi bi-grid ms-1"></i></a>
+      </div>
+    </section>
+
+    <!-- Libros Destacados -->
+    <section class="container pb-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Libros Destacados</h2>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary" id="prev-featured">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-primary" id="next-featured">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+      <div class="featured-books-carousel position-relative">
+        <div class="row g-4 featured-books-container">
+          <div th:if="${contenidosDestacados == null || contenidosDestacados.isEmpty()}" class="col-12">
+            <div class="alert alert-info">
+              Próximamente añadiremos libros destacados a nuestra colección.
+            </div>
+          </div>
+          <div th:each="contenido : ${contenidosDestacados}" class="col-lg-3 col-md-6">
+            <div class="card book-card h-100 border-0 shadow-sm">
+              <div class="position-relative">
+                <img th:if="${contenido.portadaUrl}" th:src="${contenido.portadaUrl}"
+                  class="card-img-top book-cover-home" th:alt="${contenido.obra?.titulo ?: 'Libro'}">
+                <img th:unless="${contenido.portadaUrl}" th:src="@{/img/portada-default.jpg}"
+                  class="card-img-top book-cover-home" th:alt="${contenido.obra?.titulo ?: 'Libro'}">
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="badge bg-success" th:if="${contenido.activo}">Disponible</span>
+                  <span class="badge bg-danger" th:unless="${contenido.activo}">No disponible</span>
+                </div>
+                <h5 class="card-title" th:text="${contenido.obra.titulo}">Título del libro</h5>
+                <p class="card-text text-muted" th:text="${contenido.obra?.autores != null && !contenido.obra.autores.empty ? 
+                contenido.obra.autores[0].nombre : 'Autor desconocido'}">Autor del libro</p>
+                <div class="d-grid">
+                  <a th:href="@{/catalogo/contenido/{id}(id=${contenido.id})}" class="btn btn-outline-primary">Ver
+                    detalles</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div th:if="${contenidosDestacados == null || contenidosDestacados.isEmpty()}" class="col-lg-3 col-md-6">
+            <div class="card book-card h-100 border-0 shadow-sm">
+              <div class="position-relative">
+                <img src="https://m.media-amazon.com/images/I/71FTb9X6wsL._AC_UF1000,1000_QL80_.jpg"
+                  class="card-img-top book-cover-home" alt="Cien años de soledad">
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="badge bg-success">Disponible</span>
+                </div>
+                <h5 class="card-title">Cien años de soledad</h5>
+                <p class="card-text text-muted">Gabriel García Márquez</p>
+                <div class="d-grid">
+                  <a th:href="@{/catalogo}" class="btn btn-outline-primary">Ver detalles</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <a th:href="@{/catalogo}" class="btn btn-primary btn-lg">Ver catálogo completo <i
+            class="bi bi-arrow-right ms-1"></i></a>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section mb-5 py-5">
+      <div class="container py-4">
+        <div class="row align-items-center">
+          <div class="col-lg-8 text-center text-lg-start">
+            <h2 class="display-4 fw-bold text-white mb-3">¿Listo para sumergirte en la lectura?</h2>
+            <p class="lead text-white mb-4">Elige entre miles de títulos. Comienza hoy con una prueba gratuita.</p>
+            <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+              <a th:href="@{/suscripciones}" class="btn btn-primary btn-lg">
+                <i class="bi bi-book me-2"></i>Ver planes
+              </a>
+
+              <!-- Mostrar "Registrarme Gratis" solo para usuarios no autenticados -->
+              <a sec:authorize="isAnonymous()" th:href="@{/registro}" class="btn btn-light btn-lg">
+                <i class="bi bi-person-plus me-2"></i>Registrarme Gratis
+              </a>
+
+              <!-- Mostrar "Mi Biblioteca" para usuarios ya autenticados -->
+              <a sec:authorize="isAuthenticated()" th:href="@{/mis-prestamos}" class="btn btn-light btn-lg">
+                <i class="bi bi-collection-fill me-2"></i>Mi Biblioteca
+              </a>
+            </div>
+          </div>
+          <div class="col-lg-4 d-none d-lg-block">
+            <div class="text-center text-white mt-5 mt-lg-0">
+              <div class="bg-white rounded-circle p-4 mx-auto mb-3" style="width: 120px; height: 120px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/2702/2702069.png" alt="Ebook icon" class="img-fluid"
+                  style="max-width: 60px;">
+              </div>
+              <div class="text-center mt-3">
+                <h3 class="h4 mb-2">+10,000 libros</h3>
+                <p>Disponibles en nuestra biblioteca</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonios -->
+    <section class="container mb-5">
+      <h2 class="text-center mb-3 fw-bold">Lo que dicen nuestros usuarios</h2>
+
+      <div class="position-relative testimonial-carousel">
+        <div class="d-flex justify-content-end gap-2 mb-3">
+          <button class="btn btn-sm btn-outline-primary rounded-circle" id="prev-testimonial">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-primary rounded-circle" id="next-testimonial">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="row g-4 testimonials-container">
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm testimonial-card">
+              <div class="card-body p-4">
+                <div class="mb-3">
+                  <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
+                </div>
+                <p class="card-text fs-5 mb-4">
+                  "BiblioVirtual ha transformado mi experiencia de lectura. Puedo acceder a mis libros
+                  favoritos desde cualquier lugar y en cualquier momento. ¡Increíble servicio!"
+                </p>
+                <div class="mt-auto">
+                  <div class="mb-3">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <img src="https://randomuser.me/api/portraits/women/12.jpg" class="rounded-circle me-3" width="60"
+                      height="60" alt="Usuario" style="object-fit: cover;">
+                    <div>
+                      <h6 class="mb-0 fw-bold">Laura Martínez</h6>
+                      <small class="text-muted">Profesora</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm testimonial-card">
+              <div class="card-body p-4">
+                <div class="mb-3">
+                  <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
+                </div>
+                <p class="card-text fs-5 mb-4">
+                  "Como estudiante, esta plataforma ha sido fundamental para mis investigaciones. La
+                  variedad
+                  de títulos académicos es impresionante. ¡Muy recomendado!"
+                </p>
+                <div class="mt-auto">
+                  <div class="mb-3">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-half text-warning"></i>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle me-3" width="60"
+                      height="60" alt="Usuario" style="object-fit: cover;">
+                    <div>
+                      <h6 class="mb-0 fw-bold">Carlos Gómez</h6>
+                      <small class="text-muted">Estudiante</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm testimonial-card">
+              <div class="card-body p-4">
+                <div class="mb-3">
+                  <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
+                </div>
+                <p class="card-text fs-5 mb-4">
+                  "La interfaz es muy intuitiva y la selección de libros infantiles es excelente. Mis
+                  hijos
+                  han desarrollado el hábito de la lectura gracias a BiblioVirtual."
+                </p>
+                <div class="mt-auto">
+                  <div class="mb-3">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <i class="bi bi-star text-warning"></i>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <img src="https://randomuser.me/api/portraits/women/67.jpg" class="rounded-circle me-3" width="60"
+                      height="60" alt="Usuario" style="object-fit: cover;">
+                    <div>
+                      <h6 class="mb-0 fw-bold">Ana Torres</h6>
+                      <small class="text-muted">Madre de familia</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección de Documentos Legales -->
+    <section class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+          <h2 class="fw-bold mb-4">Documentos Legales</h2>
+          <p class="lead mb-5">En BiblioVirtual estamos comprometidos con la transparencia y el cumplimiento de la
+            normativa aplicable. Puedes consultar nuestros documentos legales aquí.</p>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm hover-card">
+            <div class="card-body p-4 text-center">
+              <div class="feature-icon bg-primary-subtle text-primary mb-4">
+                <i class="bi bi-file-text fs-1"></i>
+              </div>
+              <h3 class="card-title h4">Términos y Condiciones</h3>
+              <p class="card-text text-muted mb-4">Consulta los términos que rigen el uso de nuestra plataforma.</p>
+              <a th:href="@{/terminos}" class="btn btn-outline-primary">Ver documento</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm hover-card">
+            <div class="card-body p-4 text-center">
+              <div class="feature-icon bg-success-subtle text-success mb-4">
+                <i class="bi bi-shield-lock fs-1"></i>
+              </div>
+              <h3 class="card-title h4">Política de Privacidad</h3>
+              <p class="card-text text-muted mb-4">Conoce cómo tratamos y protegemos tus datos personales.</p>
+              <a th:href="@{/privacidad}" class="btn btn-outline-success">Ver documento</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm hover-card">
+            <div class="card-body p-4 text-center">
+              <div class="feature-icon bg-danger-subtle text-danger mb-4">
+                <i class="bi bi-journal-check fs-1"></i>
+              </div>
+              <h3 class="card-title h4">Licencias de Contenido</h3>
+              <p class="card-text text-muted mb-4">Revisa las licencias y permisos de uso del contenido digital.</p>
+              <a th:href="@{/licencias}" class="btn btn-outline-danger">Ver documento</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </th:block>
+
+  <th:block th:fragment="indexScripts">
+    <script>
+      // Código específico para la página de inicio
+      document.addEventListener('DOMContentLoaded', function () {
+        // Inicializar carrusel de libros destacados
+        const featuredContainer = document.querySelector('.featured-books-container');
+        const prevFeatured = document.getElementById('prev-featured');
+        const nextFeatured = document.getElementById('next-featured');
+
+        if (featuredContainer && prevFeatured && nextFeatured) {
+          // Botón anterior
+          prevFeatured.addEventListener('click', function () {
+            featuredContainer.scrollBy({
+              left: -300,
+              behavior: 'smooth'
+            });
+          });
+
+          // Botón siguiente
+          nextFeatured.addEventListener('click', function () {
+            featuredContainer.scrollBy({
+              left: 300,
+              behavior: 'smooth'
+            });
+          });
+        }
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

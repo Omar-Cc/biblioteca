@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Catálogo - Biblioteca Virtual',
+          pageAdditionalCss=~{::catalogoCss},
+          pageContent=~{::catalogoContent},
+          pageAdditionalScripts=~{}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico de la página de catálogo -->
+  <th:block th:fragment="catalogoCss">
+    <style>
+      .book-cover {
+        height: 60px;
+        width: 40px;
+        object-fit: cover;
+      }
+
+      .book-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .book-card img {
+        height: 180px;
+        width: 100%;
+        object-fit: cover;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .book-card .card-img-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        height: 180px;
+        margin-bottom: 0.5rem;
+      }
+
+      .btn-view-toggle.active {
+        background-color: #2D6E7E;
+        color: white;
+      }
+
+      .book-card:hover .info-default {
+        display: none;
+      }
+
+      .book-card:hover .actions-hover {
+        display: inline !important;
+      }
+
+      @media (max-width: 767px) {
+
+        .book-card {
+          flex-direction: row !important;
+        }
+
+        .book-card .card-img-container {
+          width: 100px;
+          min-width: 100px;
+          height: auto;
+          padding: 0.5rem;
+        }
+
+        .book-card img.book-cover-side {
+          height: 150px;
+          width: 100%;
+          object-fit: cover;
+        }
+
+        .book-card .card-body {
+          padding: 0.75rem;
+          flex-grow: 1;
+        }
+
+        .book-card .card-title {
+          font-size: 1rem;
+        }
+
+        .book-card .card-text {
+          font-size: 0.875rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .book-card .btn {
+          font-size: 0.875rem;
+          padding: 0.25rem 0.5rem;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .book-card {
+          flex-direction: column;
+        }
+
+        .book-card .card-img-container {
+          width: auto;
+          height: 180px;
+        }
+
+        .book-card img.book-cover-side {
+          height: 100%;
+          width: auto;
+          max-width: 120px;
+          margin: 0 auto;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido principal de la página de catálogo -->
+  <th:block th:fragment="catalogoContent">
+    <!-- Hero Section -->
+    <section class="hero-section text-center py-5">
+      <div class="container">
+        <h1 class="display-4">Catálogo Completo</h1>
+        <p class="lead">Explora nuestra vasta colección de conocimiento y entretenimiento.</p>
+      </div>
+    </section>
+
+    <main class="container-fluid mt-4">
+      <!-- Filtros -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-funnel me-2"></i>Filtros avanzados
+          </h5>
+        </div>
+        <div class="card-body">
+          <form th:action="@{/catalogo}" method="get" class="row g-3">
+            <div class="col-md-3">
+              <label for="filtroTituloObra" class="form-label">Título de la Obra</label>
+              <input type="text" class="form-control" id="filtroTituloObra" name="tituloObra"
+                th:value="${filtroTituloObra}">
+            </div>
+            <div class="col-md-3">
+              <label for="filtroEditorial" class="form-label">Editorial</label>
+              <select class="form-select" id="filtroEditorial" name="editorialId">
+                <option value="">Todas</option>
+                <option th:each="editorial : ${editoriales}" th:value="${editorial.id}" th:text="${editorial.nombre}"
+                  th:selected="${filtroEditorialId != null && editorial.id == filtroEditorialId}"></option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="filtroTipoContenido" class="form-label">Tipo de Contenido</label>
+              <select class="form-select" id="filtroTipoContenido" name="tipo">
+                <option value="">Todos</option>
+                <option th:each="tipoOpt : ${tiposContenido}" th:value="${tipoOpt}"
+                  th:text="${tipoOpt.toString().replace('_', ' ').toLowerCase()}"
+                  th:selected="${filtroTipo != null && tipoOpt == filtroTipo}"></option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label for="filtroIsbn" class="form-label">ISBN</label>
+              <input type="text" class="form-control" id="filtroIsbn" name="isbn" th:value="${filtroIsbn}">
+            </div>
+            <!-- Filtro por Serie -->
+            <!--
+                      <div class="col-md-4">
+                          <label for="filtroSerie" class="form-label">Serie</label>
+                          <select class="form-select" id="filtroSerie" name="serieId">
+                              <option value="">Todas</option>
+                              <option th:each="serie : ${series}"
+                                      th:value="${serie.id}"
+                                      th:text="${serie.nombre}"
+                                      th:selected="${filtroSerieId != null && serie.id == filtroSerieId}"></option>
+                          </select>
+                      </div>
+                      -->
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary">Filtrar</button>
+              <a th:href="@{/catalogo}" class="btn btn-secondary">Limpiar Filtros</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Resultados del Catálogo -->
+      <div th:if="${#lists.isEmpty(contenidos)}" class="alert alert-info" role="alert">
+        No se encontraron contenidos que coincidan con los filtros aplicados.
+      </div>
+
+      <div id="gridView" class="row g-3" th:unless="${#lists.isEmpty(contenidos)}">
+        <!-- Iterar sobre los contenidos -->
+        <div class="col-md-4 col-lg-2 mb-4" th:each="contenido : ${contenidos}">
+          <div class="card book-card h-100 shadow-sm">
+            <div class="card-img-container">
+              <img
+                th:src="${contenido.portadaUrl != null ? contenido.portadaUrl : 'https://via.placeholder.com/120x180.png?text=Sin+Portada'}"
+                class="card-img-top book-cover-side" th:alt="${contenido.obra?.titulo}">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title" style="min-height: 48px;"
+                th:text="${contenido.obra?.titulo ?: 'Título no disponible'} + (${contenido.serie?.ordenEnSerie != null} ? ' Vol. ' + ${contenido.serie.ordenEnSerie} : '')">
+                Título del Libro
+              </h5>
+              <p class="card-text small text-muted mb-0"
+                th:text="${contenido.obra?.autores != null && !#lists.isEmpty(contenido.obra.autores) ? #strings.listJoin(contenido.obra.autores.![nombre], ', ') : 'Autor desconocido'}">
+                Autor(es)
+              </p>
+              <p class="card-text small info-default"
+                th:text="${#strings.abbreviate(contenido.sinopsis, 100) ?: 'Sin sinopsis.'}">
+                Breve descripción del libro...
+              </p>
+              <div class="row mt-auto">
+                <span class="text-muted small info-default"
+                  th:text="${'Tipo: ' + contenido.tipo.toString().replace('_', ' ').toLowerCase()}">Tipo</span>
+                <span class="info-default fw-bold fs-5 float-end" th:text="${'S/  ' + (contenido.precio / 100.0)}">Precio</span>
+              </div>
+              <div class="actions-hover d-none mt-auto">
+                <span class="badge bg-success w-100">
+                </span>
+                <a th:href="@{'/catalogo/contenido/' + ${contenido.id}}"
+                  class="btn btn-sm btn-outline-primary w-100 mb-2">Ver
+                  Detalles</a>
+                <!-- Otros botones como "Añadir al carrito" si aplica -->
+                <a th:href="@{'/catalogo/prestamo/' + ${contenido.id}}"
+                  class="btn btn-sm btn-outline-secondary w-100  mb-2">Solicitar
+                  Préstamo</a>
+                <!-- Boton para Agregar al carrito -->
+                <a th:href="@{'/mi-cuenta/carrito/agregar-rapido/' + ${contenido.id}}"
+                  class="btn btn-sm btn-outline-secondary w-100  mb-2">Agregar al Carrito</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+  </th:block>
+
+</body>
+
+</html>

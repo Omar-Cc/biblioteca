@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Beneficios del Plan',
+          pageAdditionalCss=~{::planBeneficiosCss},
+          pageContent=~{::planBeneficiosContent},
+          pageAdditionalScripts=~{::planBeneficiosScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="planBeneficiosCss">
+    <!-- CSS específico -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="planBeneficiosContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="h3 mb-0">Beneficios del Plan</h1>
+        <p class="text-muted mb-0" th:text="${plan.nombre}"></p>
+      </div>
+      <div>
+        <a th:href="@{/admin/planes-beneficios/asociar(planId=${plan.id})}" class="btn btn-primary me-2">
+          <i class="bi bi-plus-circle me-2"></i>Añadir Beneficio
+        </a>
+        <a th:href="@{/admin/planes}" class="btn btn-secondary">
+          <i class="bi bi-arrow-left me-1"></i> Volver a Planes
+        </a>
+      </div>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      <span th:text="${mensaje}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Tabla de beneficios asociados -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Beneficios Asociados</h5>
+      </div>
+      <div class="card-body">
+        <div th:if="${#lists.isEmpty(beneficiosAsociados)}" class="alert alert-info">
+          Este plan no tiene beneficios asociados. Añade beneficios utilizando el botón "Añadir Beneficio".
+        </div>
+        <div th:unless="${#lists.isEmpty(beneficiosAsociados)}" class="table-responsive">
+          <table class="table table-striped datatable">
+            <thead>
+              <tr>
+                <th>Beneficio</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Valor</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="asociacion : ${beneficiosAsociados}">
+                <td>
+                  <i th:if="${asociacion.beneficio.icono}" th:class="${asociacion.beneficio.icono} + ' me-2'"></i>
+                  <span th:text="${asociacion.beneficio.nombre}"></span>
+                </td>
+                <td th:text="${asociacion.beneficio.descripcion}"></td>
+                <td th:text="${asociacion.beneficio.tipoDato}"></td>
+                <td th:text="${asociacion.valor ?: '-'}"></td>
+                <td>
+                  <span th:if="${asociacion.activo}" class="badge bg-success">Activo</span>
+                  <span th:unless="${asociacion.activo}" class="badge bg-danger">Inactivo</span>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a th:href="@{/admin/planes-beneficios/{planId}/{beneficioId}/editar(planId=${plan.id}, beneficioId=${asociacion.beneficio.id})}"
+                      class="btn btn-sm btn-outline-primary" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <form th:if="${asociacion.activo}"
+                      th:action="@{/admin/planes-beneficios/{planId}/{beneficioId}/cambiar-estado(planId=${plan.id}, beneficioId=${asociacion.beneficio.id})}"
+                      method="post" style="display: inline;">
+                      <input type="hidden" name="activar" value="false">
+                      <button type="submit" class="btn btn-sm btn-outline-warning" title="Desactivar">
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    </form>
+                    <form th:unless="${asociacion.activo}"
+                      th:action="@{/admin/planes-beneficios/{planId}/{beneficioId}/cambiar-estado(planId=${plan.id}, beneficioId=${asociacion.beneficio.id})}"
+                      method="post" style="display: inline;">
+                      <input type="hidden" name="activar" value="true">
+                      <button type="submit" class="btn btn-sm btn-outline-success" title="Activar">
+                        <i class="bi bi-check-circle"></i>
+                      </button>
+                    </form>
+                    <form
+                      th:action="@{/admin/planes-beneficios/{planId}/{beneficioId}/eliminar(planId=${plan.id}, beneficioId=${asociacion.beneficio.id})}"
+                      method="post" style="display: inline;"
+                      onsubmit="return confirm('¿Estás seguro de eliminar esta asociación?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario para asociar múltiples beneficios -->
+    <div class="card mt-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Asociar Múltiples Beneficios</h5>
+      </div>
+      <div class="card-body">
+        <form th:action="@{/admin/planes-beneficios/asociar-varios/{planId}(planId=${plan.id})}" method="post">
+          <div class="mb-3">
+            <label class="form-label">Selecciona Beneficios</label>
+            <div class="row">
+              <div th:each="beneficio : ${beneficiosDisponibles}" class="col-md-4 mb-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="beneficiosIds" th:value="${beneficio.id}"
+                    th:id="'beneficio-' + ${beneficio.id}"
+                    th:disabled="${#lists.contains(beneficiosAsociados.![beneficio.id], beneficio.id)}">
+                  <label class="form-check-label" th:for="'beneficio-' + ${beneficio.id}">
+                    <i th:if="${beneficio.icono}" th:class="${beneficio.icono} + ' me-1'"></i>
+                    <span th:text="${beneficio.nombre}"></span>
+                    <span th:if="${#lists.contains(beneficiosAsociados.![beneficio.id], beneficio.id)}"
+                      class="badge bg-info ms-1">Ya asociado</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="activoMultiple" name="activo" value="true" checked>
+              <label class="form-check-label" for="activoMultiple">
+                Activar beneficios asociados
+              </label>
+            </div>
+          </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="submit" class="btn btn-primary">Asociar Seleccionados</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="planBeneficiosScripts">
+    <!-- Scripts específicos -->
+  </th:block>
+</body>
+
+</html>

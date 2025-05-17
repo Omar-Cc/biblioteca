@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Biblioteca Virtual - Detalle del Plan',
+          pageAdditionalCss=~{::planDetalleCss},
+          pageContent=~{::planDetalleContent},
+          pageAdditionalScripts=~{::planDetalleScripts}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico -->
+  <th:block th:fragment="planDetalleCss">
+    <style>
+      .plan-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 5rem 0;
+      }
+
+      .feature-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.75rem;
+      }
+
+      .benefit-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        border: none;
+        height: 100%;
+      }
+
+      .benefit-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      .price-tag {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .price-period {
+        font-size: 1rem;
+        color: #6c757d;
+      }
+
+      .testimonial-avatar {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+      }
+
+      .timeline-step {
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .timeline-icon {
+        width: 50px;
+        height: 50px;
+        background-color: var(--bs-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        margin-right: 1.5rem;
+      }
+
+      .timeline-content {
+        flex-grow: 1;
+        padding-bottom: 2rem;
+        position: relative;
+      }
+
+      .timeline-content:after {
+        content: '';
+        position: absolute;
+        left: -36px;
+        top: 50px;
+        bottom: 0;
+        width: 3px;
+        background-color: #e9ecef;
+      }
+
+      .timeline-step:last-child .timeline-content {
+        padding-bottom: 0;
+      }
+
+      .timeline-step:last-child .timeline-content:after {
+        display: none;
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido principal -->
+  <th:block th:fragment="planDetalleContent">
+    <!-- Header del Plan -->
+    <section class="plan-header">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <h1 class="display-4 fw-bold mb-4" th:text="${plan?.nombre ?: 'Detalle del Plan'}">Nombre del Plan</h1>
+            <p class="lead fs-4 mb-0" th:text="${plan?.descripcion ?: 'Descripción del plan'}">Descripción completa del
+              plan</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detalles del Plan -->
+    <section class="container py-5">
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+              <h2 class="card-title fw-bold mb-4">Características del Plan</h2>
+
+              <div th:if="${plan != null}">
+                <div class="mb-4">
+                  <h5 class="mb-3">Descripción</h5>
+                  <p th:text="${plan.descripcion}">Descripción completa del plan...</p>
+                </div>
+
+                <!-- SECCIÓN DE CARACTERÍSTICAS COMENTADA/ELIMINADA -->
+
+                <div class="mb-4">
+                  <h5 class="mb-3">Características incluidas</h5>
+
+                  <!-- Cuando hay beneficios, mostrarlos en dos columnas -->
+                  <div class="row" th:if="${beneficiosAsociados != null && !beneficiosAsociados.isEmpty()}">
+                    <div class="col-md-6">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item border-0 ps-0" th:each="beneficio, iterStat : ${beneficiosAsociados}"
+                          th:if="${iterStat.index % 2 == 0}">
+                          <i class="bi bi-check-circle-fill text-success me-2"></i>
+                          <span th:text="${beneficio.beneficio.nombre}">Característica</span>
+                          <p class="text-muted mb-0" th:text="${beneficio.beneficio.descripcion}">Descripción de la
+                            característica...</p>
+                          <p class="text-muted mb-0" th:if="${beneficio.valor}">
+                            <label th:text="${'(' + beneficio.valor + ')'}" class="small">Valor del beneficio</label>
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-md-6">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item border-0 ps-0" th:each="beneficio, iterStat : ${beneficiosAsociados}"
+                          th:if="${iterStat.index % 2 == 1}">
+                          <i class="bi bi-check-circle-fill text-success me-2"></i>
+                          <span th:text="${beneficio.beneficio.nombre}">Característica</span>
+                          <p class="text-muted mb-0" th:text="${beneficio.beneficio.descripcion}">Descripción de la
+                            característica...</p>
+                          <p class="text-muted mb-0" th:if="${beneficio.valor}">
+                            <label th:text="${'(' + beneficio.valor + ')'}" class="small">Valor del beneficio</label>
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Mensaje cuando no hay beneficios -->
+                  <div class="text-muted" th:unless="${beneficiosAsociados != null && !beneficiosAsociados.isEmpty()}">
+                    No hay características disponibles
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contenido estático para mostrar si el plan no está disponible -->
+              <div th:if="${plan == null}">
+                <div class="alert alert-warning">
+                  <h5 class="alert-heading">Información no disponible</h5>
+                  <p>Los detalles de este plan no están disponibles en este momento.</p>
+                </div>
+
+                <div class="mb-4">
+                  <h5 class="mb-3">Características generales</h5>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-0 ps-0">
+                      <i class="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Acceso a cientos de libros digitales</span>
+                    </li>
+                    <li class="list-group-item border-0 ps-0">
+                      <i class="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Préstamos de libros según plan</span>
+                    </li>
+                    <li class="list-group-item border-0 ps-0">
+                      <i class="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Lectura en múltiples dispositivos</span>
+                    </li>
+                    <li class="list-group-item border-0 ps-0">
+                      <i class="bi bi-check-circle-fill text-success me-2"></i>
+                      <span>Soporte técnico</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proceso de suscripción -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+              <h2 class="card-title fw-bold mb-4">Cómo suscribirse</h2>
+
+              <div class="timeline-steps">
+                <div class="timeline-step">
+                  <div class="timeline-icon">
+                    <i class="bi bi-1-circle"></i>
+                  </div>
+                  <div class="timeline-content">
+                    <h5 class="fw-bold">Selecciona tu plan</h5>
+                    <p>Elige el plan que mejor se adapte a tus necesidades de lectura entre nuestras opciones
+                      disponibles.</p>
+                  </div>
+                </div>
+
+                <div class="timeline-step">
+                  <div class="timeline-icon">
+                    <i class="bi bi-2-circle"></i>
+                  </div>
+                  <div class="timeline-content">
+                    <h5 class="fw-bold">Crea tu cuenta</h5>
+                    <p>Si aún no tienes una cuenta, regístrate con tu correo electrónico y crea una contraseña segura.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="timeline-step">
+                  <div class="timeline-icon">
+                    <i class="bi bi-3-circle"></i>
+                  </div>
+                  <div class="timeline-content">
+                    <h5 class="fw-bold">Configura tu método de pago</h5>
+                    <p>Ingresa los datos de tu tarjeta de crédito/débito o selecciona PayPal para realizar el pago.</p>
+                  </div>
+                </div>
+
+                <div class="timeline-step">
+                  <div class="timeline-icon">
+                    <i class="bi bi-4-circle"></i>
+                  </div>
+                  <div class="timeline-content">
+                    <h5 class="fw-bold">¡Comienza a leer!</h5>
+                    <p>Una vez completado el pago, tendrás acceso inmediato a todo el catálogo incluido en tu plan.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ específicas del plan -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+              <h2 class="card-title fw-bold mb-4">Preguntas frecuentes</h2>
+
+              <div class="accordion" id="accordionPlanFAQ">
+                <div class="accordion-item mb-3 border-0 shadow-sm">
+                  <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                      ¿Puedo cambiar de plan después de suscribirme?
+                    </button>
+                  </h2>
+                  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                    data-bs-parent="#accordionPlanFAQ">
+                    <div class="accordion-body">
+                      Sí, puedes cambiar tu plan en cualquier momento. El cambio se hará efectivo al inicio del
+                      siguiente ciclo de facturación.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item mb-3 border-0 shadow-sm">
+                  <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      ¿Qué sucede si cancelo mi suscripción?
+                    </button>
+                  </h2>
+                  <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                    data-bs-parent="#accordionPlanFAQ">
+                    <div class="accordion-body">
+                      Si cancelas tu suscripción, podrás seguir disfrutando de los beneficios del plan hasta el final
+                      del periodo pagado. Después de esa fecha, ya no tendrás acceso al contenido premium.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item mb-3 border-0 shadow-sm">
+                  <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      ¿Hay algún compromiso de permanencia?
+                    </button>
+                  </h2>
+                  <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                    data-bs-parent="#accordionPlanFAQ">
+                    <div class="accordion-body">
+                      No, no existe ningún compromiso de permanencia. Puedes cancelar tu suscripción en cualquier
+                      momento sin penalizaciones.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar con precio y botón de acción -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+          <div class="card border-0 shadow-sm sticky-lg-top" style="top: 100px; z-index: 100;">
+            <div class="card-body p-4 text-center">
+              <h3 class="card-title mb-4" th:text="${plan?.nombre ?: 'Plan'}">Nombre del Plan</h3>
+
+              <div class="mb-4">
+                <span class="price-tag"
+                  th:text="${plan != null ? 'S/ ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 2, 'POINT') : '$XX.XX'}">$XX.XX</span>
+                <span class="price-period" th:text="${plan != null ? '/' + plan.periodoFacturacion : '/periodo'}">/
+                  periodo</span>
+              </div>
+
+              <p class="card-text mb-4" th:text="${plan?.descripcionCorta ?: 'Descripción breve del plan'}">
+                Descripción breve del plan...
+              </p>
+
+              <div class="d-grid gap-2">
+                <a href="#" class="btn btn-primary btn-lg">Suscribirse ahora</a>
+                <a th:href="@{/planes}" class="btn btn-outline-secondary">Ver todos los planes</a>
+              </div>
+
+              <div class="mt-4 text-start">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-shield-check text-success fs-4 me-3"></i>
+                  <span>Cancelación gratuita</span>
+                </div>
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-credit-card text-success fs-4 me-3"></i>
+                  <span>Pago seguro</span>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-clock-history text-success fs-4 me-3"></i>
+                  <span>7 días de prueba gratis</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonios específicos del plan -->
+    <section class="container py-5">
+      <h2 class="text-center fw-bold mb-5">Lo que dicen nuestros usuarios</h2>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+              <div class="mb-3">
+                <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
+              </div>
+              <p class="card-text mb-4">
+                "Este plan me ha permitido disfrutar de mis libros favoritos sin preocuparme por los costos
+                individuales. Una excelente inversión para cualquier amante de la lectura."
+              </p>
+              <div class="mt-auto">
+                <div class="mb-3">
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                </div>
+                <div class="d-flex align-items-center">
+                  <img src="https://randomuser.me/api/portraits/men/45.jpg"
+                    class="rounded-circle testimonial-avatar me-3" alt="Usuario">
+                  <div>
+                    <h6 class="mb-0 fw-bold">Roberto García</h6>
+                    <small class="text-muted">Suscriptor desde 2023</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+              <div class="mb-3">
+                <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
+              </div>
+              <p class="card-text mb-4">
+                "La relación calidad-precio es inmejorable. He descubierto autores y géneros que nunca habría explorado
+                si tuviera que comprar cada libro individualmente."
+              </p>
+              <div class="mt-auto">
+                <div class="mb-3">
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-half text-warning"></i>
+                </div>
+                <div class="d-flex align-items-center">
+                  <img src="https://randomuser.me/api/portraits/women/28.jpg"
+                    class="rounded-circle testimonial-avatar me-3" alt="Usuario">
+                  <div>
+                    <h6 class="mb-0 fw-bold">María López</h6>
+                    <small class="text-muted">Suscriptora desde 2022</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+              <div class="mb-3">
+                <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
+              </div>
+              <p class="card-text mb-4">
+                "El soporte al cliente es excepcional. Tuve un problema con mi facturación y lo resolvieron en minutos.
+                Además, la biblioteca es extensa y siempre actualizada."
+              </p>
+              <div class="mt-auto">
+                <div class="mb-3">
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star text-warning"></i>
+                </div>
+                <div class="d-flex align-items-center">
+                  <img src="https://randomuser.me/api/portraits/men/22.jpg"
+                    class="rounded-circle testimonial-avatar me-3" alt="Usuario">
+                  <div>
+                    <h6 class="mb-0 fw-bold">Javier Rodríguez</h6>
+                    <small class="text-muted">Suscriptor desde 2023</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section class="bg-primary text-white py-5 mb-5">
+      <div class="container">
+        <div class="row align-items-center justify-content-between">
+          <div class="col-lg-7 text-center text-lg-start">
+            <h2 class="fw-bold mb-3" th:text="'¿Listo para disfrutar del plan ' + ${plan?.nombre ?: ''} + '?'">¿Listo
+              para disfrutar de este plan?</h2>
+            <p class="lead mb-0">Comienza hoy mismo y accede a nuestra extensa biblioteca de contenidos</p>
+          </div>
+          <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
+            <a href="#" class="btn btn-light btn-lg me-2">Suscribirse ahora</a>
+            <a th:href="@{/planes}" class="btn btn-outline-light">Comparar planes</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </th:block>
+
+  <th:block th:fragment="planDetalleScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Animaciones al hacer scroll
+        const animateOnScroll = function () {
+          const cards = document.querySelectorAll('.benefit-card, .timeline-step, .accordion-item');
+
+          cards.forEach(card => {
+            const cardTop = card.getBoundingClientRect().top;
+            const triggerBottom = window.innerHeight * 0.8;
+
+            if (cardTop < triggerBottom) {
+              card.classList.add('animate__animated', 'animate__fadeInUp');
+            }
+          });
+        };
+
+        // Ejecutar al cargar la página
+        animateOnScroll();
+
+        // Ejecutar al hacer scroll
+        window.addEventListener('scroll', animateOnScroll);
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

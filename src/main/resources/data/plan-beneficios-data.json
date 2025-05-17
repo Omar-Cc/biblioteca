@@ -1,0 +1,446 @@
+[
+  {
+    "planId": 1,
+    "beneficioId": 1,
+    "valor": "100",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 2,
+    "valor": "2",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 3,
+    "valor": "3",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 4,
+    "valor": "1",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 7,
+    "valor": "false",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 8,
+    "valor": "false",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 10,
+    "valor": "Básicas",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 11,
+    "valor": "1",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 12,
+    "valor": "Básicas",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 13,
+    "valor": "false",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 14,
+    "valor": "false",
+    "activo": true
+  },
+  {
+    "planId": 1,
+    "beneficioId": 15,
+    "valor": "Básicas",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 1,
+    "valor": "5000+",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 2,
+    "valor": "5",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 3,
+    "valor": "10",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 4,
+    "valor": "2",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 5,
+    "valor": "10",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 6,
+    "valor": "100",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 7,
+    "valor": "false",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 8,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 9,
+    "valor": "Básicos",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 10,
+    "valor": "Completos",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 11,
+    "valor": "1",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 12,
+    "valor": "Detalladas",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 13,
+    "valor": "Acceso",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 14,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 15,
+    "valor": "Avanzadas",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 16,
+    "valor": "1",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 17,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 18,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 2,
+    "beneficioId": 19,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 1,
+    "valor": "100000+",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 2,
+    "valor": "10",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 3,
+    "valor": "20",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 4,
+    "valor": "Automática",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 5,
+    "valor": "15",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 6,
+    "valor": "10000+",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 7,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 8,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 9,
+    "valor": "Avanzados",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 10,
+    "valor": "Personalizables",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 11,
+    "valor": "1",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 12,
+    "valor": "Completas",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 13,
+    "valor": "Acceso y creación",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 14,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 15,
+    "valor": "IA personalizada",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 16,
+    "valor": "1",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 17,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 18,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 19,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 20,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 3,
+    "beneficioId": 21,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 1,
+    "valor": "100000+",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 2,
+    "valor": "25",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 3,
+    "valor": "20",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 4,
+    "valor": "Automática",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 5,
+    "valor": "30",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 6,
+    "valor": "10000+",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 7,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 8,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 9,
+    "valor": "Avanzados",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 10,
+    "valor": "Personalizables",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 11,
+    "valor": "5",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 12,
+    "valor": "Completas",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 13,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 14,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 15,
+    "valor": "IA personalizada",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 16,
+    "valor": "4",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 17,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 18,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 19,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 20,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 21,
+    "valor": "true",
+    "activo": true
+  },
+  {
+    "planId": 4,
+    "beneficioId": 22,
+    "valor": "true",
+    "activo": true
+  }
+]

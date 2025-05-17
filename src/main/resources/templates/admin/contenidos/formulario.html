@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle=${contenidoId != null ? 'Editar Contenido' : 'Nuevo Contenido'},
+          pageAdditionalCss=~{::contenidoFormCss},
+          pageContent=~{::contenidoFormContent},
+          pageAdditionalScripts=~{::contenidoFormScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="contenidoFormCss">
+    <!-- CSS específico para el formulario de autores -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="contenidoFormContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0" th:text="${contenidoId != null ? 'Editar Contenido' : 'Nuevo Contenido'}"></h1>
+      <a th:href="@{/admin/contenidos}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Volver
+      </a>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="${errorMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Formulario de Contenido -->
+    <div class="card">
+      <div class="card-body">
+        <form
+          th:action="${contenidoId != null ? '/admin/contenidos/actualizar/' + contenidoId : '/admin/contenidos/guardar'}"
+          method="post" th:object="${contenidoRequestDTO}">
+
+          <!-- Pestañas para organizar el formulario -->
+          <ul class="nav nav-tabs mb-4" id="contenidoTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general"
+                type="button" role="tab" aria-controls="general" aria-selected="true">
+                Información General
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="detalles-tab" data-bs-toggle="tab" data-bs-target="#detalles" type="button"
+                role="tab" aria-controls="detalles" aria-selected="false">
+                Detalles Específicos
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="series-tab" data-bs-toggle="tab" data-bs-target="#series" type="button"
+                role="tab" aria-controls="series" aria-selected="false">
+                Series
+              </button>
+            </li>
+          </ul>
+
+          <!-- Contenido de las pestañas -->
+          <div class="tab-content" id="contenidoTabsContent">
+            <!-- Pestaña de Información General -->
+            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+              <div class="row g-3">
+                <!-- Tipo de Contenido -->
+                <div class="col-md-6">
+                  <label for="tipo" class="form-label">Tipo de Contenido *</label>
+                  <select class="form-select" id="tipo" th:field="*{tipo}" required>
+                    <option value="">Seleccione un tipo</option>
+                    <option th:each="tipoContenido : ${T(com.biblioteca.enums.TipoContenido).values()}"
+                      th:value="${tipoContenido}" th:text="${tipoContenido.toString().replace('_', ' ')}">
+                    </option>
+                  </select>
+                  <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
+                </div>
+
+                <!-- Obra -->
+                <div class="col-md-6">
+                  <label for="obraId" class="form-label">Obra *</label>
+                  <select class="form-select" id="obraId" th:field="*{obraId}" required>
+                    <option value="">Seleccione una obra</option>
+                    <option th:each="obra : ${obras}" th:value="${obra.id}" th:text="${obra.titulo}">
+                    </option>
+                  </select>
+                  <div class="invalid-feedback" th:if="${#fields.hasErrors('obraId')}" th:errors="*{obraId}"></div>
+                </div>
+
+                <!-- Editorial -->
+                <div class="col-md-6">
+                  <label for="editorialId" class="form-label">Editorial *</label>
+                  <select class="form-select" id="editorialId" th:field="*{editorialId}" required>
+                    <option value="">Seleccione una editorial</option>
+                    <option th:each="editorial : ${editoriales}" th:value="${editorial.id}"
+                      th:text="${editorial.nombre}">
+                    </option>
+                  </select>
+                  <div class="invalid-feedback" th:if="${#fields.hasErrors('editorialId')}" th:errors="*{editorialId}">
+                  </div>
+                </div>
+
+                <!-- ISBN -->
+                <div class="col-md-6">
+                  <label for="isbn" class="form-label">ISBN/Identificador</label>
+                  <input type="text" class="form-control" id="isbn" th:field="*{isbn}"
+                    placeholder="ISBN o código identificador">
+                </div>
+
+                <!-- Portada URL -->
+                <div class="col-12">
+                  <label for="portadaUrl" class="form-label">URL de Portada</label>
+                  <input type="text" class="form-control" id="portadaUrl" th:field="*{portadaUrl}"
+                    placeholder="URL de la imagen de portada">
+                </div>
+
+                <!-- Sinopsis -->
+                <div class="col-12">
+                  <label for="sinopsis" class="form-label">Sinopsis</label>
+                  <textarea class="form-control" id="sinopsis" th:field="*{sinopsis}" rows="3"
+                    placeholder="Breve descripción del contenido"></textarea>
+                </div>
+
+                <!-- Precio -->
+                <div class="col-md-4">
+                  <label for="precio" class="form-label">Precio</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="precio" th:field="*{precio}" min="0" step="1">
+                  </div>
+                </div>
+
+                <!-- Opciones -->
+                <div class="col-md-4">
+                  <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="enVenta" th:field="*{enVenta}">
+                    <label class="form-check-label" for="enVenta">
+                      Disponible para venta
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="puedeSerPrestado"
+                      th:field="*{puedeSerPrestado}">
+                    <label class="form-check-label" for="puedeSerPrestado">
+                      Disponible para préstamo
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pestaña de Detalles Específicos -->
+            <div class="tab-pane fade" id="detalles" role="tabpanel" aria-labelledby="detalles-tab">
+              <!-- Contenido Físico -->
+              <div class="contenido-detalles fisico-fields">
+                <h5 class="mb-3">Detalles de Contenido Físico</h5>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label for="stockDisponible" class="form-label">Stock Disponible</label>
+                    <input type="number" class="form-control" id="stockDisponible" th:field="*{stockDisponible}"
+                      min="0">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="minStock" class="form-label">Stock Mínimo</label>
+                    <input type="number" class="form-control" id="minStock" th:field="*{minStock}" min="0">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="formatoFisico" class="form-label">Formato</label>
+                    <select class="form-select" id="formatoFisico" th:field="*{formatoFisico}">
+                      <option value="">Seleccione un formato</option>
+                      <option th:each="formato : ${T(com.biblioteca.enums.FormatoFisico).values()}"
+                        th:value="${formato}" th:text="${formato.toString().replace('_', ' ')}">
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-12">
+                    <label for="ubicacionFisica" class="form-label">Ubicación Física</label>
+                    <input type="text" class="form-control" id="ubicacionFisica" th:field="*{ubicacionFisica}"
+                      placeholder="Estante, pasillo, etc.">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Libro Físico -->
+              <div class="contenido-detalles libro-fisico-fields mt-4">
+                <h5 class="mb-3">Detalles de Libro</h5>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="paginas" class="form-label">Número de Páginas</label>
+                    <input type="number" class="form-control" id="paginas" th:field="*{paginas}" min="1">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Manga/Comic -->
+              <div class="contenido-detalles ilustrado-fields mt-4">
+                <h5 class="mb-3">Detalles de Publicación Ilustrada</h5>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="ilustrador" class="form-label">Ilustrador</label>
+                    <input type="text" class="form-control" id="ilustrador" th:field="*{ilustrador}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="volumen" class="form-label">Número de Volumen</label>
+                    <input type="number" class="form-control" id="volumen" th:field="*{volumen}" min="1">
+                  </div>
+
+                  <!-- Manga específico -->
+                  <div class="col-md-6 manga-fields">
+                    <label for="sentidoLectura" class="form-label">Sentido de Lectura</label>
+                    <input type="text" class="form-control" id="sentidoLectura" th:field="*{sentidoLectura}"
+                      placeholder="Oriental, Occidental, etc.">
+                  </div>
+
+                  <!-- Comic específico -->
+                  <div class="col-md-6 comic-fields">
+                    <div class="form-check mt-4">
+                      <input class="form-check-input" type="checkbox" id="colorido" th:field="*{colorido}">
+                      <label class="form-check-label" for="colorido">
+                        A color
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Revista -->
+              <div class="contenido-detalles revista-fields mt-4">
+                <h5 class="mb-3">Detalles de Revista</h5>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label for="periodicidad" class="form-label">Periodicidad</label>
+                    <input type="text" class="form-control" id="periodicidad" th:field="*{periodicidad}"
+                      placeholder="Mensual, Trimestral, etc.">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="edicion" class="form-label">Edición</label>
+                    <input type="text" class="form-control" id="edicion" th:field="*{edicion}"
+                      placeholder="Enero 2025, Vol. 3, etc.">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="issn" class="form-label">ISSN</label>
+                    <input type="text" class="form-control" id="issn" th:field="*{issn}">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contenido Digital -->
+              <div class="contenido-detalles digital-fields mt-4">
+                <h5 class="mb-3">Detalles de Contenido Digital</h5>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label for="tamanioArchivo" class="form-label">Tamaño de Archivo (MB)</label>
+                    <input type="number" class="form-control" id="tamanioArchivo" th:field="*{tamanioArchivo}"
+                      step="0.01" min="0">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="formatoDigital" class="form-label">Formato Digital</label>
+                    <input type="text" class="form-control" id="formatoDigital" th:field="*{formatoDigital}"
+                      placeholder="PDF, EPUB, MP3, etc.">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="tipoLicencia" class="form-label">Tipo de Licencia</label>
+                    <select class="form-select" id="tipoLicencia" th:field="*{tipoLicencia}">
+                      <option value="">Seleccione un tipo</option>
+                      <option th:each="licencia : ${T(com.biblioteca.enums.TipoLicenciaDigital).values()}"
+                        th:value="${licencia}" th:text="${licencia.toString().replace('_', ' ')}">
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="licencias" class="form-label">Número de Licencias</label>
+                    <input type="number" class="form-control" id="licencias" th:field="*{licencias}" min="0">
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check mt-4">
+                      <input class="form-check-input" type="checkbox" id="permiteDescarga"
+                        th:field="*{permiteDescarga}">
+                      <label class="form-check-label" for="permiteDescarga">
+                        Permite descarga
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AudioLibro -->
+              <div class="contenido-detalles audiolibro-fields mt-4">
+                <h5 class="mb-3">Detalles de Audiolibro</h5>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label for="duracionAudioLibro" class="form-label">Duración (formato ISO: PTxHxMxS)</label>
+                    <input type="text" class="form-control" id="duracionAudioLibro" th:field="*{duracionAudioLibro}"
+                      placeholder="PT2H30M (2h 30m)">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="narrador" class="form-label">Narrador</label>
+                    <input type="text" class="form-control" id="narrador" th:field="*{narrador}">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="calidadAudio" class="form-label">Calidad de Audio</label>
+                    <input type="text" class="form-control" id="calidadAudio" th:field="*{calidadAudio}"
+                      placeholder="Alta (320kbps), etc.">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Material Educativo -->
+              <div class="contenido-detalles educativo-fields mt-4">
+                <h5 class="mb-3">Detalles de Material Educativo</h5>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="nivelEducativo" class="form-label">Nivel Educativo</label>
+                    <input type="text" class="form-control" id="nivelEducativo" th:field="*{nivelEducativo}"
+                      placeholder="Primario, Secundario, Universitario, etc.">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="asignatura" class="form-label">Asignatura</label>
+                    <input type="text" class="form-control" id="asignatura" th:field="*{asignatura}">
+                  </div>
+                  <div class="col-md-12">
+                    <label for="recursosEducativos" class="form-label">Recursos Educativos</label>
+                    <textarea class="form-control" id="recursosEducativos" th:field="*{recursosEducativos}" rows="2"
+                      placeholder="Lista de recursos incluidos"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contenido Multimedia -->
+              <div class="contenido-detalles multimedia-fields mt-4">
+                <h5 class="mb-3">Detalles de Contenido Multimedia</h5>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label for="duracionMultimedia" class="form-label">Duración (formato ISO: PTxHxMxS)</label>
+                    <input type="text" class="form-control" id="duracionMultimedia" th:field="*{duracionMultimedia}"
+                      placeholder="PT1H45M (1h 45m)">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="calidadMultimedia" class="form-label">Calidad</label>
+                    <input type="text" class="form-control" id="calidadMultimedia" th:field="*{calidadMultimedia}"
+                      placeholder="1080p, 4K, etc.">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="requisitosReproduccion" class="form-label">Requisitos de Reproducción</label>
+                    <input type="text" class="form-control" id="requisitosReproduccion"
+                      th:field="*{requisitosReproduccion}" placeholder="Navegador moderno, etc.">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pestaña de Series -->
+            <div class="tab-pane fade" id="series" role="tabpanel" aria-labelledby="series-tab">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="serieId" class="form-label">Serie</label>
+                  <select class="form-select" id="serieId" th:field="*{serieId}">
+                    <option value="">No pertenece a ninguna serie</option>
+                    <option th:each="serie : ${series}" th:value="${serie.id}" th:text="${serie.nombre}">
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="ordenEnSerie" class="form-label">Orden en la Serie</label>
+                  <input type="number" class="form-control" id="ordenEnSerie" th:field="*{ordenEnSerie}" min="1">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end mt-4">
+            <a th:href="@{/admin/contenidos}" class="btn btn-secondary me-2">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save me-1"></i> Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="contenidoFormScripts">
+    <!-- Script específico para mostrar/ocultar campos según tipo de contenido -->
+    <script>
+      $(document).ready(function () {
+        // Función para mostrar/ocultar campos según el tipo seleccionado
+        function toggleFields() {
+          const tipoSeleccionado = $('#tipo').val();
+
+          // Ocultar todos los campos específicos primero
+          $('.contenido-detalles').hide();
+
+          if (!tipoSeleccionado) return;
+
+          // Mostrar campos según el tipo
+          if (tipoSeleccionado.includes('FISICO')) {
+            $('.fisico-fields').show();
+
+            if (tipoSeleccionado === 'LIBRO_FISICO') {
+              $('.libro-fisico-fields').show();
+            }
+            else if (tipoSeleccionado === 'MANGA_FISICO') {
+              $('.ilustrado-fields').show();
+              $('.manga-fields').show();
+            }
+            else if (tipoSeleccionado === 'COMIC_FISICO') {
+              $('.ilustrado-fields').show();
+              $('.comic-fields').show();
+            }
+            else if (tipoSeleccionado === 'REVISTA_FISICA') {
+              $('.revista-fields').show();
+            }
+          }
+
+          if (tipoSeleccionado.includes('DIGITAL') || tipoSeleccionado === 'AUDIO_LIBRO' ||
+            tipoSeleccionado === 'MATERIAL_EDUCATIVO_DIGITAL' || tipoSeleccionado === 'CONTENIDO_MULTIMEDIA_DIGITAL') {
+            $('.digital-fields').show();
+
+            if (tipoSeleccionado === 'AUDIO_LIBRO') {
+              $('.audiolibro-fields').show();
+            }
+            else if (tipoSeleccionado === 'MATERIAL_EDUCATIVO_DIGITAL') {
+              $('.educativo-fields').show();
+            }
+            else if (tipoSeleccionado === 'CONTENIDO_MULTIMEDIA_DIGITAL') {
+              $('.multimedia-fields').show();
+            }
+          }
+        }
+
+        // Ejecutar al cargar la página
+        toggleFields();
+
+        // Ejecutar cuando cambie el tipo
+        $('#tipo').change(toggleFields);
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

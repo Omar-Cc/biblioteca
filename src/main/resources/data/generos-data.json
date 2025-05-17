@@ -1,0 +1,380 @@
+[
+  {
+    "nombre": "Ciencia Ficción",
+    "descripcion": "Género que explora conceptos imaginativos basados en la ciencia y la tecnología.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Fantasía",
+    "descripcion": "Género que se caracteriza por elementos mágicos y sobrenaturales.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Novela",
+    "descripcion": "Obra literaria narrativa de ficción, generalmente extensa.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Poesía",
+    "descripcion": "Género literario que se caracteriza por la expresión de sentimientos y pensamientos a través de la belleza y el ritmo del lenguaje.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Teatro",
+    "descripcion": "Género literario constituido por obras, generalmente dialogadas, destinadas a ser representadas ante un público.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Misterio",
+    "descripcion": "Género que se centra en la resolución de un crimen o enigma.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Terror",
+    "descripcion": "Género que busca provocar sentimientos de miedo, horror y pavor en el lector.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Romance",
+    "descripcion": "Género que se centra en las relaciones amorosas entre los personajes.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Aventura",
+    "descripcion": "Género que narra viajes, exploraciones y situaciones de riesgo.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Histórico",
+    "descripcion": "Género que ambienta sus historias en épocas pasadas.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Biografía",
+    "descripcion": "Género que narra la vida de una persona o personaje histórico.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Ensayo",
+    "descripcion": "Género literario que consiste en la exposición de ideas del autor sobre un tema determinado.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "No Ficción",
+    "descripcion": "Género que se basa en hechos, eventos y personas reales.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Infantil",
+    "descripcion": "Género dirigido principalmente a niños.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Juvenil",
+    "descripcion": "Género dirigido principalmente a adolescentes y jóvenes adultos.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Acción",
+    "descripcion": "Género caracterizado por escenas de alta energía, peligro y confrontaciones físicas.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Drama",
+    "descripcion": "Género que representa situaciones serias de la vida, a menudo con conflictos emocionales.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Comedia",
+    "descripcion": "Género que busca provocar la risa y el entretenimiento a través del humor.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Educativo",
+    "descripcion": "Género destinado a la enseñanza y el aprendizaje.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Autoayuda",
+    "descripcion": "Género que proporciona consejos para mejorar aspectos personales o profesionales.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Documental",
+    "descripcion": "Género que presenta información factual sobre un tema específico.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Periodístico",
+    "descripcion": "Género que informa sobre acontecimientos actuales o recientes.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Ciencia y Tecnología",
+    "descripcion": "Género que aborda temas científicos y tecnológicos.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Filosofía",
+    "descripcion": "Género que explora cuestiones fundamentales sobre la existencia, el conocimiento y los valores.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Religión y Espiritualidad",
+    "descripcion": "Género centrado en creencias religiosas y prácticas espirituales.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Manga",
+    "descripcion": "Género de cómics e historietas de origen japonés.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Cómic",
+    "descripcion": "Género narrativo que utiliza dibujos y textos interrelacionados.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Multimedia",
+    "descripcion": "Género que combina diversos medios como texto, audio y video.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Revista",
+    "descripcion": "Publicación periódica con artículos sobre diversos temas.",
+    "parentId": null,
+    "nivel": 1
+  },
+  {
+    "nombre": "Ciencia Ficción - Cyberpunk",
+    "descripcion": "Subgénero de la ciencia ficción que se caracteriza por un enfoque en la alta tecnología y bajo nivel de vida.",
+    "parentId": 1,
+    "nivel": 2
+  },
+  {
+    "nombre": "Ciencia Ficción - Space Opera",
+    "descripcion": "Subgénero de la ciencia ficción que se caracteriza por historias épicas ambientadas en el espacio exterior.",
+    "parentId": 1,
+    "nivel": 2
+  },
+  {
+    "nombre": "Ciencia Ficción - Distopía",
+    "descripcion": "Subgénero de la ciencia ficción que describe sociedades indeseables, opresivas o terroríficas.",
+    "parentId": 1,
+    "nivel": 2
+  },
+  {
+    "nombre": "Ciencia Ficción - Hard Sci-Fi",
+    "descripcion": "Subgénero de la ciencia ficción que se apega rigurosamente a las leyes científicas conocidas.",
+    "parentId": 1,
+    "nivel": 2
+  },
+  {
+    "nombre": "Fantasía - Alta Fantasía",
+    "descripcion": "Subgénero de la fantasía ambientado en mundos imaginarios con sus propias reglas y criaturas.",
+    "parentId": 2,
+    "nivel": 2
+  },
+  {
+    "nombre": "Fantasía - Fantasía Urbana",
+    "descripcion": "Subgénero de la fantasía que mezcla elementos fantásticos con entornos urbanos contemporáneos.",
+    "parentId": 2,
+    "nivel": 2
+  },
+  {
+    "nombre": "Fantasía - Fantasía Histórica",
+    "descripcion": "Subgénero de la fantasía que incorpora elementos mágicos en un entorno histórico real.",
+    "parentId": 2,
+    "nivel": 2
+  },
+  {
+    "nombre": "Novela - Novela Negra",
+    "descripcion": "Subgénero de la novela policíaca que presenta una visión más cruda y realista del crimen.",
+    "parentId": 3,
+    "nivel": 2
+  },
+  {
+    "nombre": "Novela - Novela Rosa",
+    "descripcion": "Subgénero de la novela centrado en relaciones sentimentales idealizadas.",
+    "parentId": 3,
+    "nivel": 2
+  },
+  {
+    "nombre": "Novela - Novela Gráfica",
+    "descripcion": "Subgénero de la novela que combina texto con imágenes en formato de cómic.",
+    "parentId": 3,
+    "nivel": 2
+  },
+  {
+    "nombre": "Misterio - Thriller Psicológico",
+    "descripcion": "Subgénero del misterio que se enfoca en la inestabilidad mental o emocional de los personajes.",
+    "parentId": 6,
+    "nivel": 2
+  },
+  {
+    "nombre": "Misterio - Policiaco",
+    "descripcion": "Subgénero del misterio centrado en la investigación policial de crímenes.",
+    "parentId": 6,
+    "nivel": 2
+  },
+  {
+    "nombre": "Terror - Terror Gótico",
+    "descripcion": "Subgénero del terror que combina elementos de horror y romance, a menudo en escenarios medievales o ruinosos.",
+    "parentId": 7,
+    "nivel": 2
+  },
+  {
+    "nombre": "Terror - Terror Cósmico",
+    "descripcion": "Subgénero del terror que explora el miedo a lo desconocido y la insignificancia humana ante el universo.",
+    "parentId": 7,
+    "nivel": 2
+  },
+  {
+    "nombre": "Terror - Sobrenatural",
+    "descripcion": "Subgénero del terror que incorpora elementos paranormales o fuerzas sobrenaturales.",
+    "parentId": 7,
+    "nivel": 2
+  },
+  {
+    "nombre": "Romance - Romance Histórico",
+    "descripcion": "Subgénero del romance ambientado en épocas pasadas.",
+    "parentId": 8,
+    "nivel": 2
+  },
+  {
+    "nombre": "Romance - Romance Paranormal",
+    "descripcion": "Subgénero del romance que incluye elementos sobrenaturales o paranormales.",
+    "parentId": 8,
+    "nivel": 2
+  },
+  {
+    "nombre": "Romance - Romance Contemporáneo",
+    "descripcion": "Subgénero del romance ambientado en la época actual.",
+    "parentId": 8,
+    "nivel": 2
+  },
+  {
+    "nombre": "Aventura - Aventura Épica",
+    "descripcion": "Subgénero de aventura que narra historias de gran escala con héroes enfrentando grandes desafíos.",
+    "parentId": 9,
+    "nivel": 2
+  },
+  {
+    "nombre": "Manga - Shonen",
+    "descripcion": "Subgénero del manga dirigido principalmente a adolescentes masculinos, con énfasis en acción y aventura.",
+    "parentId": 26,
+    "nivel": 2
+  },
+  {
+    "nombre": "Manga - Shojo",
+    "descripcion": "Subgénero del manga dirigido principalmente a adolescentes femeninas, con énfasis en romance y relaciones.",
+    "parentId": 26,
+    "nivel": 2
+  },
+  {
+    "nombre": "Manga - Seinen",
+    "descripcion": "Subgénero del manga dirigido a hombres adultos jóvenes, con temas más maduros y complejos.",
+    "parentId": 26,
+    "nivel": 2
+  },
+  {
+    "nombre": "Manga - Josei",
+    "descripcion": "Subgénero del manga dirigido a mujeres adultas jóvenes, con historias realistas y maduras.",
+    "parentId": 26,
+    "nivel": 2
+  },
+  {
+    "nombre": "Cómic - Superhéroes",
+    "descripcion": "Subgénero del cómic centrado en personajes con habilidades sobrehumanas que combaten el crimen.",
+    "parentId": 27,
+    "nivel": 2
+  },
+  {
+    "nombre": "Cómic - Independiente",
+    "descripcion": "Subgénero del cómic publicado fuera de las grandes editoriales, a menudo con temáticas más experimentales.",
+    "parentId": 27,
+    "nivel": 2
+  },
+  {
+    "nombre": "Cómic - Europeo",
+    "descripcion": "Subgénero del cómic con origen y estilo europeo, como las bandes dessinées franco-belgas.",
+    "parentId": 27,
+    "nivel": 2
+  },
+  {
+    "nombre": "Educativo - STEM",
+    "descripcion": "Subgénero educativo enfocado en ciencia, tecnología, ingeniería y matemáticas.",
+    "parentId": 19,
+    "nivel": 2
+  },
+  {
+    "nombre": "Educativo - Humanidades",
+    "descripcion": "Subgénero educativo enfocado en literatura, historia, filosofía y artes.",
+    "parentId": 19,
+    "nivel": 2
+  },
+  {
+    "nombre": "Educativo - Lenguajes",
+    "descripcion": "Subgénero educativo dedicado al aprendizaje de idiomas.",
+    "parentId": 19,
+    "nivel": 2
+  },
+  {
+    "nombre": "Multimedia - Documental",
+    "descripcion": "Subgénero multimedia que presenta información factual en formato audiovisual.",
+    "parentId": 28,
+    "nivel": 2
+  },
+  {
+    "nombre": "Multimedia - Curso",
+    "descripcion": "Subgénero multimedia estructurado para la enseñanza de un tema específico.",
+    "parentId": 28,
+    "nivel": 2
+  },
+  {
+    "nombre": "Revista - Científica",
+    "descripcion": "Subgénero de revista especializada en publicaciones académicas y científicas.",
+    "parentId": 29,
+    "nivel": 2
+  },
+  {
+    "nombre": "Revista - Divulgación",
+    "descripcion": "Subgénero de revista que presenta información científica o técnica de manera accesible.",
+    "parentId": 29,
+    "nivel": 2
+  },
+  {
+    "nombre": "Revista - Actualidad",
+    "descripcion": "Subgénero de revista centrada en noticias y eventos actuales.",
+    "parentId": 29,
+    "nivel": 2
+  }
+]

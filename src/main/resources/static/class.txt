@@ -1,0 +1,644 @@
+Este archivo define las clases que se usaran para el proyecto de la biblioteca:
+BiblioVirtual es una plataforma digital innovadora diseñada para ofrecer una
+experiencia completa de biblioteca virtual. Este sistema no solo permite a los
+usuarios acceder a una amplia colección de libros digitales, sino que también
+incorpora diversos formatos de contenido como revistas, artículos académicos,
+cómics y más, todos disponibles tanto para préstamo como para adquisición
+desde cualquier dispositivo conectado a internet.
+
+classDiagram
+  direction LR
+    class Obra {
+      +id: int
+      +titulo: string
+      +descripcion: string
+      +anioPublicacion: int
+      +isbn: string
+      +editorialId: int
+      +idioma: List<string>
+      +fechaCreacion: date
+      +fechaActualizacion: date
+    }
+    class AutorObra {
+      +obraId: int
+      +autorId: int
+      +rol: string  // "principal", "colaborador", "editor"
+    }
+    class Contenido {
+      +id: int
+      +obraId: int
+      +portada: string
+      +precio: decimal
+      +enVenta: bool
+      +tipo: TipoContenido
+      +puedeSerPrestado: bool
+      +fechaCreacion: date
+    }
+    class ContenidoDigital {
+	    +tamanioArchivo: decimal
+	    +formato: string
+	    +permiteDescarga: bool
+	    +tipoLicencia: TipoLicenciaDigital
+	    +licencias: int
+    }
+    class AudioLibro {
+	    +duracion: TimeSpan
+	    +narrador: string
+	    +calidad: string
+    }
+    class ContenidoFisico {
+	    +stockDisponible: int
+        +minStock: int
+	    +ubicacionFisica: string
+        +formatoFisico: FormatoFisico
+    }
+    class LibroFisico {
+	    +paginas: int
+    }
+    class PublicacionIlustradaFisica {
+	    +ilustrador: string
+	    +volumen: int
+    }
+    class Manga {
+	    +sentidoLectura: string
+    }
+    class Comic {
+	    +colorido: bool
+    }
+    class Usuario {
+	    +id: int
+	    +email: string
+	    +password: string
+	    +planId: int
+	    +fechaRegistro: date
+	    +ultimaActividad: date
+    }
+    class Perfil {
+        +id: int
+        +usuarioId: int
+        +nombreVisible: string
+        +fotoPerfil: string
+        +idiomaPreferido: string
+        +limitePrestamosDesignado: int
+        +esInfantil: boolean
+        +activo: boolean
+        +esPerfilPrincipal: boolean
+    }
+    class Lector {
+        +nombre: string
+        +apellido: string
+        +direccion: string
+        +telefono: string
+        +fechaNacimiento: date
+        +multasPendientes: decimal
+        +estadoCuenta: string
+    }
+    class Empleado {
+	    +departamento: string
+	    +cargo: string
+    }
+    class SesionUsuario {
+        +usuarioId: int
+        +perfilId: int
+        +tokenSesion: string
+        +fechaInicio: date
+        +fechaExpiracion: date
+    }
+    class Carrito {
+	    +id: int
+	    +perfilId: int
+	    +fechaCreacion: date
+    }
+    class ItemCarrito {
+	    +id: int
+	    +carritoId: int
+	    +contenidoId: int
+	    +cantidad: int
+	    +precio: decimal
+	    +descuento: int
+    }
+    class Plan {
+	    +id: int
+	    +nombre: String
+	    +precioMensual: decimal
+	    +precioAnual: decimal
+	    +diasPrueba: int
+	    +activo: boolean
+    }
+    class Beneficio {
+	    +id: int
+	    +categoriaId: int
+	    +nombre: String
+	    +descripcion: String
+	    +icono: String
+	    +tipoDato: String
+	    +activo: boolean
+    }
+    class PlanBeneficioAssociation {
+	    +planId: int
+	    +beneficioId: int
+	    +valor: String
+	    +activo: boolean
+    }
+    class Coleccion {
+	    +id: int
+	    +perfilId: int
+	    +nombre: string
+	    +esPublica: bool
+	    +fechaCreacion: date
+    }
+    class ColeccionContenido {
+	    +coleccionId: int
+	    +contenidoId: int
+	    +fechaAgregado: date
+    }
+    class Genero {
+	    +id: int
+	    +nombre: string
+	    +descripcion: string
+    }
+    class Editorial {
+	    +id: int
+	    +nombre: string
+	    +pais: string
+	    +website: string
+    }
+    class Rol {
+	    +id: int
+	    +nombre: string
+	    +descripcion: string
+    }
+    class PermisoRol {
+	    +rolId: int
+	    +permiso: string
+    }
+    class HistorialOperacion {
+	    +id: int
+	    +usuarioId: int
+	    +contenidoId: int
+	    +tipoOperacion: string
+	    +fechaOperacion: date
+    }
+    class DetalleOperacion {
+	    +descripcion: string
+    }
+    class DetalleModificacionContenido {
+	    +campoModificado: string
+	    +valorAnterior: string
+	    +valorNuevo: string
+    }
+    class DetalleResenaEliminada {
+	    +resenaId: int
+	    +motivo: string
+    }
+    class DetalleMarcadoFavorito {
+	    +esFavorito: boolean
+    }
+    class Favorito {
+	    +id: int
+	    +perfilId: int
+	    +contenidoId: int
+	    +fechaAgregado: date
+    }
+    class Orden {
+	    +id: int
+	    +perfilId: int
+	    +carritoId: int
+	    +fechaCreacion: date
+	    +estadoOrden: string
+	    +totalOrden: decimal
+    }
+    class ItemOrden {
+	    +id: int
+	    +ordenId: int
+	    +contenidoId: int
+	    +cantidad: int
+	    +precioAlComprar: decimal
+	    +descuentoAplicado: decimal
+    }
+    class Resena {
+	    +id: int
+	    +perfilId: int
+	    +contenidoId: int
+	    +calificacion: int
+	    +comentario: string
+	    +fechaCreacion: date
+	    +esVisible: boolean
+    }
+    class Prestamo {
+	    +id: int
+	    +contenidoId: int
+	    +perfilId: int
+	    +fechaPrestamo: date
+	    +fechaDevolucion: date
+	    +estado: string
+	    +fechaRetorno: date
+    }
+    class UsuarioRol {
+	    usuarioId: int
+	    rolId: int
+    }
+    class ContenidoGenero {
+	    contenidoId: int
+	    generoId: int
+    }
+
+
+    %% Nuevas clases agregadas
+    class Pago {
+        +id: int
+        +ordenId: int
+        +monto: decimal
+        +fechaPago: date
+        +metodoPagoId: int
+        +referenciaPago: string
+        +estado: string
+    }
+    class MetodoPago {
+        +id: int
+        +nombre: string
+        +descripcion: string
+        +requiereAutorizacion: boolean
+        +activo: boolean
+    }
+    class Factura {
+        +id: int
+        +ordenId: int
+        +numeroFactura: string
+        +fechaEmision: date
+        +subtotal: decimal
+        +impuestos: decimal
+        +total: decimal
+        +datosFacturacion: string
+    }
+    class Notificacion {
+        +id: int
+        +perfilId: int
+        +titulo: string
+        +mensaje: string
+        +tipo: string
+        +fechaCreacion: date
+        +fechaLectura: date
+        +leida: boolean
+    }
+    class PreferenciaNotificacion {
+        +perfilId: int
+        +tipoNotificacion: string
+        +medioPreferido: string
+        +activo: boolean
+    }
+    class Autor {
+        +id: int
+        +nombre: string
+        +biografia: string
+        +fechaNacimiento: date
+        +nacionalidad: string
+        +foto: string
+    }
+    class Serie {
+        +id: int
+        +nombre: string
+        +descripcion: string
+        +numeroVolumenes: int
+        +completa: boolean
+    }
+    class ContenidoSerie {
+        +serieId: int
+        +contenidoId: int
+        +orden: int
+    }
+    class HistorialLectura {
+        +id: int
+        +perfilId: int
+        +contenidoId: int
+        +progreso: decimal
+        +paginaActual: int
+        +tiempoLectura: int
+        +fechaUltimaLectura: date
+    }
+    class Marcador {
+        +id: int
+        +perfilId: int
+        +contenidoId: int
+        +posicion: string
+        +titulo: string
+        +nota: string
+        +fechaCreacion: date
+    }
+    class GrupoLectura {
+        +id: int
+        +nombre: string
+        +descripcion: string
+        +creadorId: int
+        +esPrivado: boolean
+        +fechaCreacion: date
+    }
+    class MiembroGrupo {
+        +grupoId: int
+        +perfilId: int
+        +rol: string
+        +fechaUnion: date
+    }
+    class Discusion {
+        +id: int
+        +grupoId: int
+        +contenidoId: int
+        +titulo: string
+        +descripcion: string
+        +fechaCreacion: date
+        +creadorId: int
+        +activa: boolean
+    }
+    class Sucursal {
+        +id: int
+        +nombre: string
+        +direccion: string
+        +telefono: string
+        +horarioAtencion: string
+        +responsableId: int
+    }
+    class Estanteria {
+        +id: int
+        +sucursalId: int
+        +codigo: string
+        +descripcion: string
+        +capacidad: int
+    }
+    class UbicacionContenido {
+        +contenidoId: int
+        +sucursalId: int
+        +estanteriaId: int
+        +posicionExacta: string
+        +cantidad: int
+    }
+    class Suscripcion {
+        +id: int
+        +usuarioId: int
+        +planId: int
+        +fechaInicio: date
+        +fechaRenovacion: date
+        +estado: string
+        +metodoPagoId: int
+    }
+    class HistorialPagoSuscripcion {
+        +id: int
+        +suscripcionId: int
+        +monto: decimal
+        +fechaPago: date
+        +periodo: string
+        +estado: string
+    }
+    class RevistaPeriodica {
+        +periodicidad: string
+        +edicion: string
+        +issn: string
+    }
+    class MaterialEducativo {
+        +nivelEducativo: string
+        +asignatura: string
+        +recursos: string
+    }
+    class ContenidoMultimedia {
+        +duracion: TimeSpan
+        +calidad: string
+        +requisitosReproduccion: string
+    }
+    %% Fin de las nuevas clases
+
+    %% Nuevas clases v2
+
+    class EstadisticaObra {
+        +obraId: int
+        +vistas: int
+        +busquedas: int
+        +calificacionPromedio: decimal
+        +popularidadGeneral: decimal
+        +fechaActualizacion: date
+    }
+    class EstadisticaContenido {
+        +contenidoId: int
+        +ventasTotal: int
+        +ventasMes: int
+        +ventasSemana: int
+        +prestamosTotal: int
+        +prestamosMes: int
+        +adquisicionesDigital: int
+        +lecturasTotales: int
+        +tiempoPromedioLectura: int  // minutos
+        +fechaActualizacion: date
+    }
+    class TendenciaObra {
+        +obraId: int
+        +tendencia: decimal  // positivo=subiendo, negativo=bajando
+        +puntajeTendencia: int  // 1-100
+        +posicionRanking: int
+        +categoriaRanking: string  // "más vendido", "más prestado", "trending"
+        +fechaCalculada: date
+    }
+    class RecomendacionPersonalizada {
+        +perfilId: int
+        +obraId: int
+        +contenidoId: int
+        +puntuacion: decimal  // 0-1
+        +razon: string  // "historial", "similitud", "popular"
+        +activa: boolean
+        +fechaCreacion: date
+    }
+    class SimilitudObras {
+        +obraBaseId: int
+        +obraSimilarId: int
+        +puntuacion: decimal  // 0-1
+        +tipoSimilitud: string  // "género", "autor", "compras conjuntas", "perfil lector"
+        +fechaCalculo: date
+    }
+    class HistorialInteraccion {
+        +perfilId: int
+        +obraId: int
+        +contenidoId: int
+        +tipoInteraccion: string  // "vista", "compra", "préstamo", "lectura", "búsqueda"
+        +duracion: int  // segundos, si aplica
+        +fechaInteraccion: date
+    }
+    class PerfilLector {
+        +perfilId: int
+        +generosPreferidos: List<int>  // IDs de géneros
+        +autoresPreferidos: List<int>  // IDs de autores
+        +formatosPreferidos: List<string>
+        +horarioLectura: string  // "mañana", "tarde", "noche"
+        +duracionPromedioSesion: int  // minutos
+        +fechaActualizacion: date
+    }
+
+    %% Fin de las nuevas clases v2
+
+
+	<<Abstract>> DetalleOperacion
+
+    Contenido <|-- ContenidoDigital
+    Contenido <|-- ContenidoFisico
+    ContenidoDigital <|-- AudioLibro
+    ContenidoFisico <|-- LibroFisico
+    ContenidoFisico <|-- PublicacionIlustradaFisica
+    PublicacionIlustradaFisica <|-- Manga
+    PublicacionIlustradaFisica <|-- Comic
+    Usuario <|-- Lector
+    Usuario <|-- Empleado
+    DetalleOperacion <|-- DetalleModificacionContenido
+    DetalleOperacion <|-- DetalleResenaEliminada
+    DetalleOperacion <|-- DetalleMarcadoFavorito
+    
+    Usuario "1" -- "0..*" Perfil : tiene
+    Perfil "1" -- "1" Usuario : es_de_usuario
+    SesionUsuario "1" -- "1" Usuario : pertenece_a
+    SesionUsuario "1" -- "1" Perfil : tiene_asociado
+    Usuario "1" -- "0..*" SesionUsuario : tiene_sesiones
+    Usuario "1" -- "1" Plan : tiene_asignado
+    %% Relationships for UsuarioRol (M:N between Usuario and Rol)
+    Usuario "1" -- "0..*" UsuarioRol : tiene_asignaciones_rol
+    Rol "1" -- "0..*" UsuarioRol : tiene_usuarios_asignados
+    UsuarioRol "1" -- "1" Usuario : asignado_a_usuario
+    UsuarioRol "1" -- "1" Rol : define_rol
+
+    %% Relationships for ContenidoGenero (M:N between Contenido and Genero)
+    Contenido "1" -- "0..*" ContenidoGenero : tiene_generos_asociados
+    Genero "1" -- "0..*" ContenidoGenero : tiene_contenidos_asociados
+    ContenidoGenero "1" -- "1" Contenido : pertenece_a_contenido
+    ContenidoGenero "1" -- "1" Genero : define_genero
+
+    Perfil "1" -- "0..1" Carrito : tiene
+    Carrito "1" -- "1" Perfil : pertenece_a_perfil
+    Carrito "1" -- "0..*" ItemCarrito : contiene
+    ItemCarrito "1" -- "1" Contenido : referencia
+
+    Perfil "1" -- "0..*" Coleccion : tiene
+    Coleccion "1" -- "1" Perfil : pertenece_a_perfil
+    Coleccion "1" -- "0..*" ColeccionContenido : contiene
+    ColeccionContenido "0..*" -- "1" Contenido : incluye
+
+    Perfil "1" -- "0..*" Favorito : marca
+    Favorito "1" -- "1" Perfil : marcado_por_perfil
+    Favorito "0..*" -- "1" Contenido : es_de
+
+    Perfil "1" -- "0..*" Orden : realiza
+    Orden "1" -- "1" Perfil : realizada_por_perfil
+    Orden "1" -- "1..*" ItemOrden : contiene
+    ItemOrden "1" -- "1" Contenido : referencia
+
+    Perfil "1" -- "0..*" Resena : escribe
+    Resena "1" -- "1" Perfil : escrita_por_perfil
+    Resena "0..*" -- "1" Contenido : es_para
+
+    Perfil "1" -- "0..*" Prestamo : realiza
+    Prestamo "1" -- "1" Perfil : realizado_por_perfil
+    Prestamo "0..*" -- "1" Contenido : es_sobre
+
+    Contenido "0..*" -- "1" Editorial : publicado_por
+    Contenido "1" -- "0..*" HistorialOperacion : tiene_historial_de
+    HistorialOperacion "1" -- "1" Usuario : realizado_por
+    HistorialOperacion "1" -- "1" DetalleOperacion : describe_con
+
+    Plan "1" -- "0..*" PlanBeneficioAssociation : define_beneficios
+    Beneficio "1" -- "0..*" PlanBeneficioAssociation : describe_beneficio
+    Rol "1" -- "0..*" PermisoRol : tiene
+
+    %% Nuevas Relaciones
+    Pago "0..*" -- "1" Orden : pertenece_a
+    Pago "0..*" -- "1" MetodoPago : utiliza
+    Factura "0..1" -- "1" Orden : generada_para
+    MetodoPago "1" -- "0..*" Suscripcion : usado_en
+    Notificacion "0..*" -- "1" Perfil : dirigida_a
+    PreferenciaNotificacion "0..*" -- "1" Perfil : configurada_por
+    Notificacion "0..*" -- "0..1" Prestamo : informa_sobre
+    Notificacion "0..*" -- "0..1" Orden : informa_sobre
+    Autor "1..*" -- "0..*" Contenido : es_autor_de
+    Serie "1" -- "0..*" ContenidoSerie : contiene
+    ContenidoSerie "1" -- "1" Contenido : asocia
+    HistorialLectura "0..*" -- "1" Perfil : pertenece_a
+    HistorialLectura "0..*" -- "1" Contenido : registra_lectura_de
+    Marcador "0..*" -- "1" Perfil : creado_por
+    Marcador "0..*" -- "1" Contenido : ubicado_en
+    GrupoLectura "0..*" -- "1" Perfil : creado_por
+    GrupoLectura "1" -- "0..*" MiembroGrupo : tiene_miembros
+    GrupoLectura "1" -- "0..*" Discusion : contiene
+    MiembroGrupo "0..*" -- "1" Perfil : representa_a
+    Discusion "0..*" -- "1" Perfil : iniciada_por
+    Discusion "0..*" -- "0..1" Contenido : trata_sobre
+    Sucursal "0..*" -- "1" Empleado : supervisada_por
+    Sucursal "1" -- "0..*" Estanteria : contiene
+    Estanteria "1" -- "0..*" UbicacionContenido : almacena
+    UbicacionContenido "0..*" -- "1" ContenidoFisico : ubica
+    UbicacionContenido "0..*" -- "1" Sucursal : localizada_en
+    Suscripcion "0..*" -- "1" Usuario : pertenece_a
+    Suscripcion "0..*" -- "1" Plan : corresponde_a
+    Suscripcion "0..*" -- "1" MetodoPago : usa
+    Suscripcion "1" -- "0..*" HistorialPagoSuscripcion : tiene
+    HistorialPagoSuscripcion "0..*" -- "0..1" Pago : registrado_como
+    ContenidoFisico <|-- RevistaPeriodica
+    ContenidoDigital <|-- MaterialEducativo
+    ContenidoDigital <|-- ContenidoMultimedia
+    Prestamo "0..*" -- "1" Sucursal : gestionado_en
+    Orden "0..*" -- "0..1" Sucursal : entrega_en
+    Perfil "1" -- "0..*" Suscripcion : administra
+    Usuario "1" -- "1" Suscripcion : contrata
+    Contenido "0..*" -- "0..*" Discusion : mencionado_en
+    Autor "0..*" -- "0..*" GrupoLectura : foco_de_interes
+
+    %% Nuevas Relaciones v2
+    %% Relaciones principales Obra-Contenido
+    Obra "1" -- "1..*" Contenido : se_materializa_en
+    Contenido "1..*" -- "1" Obra : representa_la_obra
+    Obra "1" -- "0..*" AutorObra : escrita_por
+    AutorObra "0..*" -- "1" Autor : asocia_a
+    Editorial "1" -- "0..*" Obra : publica
+    Genero "1" -- "0..*" Obra : clasifica
+
+    %% Relaciones de Estadísticas
+    Obra "1" -- "0..1" EstadisticaObra : tiene_stats
+    Contenido "1" -- "0..1" EstadisticaContenido : tiene_stats
+    Obra "1" -- "0..1" TendenciaObra : tiene_tendencia
+
+    %% Relaciones de Similitud y Recomendación
+    Obra "1" -- "0..*" SimilitudObras : es_similar_a
+    SimilitudObras "0..*" -- "1" Obra : similar_con 
+    Perfil "1" -- "0..*" RecomendacionPersonalizada : recibe
+    RecomendacionPersonalizada "0..*" -- "1" Obra : recomienda
+    Perfil "1" -- "0..1" PerfilLector : tiene_perfil_lector
+    Perfil "1" -- "0..*" HistorialInteraccion : genera
+    HistorialInteraccion "0..*" -- "0..1" Obra : interactua_con
+    HistorialInteraccion "0..*" -- "0..1" Contenido : interactua_con_contenido
+
+
+    enum TipoLicenciaDigital {
+      USUARIO_UNICO
+      MULTIUSUARIO
+      PERPETUA
+      SUSCRIPCION
+      POR_USO
+      LIMITADA_PRESTAMOS
+      ACCESO_ABIERTO
+    }
+
+
+    enum FormatoFisico {
+      TAPA_DURA,
+      TAPA_BLANDA,
+      RUSTICA,
+      ENCUADERNADO,
+      GRAPA,
+      OTRO
+    }
+
+    enum TipoContenido {
+      LIBRO_FISICO,
+      MANGA_DIGITAL,
+      AUDIO_LIBRO,
+      etc
+    }
+
+    enum TipoColeccionEnum {
+      CUSTOM
+      FAVORITOS
+      LEER_DESPUES
+      LEIDOS
+      EN_PROCESO
+    }

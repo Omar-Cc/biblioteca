@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "nombre": "Plan Básico",
+    "descripcion": "Ideal para comenzar. Accede a una selección de nuestro catálogo digital y disfruta de las funcionalidades esenciales de la biblioteca sin costo alguno.",
+    "descripcionCorta": "Acceso básico y gratuito al catálogo.",
+    "precioMensual": 0,
+    "precioAnual": 0,
+    "diasPrueba": 0,
+    "periodoFacturacion": "Gratuito",
+    "activo": true
+  },
+  {
+    "id": 2,
+    "nombre": "Plan Lector",
+    "descripcion": "Sumérgete en la lectura. Disfruta de un catálogo ampliado de libros digitales y herramientas avanzadas para una experiencia de lectura superior.",
+    "descripcionCorta": "Catálogo ampliado y herramientas avanzadas.",
+    "precioMensual": 999,
+    "precioAnual": 9999,
+    "diasPrueba": 14,
+    "periodoFacturacion": "Mensual",
+    "activo": true
+  },
+  {
+    "id": 3,
+    "nombre": "Plan Premium",
+    "descripcion": "La experiencia definitiva. Acceso ilimitado a todo nuestro catálogo, funciones exclusivas y la mejor experiencia de biblioteca digital que podemos ofrecer.",
+    "descripcionCorta": "Acceso ilimitado y funciones exclusivas.",
+    "precioMensual": 1499,
+    "precioAnual": 14999,
+    "diasPrueba": 14,
+    "periodoFacturacion": "Mensual",
+    "activo": true
+  },
+  {
+    "id": 4,
+    "nombre": "Plan Familiar",
+    "descripcion": "Lectura para todos en casa. Comparte el acceso con hasta 5 perfiles, cada uno con sus propias preferencias y avances de lectura.",
+    "descripcionCorta": "Comparte con hasta 5 perfiles.",
+    "precioMensual": 1999,
+    "precioAnual": 19999,
+    "diasPrueba": 14,
+    "periodoFacturacion": "Mensual",
+    "activo": true
+  }
+]

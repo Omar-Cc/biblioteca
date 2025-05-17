@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Gestion de Contenidos',
+          pageAdditionalCss=~{::contenidoListCss},
+          pageContent=~{::contenidoListContent},
+          pageAdditionalScripts=~{::contenidoListScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="contenidoListCss">
+    <!-- CSS específico para la lista de contenidos -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="contenidoListContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Gestión de Contenidos</h1>
+      <a th:href="@{/admin/contenidos/nuevo}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Contenido
+      </a>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      <span th:text="${successMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="${errorMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">Filtros</h5>
+      </div>
+      <div class="card-body">
+        <form th:action="@{/admin/contenidos}" method="get" class="row g-3">
+          <div class="col-md-3">
+            <label for="tituloObra" class="form-label">Título</label>
+            <input type="text" class="form-control" id="tituloObra" name="tituloObra" th:value="${filtroTituloObra}"
+              placeholder="Buscar por título...">
+          </div>
+          <div class="col-md-3">
+            <label for="editorialId" class="form-label">Editorial</label>
+            <select class="form-select" id="editorialId" name="editorialId">
+              <option value="">Todas las editoriales</option>
+              <option th:each="editorial : ${editoriales}" th:value="${editorial.id}" th:text="${editorial.nombre}"
+                th:selected="${filtroEditorialId != null && filtroEditorialId == editorial.id}">
+              </option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="tipo" class="form-label">Tipo de contenido</label>
+            <select class="form-select" id="tipo" name="tipo">
+              <option value="">Todos los tipos</option>
+              <option th:each="tipoContenido : ${tiposContenido}" th:value="${tipoContenido}"
+                th:text="${tipoContenido.toString().replace('_', ' ')}"
+                th:selected="${filtroTipo != null && filtroTipo == tipoContenido}">
+              </option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="soloActivos" class="form-label">Estado</label>
+            <select class="form-select" id="soloActivos" name="soloActivos">
+              <option value="">Todos</option>
+              <option value="true" th:selected="${filtroSoloActivos != null && filtroSoloActivos == true}">Activos
+              </option>
+              <option value="false" th:selected="${filtroSoloActivos != null && filtroSoloActivos == false}">Inactivos
+              </option>
+            </select>
+          </div>
+          <div class="col-12 text-end">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-search me-1"></i> Filtrar
+            </button>
+            <a th:href="@{/admin/contenidos}" class="btn btn-secondary">
+              <i class="bi bi-arrow-repeat me-1"></i> Limpiar
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tabla de Contenidos -->
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive p-3">
+          <table class="table table-striped datatable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Portada</th>
+                <th>Obra</th>
+                <th>Tipo</th>
+                <th>Editorial</th>
+                <th>Precio</th>
+                <th>Disponible</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="contenido : ${contenidos}">
+                <td th:text="${contenido.id}"></td>
+                <td>
+                  <img th:if="${contenido.portadaUrl}" th:src="${contenido.portadaUrl}" alt="Portada"
+                    class="img-thumbnail" style="height: 50px;">
+                  <span th:unless="${contenido.portadaUrl}" class="badge bg-secondary">Sin imagen</span>
+                </td>
+                <td>
+                  <span th:text="${contenido.obra.titulo}"></span>
+                  <span th:if="${contenido.serie}" class="badge bg-info ms-1"
+                    th:text="${contenido.serie.nombre + ' #' + contenido.serie.ordenEnSerie}"></span>
+                </td>
+                <td>
+                  <span class="badge" th:classappend="${
+                                            contenido.tipo.toString().contains('FISICO') ? 'bg-success' : 
+                                            contenido.tipo.toString().contains('DIGITAL') ? 'bg-primary' : 'bg-warning'
+                                        }" th:text="${contenido.tipo.toString().replace('_', ' ')}"></span>
+                </td>
+                <td th:text="${contenido.editorial.nombre}"></td>
+                <td th:text="${'S/ ' + contenido.precio/100.0}"></td>
+                <td>
+                  <span th:if="${contenido.tipo.toString().contains('FISICO')}"
+                    th:text="${contenido.stockDisponible + ' uds'}"></span>
+                  <span
+                    th:if="${!contenido.tipo.toString().contains('FISICO') && contenido.permiteDescarga != null && contenido.permiteDescarga}"
+                    class="badge bg-success">Descargable</span>
+                  <span
+                    th:if="${!contenido.tipo.toString().contains('FISICO') && (contenido.permiteDescarga == null || !contenido.permiteDescarga)}"
+                    class="badge bg-warning">Online</span>
+                </td>
+                <td>
+                  <span th:if="${contenido.activo}" class="badge bg-success">Activo</span>
+                  <span th:unless="${contenido.activo}" class="badge bg-danger">Inactivo</span>
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <a th:href="@{/admin/contenidos/editar/{id}(id=${contenido.id})}" class="btn btn-primary"
+                      title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <form th:if="${contenido.activo}"
+                      th:action="@{/admin/contenidos/cambiar-estado/{id}(id=${contenido.id})}" method="post"
+                      style="display: inline;">
+                      <input type="hidden" name="nuevoEstado" value="false">
+                      <button type="submit" class="btn btn-danger" title="Desactivar"
+                        onclick="return confirm('¿Estás seguro de que deseas desactivar este contenido?')">
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    </form>
+                    <form th:unless="${contenido.activo}"
+                      th:action="@{/admin/contenidos/cambiar-estado/{id}(id=${contenido.id})}" method="post"
+                      style="display: inline;">
+                      <input type="hidden" name="nuevoEstado" value="true">
+                      <button type="submit" class="btn btn-success" title="Activar">
+                        <i class="bi bi-check-circle"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <th:block th:fragment="contenidoListScripts">
+    <!-- Scripts específicos para el formulario de autores -->
+  </th:block>
+</body>
+
+</html>

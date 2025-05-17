@@ -1,0 +1,79 @@
+[
+  {
+    "titulo": "El nombre del viento",
+    "descripcion": "Primera parte de la trilogía Crónica del Asesino de Reyes",
+    "anioPublicacion": 2007,
+    "isbn": "978-84-01-33720-8",
+    "editorialId": 1,
+    "idioma": ["Español", "Inglés"],
+    "autorIds": [1],
+    "autorRoles": ["Autor principal"],
+    "generoIds": [2, 34]
+  },
+  {
+    "titulo": "Dune",
+    "descripcion": "Novela épica de ciencia ficción que transcurre en el planeta desértico de Arrakis",
+    "anioPublicacion": 1965,
+    "isbn": "978-84-9759-682-4",
+    "editorialId": 2,
+    "idioma": ["Español", "Inglés"],
+    "autorIds": [2],
+    "autorRoles": ["Autor"],
+    "generoIds": [1, 30, 31]
+  },
+  {
+    "titulo": "Cien años de soledad",
+    "descripcion": "La obra cumbre del realismo mágico y una de las novelas más importantes de la literatura latinoamericana",
+    "anioPublicacion": 1967,
+    "isbn": "978-84-397-2121-0",
+    "editorialId": 3,
+    "idioma": ["Español"],
+    "autorIds": [3],
+    "autorRoles": ["Autor"],
+    "generoIds": [3, 10]
+  },
+  {
+    "titulo": "Watchmen",
+    "descripcion": "Novela gráfica revolucionaria que deconstruye el género de superhéroes",
+    "anioPublicacion": 1986,
+    "isbn": "978-84-16998-34-6",
+    "editorialId": 9,
+    "idioma": ["Español", "Inglés"],
+    "autorIds": [4, 5],
+    "autorRoles": ["Guionista", "Ilustrador"],
+    "generoIds": [27, 53]
+  },
+  {
+    "titulo": "Death Note",
+    "descripcion": "Un estudiante encuentra un cuaderno sobrenatural que le permite matar a cualquiera escribiendo su nombre",
+    "anioPublicacion": 2003,
+    "isbn": "978-84-679-0500-2",
+    "editorialId": 12,
+    "idioma": ["Español", "Japonés"],
+    "autorIds": [6, 7],
+    "autorRoles": ["Guionista", "Ilustrador"],
+    "generoIds": [7, 26, 50]
+  },
+  {
+    "titulo": "1984",
+    "descripcion": "Novela distópica que presenta una sociedad totalitaria vigilada por el Gran Hermano",
+    "anioPublicacion": 1949,
+    "isbn": "978-84-233-3922-8",
+    "editorialId": 1,
+    "idioma": ["Español", "Inglés"],
+    "autorIds": [8],
+    "autorRoles": ["Autor"],
+    "generoIds": [1, 32]
+  },
+  {
+    "titulo": "One Piece",
+    "descripcion": "Las aventuras de Monkey D. Luffy y su tripulación en busca del legendario tesoro One Piece",
+    "anioPublicacion": 1997,
+    "isbn": "978-84-684-7047-6",
+    "editorialId": 13,
+    "idioma": ["Español", "Japonés"],
+    "autorIds": [9],
+    "autorRoles": ["Autor e Ilustrador"],
+    "generoIds": [9, 16, 18, 26, 50]
+  }
+]

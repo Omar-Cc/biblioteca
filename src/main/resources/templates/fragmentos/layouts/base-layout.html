@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+  th:fragment="fullPage(pageTitle, pageAdditionalCss, pageContent, pageAdditionalScripts)">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${pageTitle} ?: 'Biblioteca Virtual'">Biblioteca Virtual</title>
+
+  <!-- Estilos base -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/custom-theme.css}" />
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+
+  <!-- CSS adicional específico de la página -->
+  <th:block th:if="${pageAdditionalCss != null}" th:insert="${pageAdditionalCss}"></th:block>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav th:replace="~{fragmentos/componentes/navbar :: navbar}"></nav>
+
+  <!-- Contenido principal de la página -->
+  <main th:replace="${pageContent}">
+    <div class="container">
+      <p>Contenido principal no especificado.</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer th:replace="~{fragmentos/componentes/footer :: footer}"></footer>
+
+  <!-- Scripts base -->
+  <div th:replace="~{fragmentos/componentes/scripts :: scripts} ?: ~{}"></div>
+
+  <!-- Scripts adicionales específicos de la página -->
+  <th:block th:if="${pageAdditionalScripts != null}" th:insert="${pageAdditionalScripts}"></th:block>
+</body>
+
+</html>

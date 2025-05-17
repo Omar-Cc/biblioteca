@@ -1,0 +1,108 @@
+<!-- Fragment para el footer -->
+<footer th:fragment="footer" class="bg-dark text-white py-5 mt-5">
+  <div class="container">
+    <!-- Sección principal del footer -->
+    <div class="row g-4">
+      <!-- Columna información de la biblioteca -->
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-book-half fs-2 me-2 text-primary"></i>
+          <h5 class="mb-0">BiblioVirtual</h5>
+        </div>
+        <p class="mb-3">
+          Tu biblioteca digital completa, disponible en cualquier momento y lugar. Miles de libros al
+          alcance de un clic.
+        </p>
+        <div class="social-media mb-3">
+          <a href="#" class="text-white me-3" title="Facebook"><i class="bi bi-facebook fs-4"></i></a>
+          <a href="#" class="text-white me-3" title="Twitter"><i class="bi bi-twitter-x fs-4"></i></a>
+          <a href="#" class="text-white me-3" title="Instagram"><i class="bi bi-instagram fs-4"></i></a>
+          <a href="#" class="text-white" title="YouTube"><i class="bi bi-youtube fs-4"></i></a>
+        </div>
+        <p class="small">© 2025 BiblioVirtual. Todos los derechos reservados.</p>
+      </div>
+
+      <!-- Columna de enlaces rápidos -->
+      <div class="col-lg-2 col-md-6">
+        <h5 class="mb-3 pb-2 border-bottom border-secondary">Enlaces rápidos</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a th:href="@{/index}" class="text-decoration-none text-white"><i
+                class="bi bi-house-door me-2"></i>Inicio</a></li>
+          <li class="mb-2"><a th:href="@{/catalogo}" class="text-decoration-none text-white"><i
+                class="bi bi-journal-bookmark me-2"></i>Catálogo</a></li>
+          <li class="mb-2"><a th:href="@{/suscripciones}" class="text-decoration-none text-white"><i
+                class="bi bi-stars me-2"></i>Planes</a></li>
+          <li class="mb-2"><a th:href="@{/nosotros}" class="text-decoration-none text-white"><i
+                class="bi bi-people me-2"></i>Nosotros</a></li>
+          <li class="mb-2"><a th:href="@{/contacto}" class="text-decoration-none text-white"><i
+                class="bi bi-chat-dots me-2"></i>Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna de servicios -->
+      <div class="col-lg-2 col-md-6">
+        <h5 class="mb-3 pb-2 border-bottom border-secondary">Servicios</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a th:href="@{/mis-prestamos}" class="text-decoration-none text-white"><i
+                class="bi bi-book me-2"></i>Mis préstamos</a></li>
+          <li class="mb-2"><a th:href="@{/carrito}" class="text-decoration-none text-white"><i
+                class="bi bi-cart me-2"></i>Mi carrito</a></li>
+          <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
+                class="bi bi-bookmark-heart me-2"></i>Favoritos</a></li>
+          <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
+                class="bi bi-headset me-2"></i>Soporte</a></li>
+          <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
+                class="bi bi-question-circle me-2"></i>Ayuda</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna de contacto -->
+      <div class="col-lg-4 col-md-6">
+        <h5 class="mb-3 pb-2 border-bottom border-secondary">Contacto</h5>
+        <address class="mb-3">
+          <div class="mb-2"><i class="bi bi-geo-alt-fill me-2 text-primary"></i> Av. Universidad 123, Col. Centro
+          </div>
+          <div class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i> <a
+              href="mailto:info@bibliovirtual.com"
+              class="text-white text-decoration-none">contacto@bibliovirtual.com</a>
+          </div>
+          <div class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i> (123) 456-7890</div>
+          <div><i class="bi bi-clock-fill me-2 text-primary"></i> Lunes a Viernes: 9:00 AM - 6:00 PM</div>
+        </address>
+
+        <!-- Formulario de newsletter -->
+        <div class="newsletter">
+          <h6 class="mb-2">Suscríbete a nuestro newsletter</h6>
+          <div class="input-group mb-2">
+            <input type="email" class="form-control" placeholder="Tu email" aria-label="Email"
+              aria-describedby="subscribe-btn">
+            <button class="btn btn-primary" type="button" id="subscribe-btn">Suscribir</button>
+          </div>
+          <small class="text-muted">Recibe las últimas novedades y promociones.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección inferior del footer -->
+    <div class="mt-4 pt-4 border-top border-secondary">
+      <div class="row align-items-center">
+        <div class="col-md-6 text-center text-md-start">
+          <p class="small mb-md-0">Desarrollado con <i class="bi bi-heart-fill text-danger"></i> por
+            BiblioVirtual Team</p>
+        </div>
+        <div class="col-md-6">
+          <ul class="list-inline text-center text-md-end mb-0">
+            <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Términos
+                y Condiciones</a></li>
+            <li class="list-inline-item mx-2">|</li>
+            <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Política
+                de Privacidad</a></li>
+            <li class="list-inline-item mx-2">|</li>
+            <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Mapa
+                del Sitio</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

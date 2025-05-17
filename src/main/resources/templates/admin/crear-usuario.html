@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Crear Usuario',
+          pageAdditionalCss=~{::usuariosFormCss},
+          pageContent=~{::usuariosFormContent},
+          pageAdditionalScripts=~{::usuariosFormScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="usuariosFormCss">
+    <!-- CSS específico -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="usuariosFormContent" class="container-fluid py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Crear Nuevo Usuario</h5>
+          </div>
+          <div class="card-body">
+            <!-- Mensajes de error -->
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <span th:text="${errorMessage}"></span>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <form th:action="@{/admin/usuarios/nuevo}" th:object="${usuarioAdminDTO}" method="post"
+              class="needs-validation" novalidate>
+              <!-- Nombre de usuario -->
+              <div class="mb-3">
+                <label for="username" class="form-label">Nombre de Usuario <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="username" th:field="*{username}" required>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">
+                  Por favor, ingresa un nombre de usuario válido.
+                </div>
+                <div class="form-text">El nombre de usuario debe tener entre 3 y 20 caracteres. Solo letras, números y
+                  guiones bajos.</div>
+              </div>
+
+              <!-- Email -->
+              <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+                  Por favor, ingresa un correo electrónico válido.
+                </div>
+              </div>
+
+              <!-- Contraseña -->
+              <div class="mb-3">
+                <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="password" th:field="*{password}" required minlength="6">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                  La contraseña debe tener al menos 6 caracteres.
+                </div>
+                <div class="form-text">La contraseña debe tener al menos 6 caracteres.</div>
+              </div>
+
+              <!-- Roles -->
+              <div class="mb-4">
+                <label class="form-label">Roles <span class="text-danger">*</span></label>
+                <div class="form-check" th:each="rol : ${roles}">
+                  <input class="form-check-input" type="checkbox" th:field="*{roles}" th:value="${rol.nombre}"
+                    th:id="${'rol-' + rol.nombre}">
+                  <label class="form-check-label" th:for="${'rol-' + rol.nombre}"
+                    th:text="${rol.nombre}">ROLE_USER</label>
+                </div>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('roles')}" th:errors="*{roles}">
+                  Selecciona al menos un rol.
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between">
+                <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary">
+                  <i class="bi bi-arrow-left me-1"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-person-plus me-1"></i> Crear Usuario
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="usuariosFormScripts">
+    <script>
+      // Validación del formulario
+      (function () {
+        'use strict';
+
+        var forms = document.querySelectorAll('.needs-validation');
+
+        Array.from(forms).forEach(function (form) {
+          form.addEventListener('submit', function (event) {
+            // Verificar que al menos un rol esté seleccionado
+            const roles = form.querySelectorAll('input[name="roles"]');
+            let rolSeleccionado = false;
+            roles.forEach(function (rol) {
+              if (rol.checked) {
+                rolSeleccionado = true;
+              }
+            });
+
+            if (!rolSeleccionado) {
+              event.preventDefault();
+              event.stopPropagation();
+              // Mostrar mensaje de error para roles
+              const rolContainer = document.querySelector('.form-check').closest('div');
+              rolContainer.classList.add('was-validated');
+            }
+
+            if (!form.checkValidity()) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+
+            form.classList.add('was-validated');
+          }, false);
+        });
+      })();
+    </script>
+  </th:block>
+</body>
+
+</html>

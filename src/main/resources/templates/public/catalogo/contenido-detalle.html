@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle=${contenido.obra.titulo + ' - Biblioteca Virtual'},
+          pageAdditionalCss=~{::detalleCss},
+          pageContent=~{::detalleContent},
+          pageAdditionalScripts=~{::detalleScripts}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico -->
+  <th:block th:fragment="detalleCss">
+    <style>
+      .producto-detalle-container {
+        background-color: white;
+        border-radius: 0;
+        padding-bottom: 3rem;
+      }
+
+      .imagen-container {
+        position: relative;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, rgba(45, 110, 126, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .contenido-cover {
+        border-radius: 0.75rem;
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        max-height: 450px;
+        object-fit: cover;
+        width: 100%;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+
+      .imagen-container:hover .contenido-cover {
+        transform: scale(1.03) translateY(-10px) rotate(1deg);
+        box-shadow: 0 1.5rem 3rem rgba(45, 110, 126, 0.2);
+      }
+
+      .rating-stars {
+        color: var(--bs-warning);
+        margin-bottom: 1rem;
+      }
+
+      .info-basica-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .info-basica-card:hover {
+        box-shadow: 0 0.75rem 1.5rem rgba(45, 110, 126, 0.15);
+      }
+
+      .info-basica-card .card-header {
+        background-color: var(--bs-primary);
+        color: white;
+        border-bottom: none;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+      }
+
+      .info-basica-card .card-header i {
+        margin-right: 0.5rem;
+      }
+
+      .info-basica-card .list-group-item {
+        padding: 0.85rem 1.25rem;
+        border-color: rgba(45, 110, 126, 0.1);
+        transition: all 0.2s ease;
+      }
+
+      .info-basica-card .list-group-item:hover {
+        background-color: rgba(45, 110, 126, 0.03);
+      }
+
+      .detail-property {
+        display: flex;
+        margin-bottom: 0.5rem;
+      }
+
+      .property-label {
+        min-width: 140px;
+        font-weight: 600;
+        color: var(--bs-primary);
+        display: flex;
+        align-items: center;
+      }
+
+      .property-label i {
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.7;
+      }
+
+      .property-value {
+        color: var(--bs-dark);
+        flex: 1;
+      }
+
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+      }
+
+      .btn-action {
+        padding: 1rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-action:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
+      }
+
+      .btn-action i {
+        font-size: 1.5rem;
+      }
+
+      .btn-cart {
+        background-color: var(--bs-success);
+        border-color: var(--bs-success);
+      }
+
+      .btn-cart:hover {
+        background-color: var(--bs-success-darker);
+        border-color: var(--bs-success-darker);
+      }
+
+      .btn-prestamo {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+      }
+
+      .btn-prestamo:hover {
+        background-color: var(--bs-primary-darker);
+        border-color: var(--bs-primary-darker);
+      }
+
+      .btn-download {
+        background-color: var(--bs-info);
+        border-color: var(--bs-info);
+        color: white;
+      }
+
+      .btn-download:hover {
+        background-color: var(--bs-info-darker);
+        border-color: var(--bs-info-darker);
+        color: white;
+      }
+
+      .contenido-header {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+
+      .contenido-titulo {
+        color: var(--bs-primary);
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+        line-height: 1.1;
+      }
+
+      .contenido-meta {
+        color: var(--bs-secondary);
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+      }
+
+      .autores-container {
+        margin: 1.25rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .autor-badge {
+        display: inline-flex;
+        align-items: center;
+        background-color: rgba(45, 110, 126, 0.08);
+        color: var(--bs-primary);
+        padding: 0.5rem 0.85rem;
+        border-radius: 2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.05);
+      }
+
+      .autor-badge:hover {
+        background-color: var(--bs-primary);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+      }
+
+      .autor-badge i {
+        font-size: 1rem;
+        margin-right: 0.5rem;
+      }
+
+      .badge-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
+      }
+
+      .badge-contenido {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+      }
+
+      .badge-contenido i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .badge-contenido:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.35rem 0.75rem rgba(0, 0, 0, 0.15);
+      }
+
+      .badge-precio {
+        background-color: var(--bs-success);
+        color: white;
+        padding: 0.5rem 1.25rem;
+        font-size: 1.1rem;
+      }
+
+      .info-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.75rem;
+        transition: all 0.3s ease;
+      }
+
+      .info-card:hover {
+        box-shadow: 0 0.75rem 1.5rem rgba(45, 110, 126, 0.15);
+        transform: translateY(-3px);
+      }
+
+      .info-card .card-header {
+        background-color: rgba(45, 110, 126, 0.05);
+        color: var(--bs-primary);
+        border-bottom: 1px solid rgba(45, 110, 126, 0.1);
+        font-weight: 600;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .info-card .card-header i {
+        margin-right: 0.75rem;
+        font-size: 1.25rem;
+        color: var(--bs-primary);
+      }
+
+      .info-card .card-body {
+        padding: 1.5rem;
+      }
+
+      .sinopsis-card {
+        font-size: 1.05rem;
+        line-height: 1.6;
+      }
+
+      .sinopsis-card p:last-child {
+        margin-bottom: 0;
+      }
+
+      .detalle-grupo {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .detalle-grupo:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+
+      .detalle-titulo {
+        color: var(--bs-primary);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .detalle-titulo i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+
+      .back-btn-container {
+        padding: 1.5rem 0;
+        margin-top: 2rem;
+        text-align: center;
+        border-top: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .btn-back {
+        padding: 0.75rem 1.5rem;
+        border-radius: 2rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-back:hover {
+        transform: translateX(-5px);
+      }
+
+      @media (max-width: 991.98px) {
+        .contenido-titulo {
+          font-size: 2.25rem;
+        }
+      }
+
+      @media (max-width: 767.98px) {
+        .contenido-titulo {
+          font-size: 1.75rem;
+        }
+
+        .contenido-info-container {
+          margin-top: 2rem;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .btn-action {
+          padding: 0.85rem 1rem;
+        }
+
+        .badge-container {
+          margin-bottom: 1rem;
+        }
+
+        .badge-contenido {
+          margin-bottom: 0.5rem;
+        }
+      }
+
+      .recomendaciones-container {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .recomendaciones-titulo {
+        font-size: 1.5rem;
+        color: var(--bs-primary);
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+      }
+
+      .book-glow {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: radial-gradient(ellipse at center, rgba(45, 110, 126, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+        border-radius: 1rem;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        pointer-events: none;
+      }
+
+      .imagen-container:hover .book-glow {
+        opacity: 1;
+      }
+
+      .status-tag {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(25%, -25%) rotate(15deg);
+        background-color: var(--bs-danger);
+        color: white;
+        padding: 0.35rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+        z-index: 1;
+        border-radius: 0.25rem;
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido principal -->
+  <th:block th:fragment="detalleContent">
+
+    <div class="producto-detalle-container">
+      <div class="container pt-5">
+        <div class="row">
+          <!-- Columna izquierda: Portada e info básica -->
+          <div class="col-lg-4">
+            <div class="imagen-container">
+              <!-- Etiqueta de estado si es nuevo o popular -->
+              <div class="status-tag"
+                th:if="${contenido.fechaCreacion != null && #temporals.createNow().toLocalDate().minusMonths(1).isBefore(contenido.fechaCreacion)}">
+                ¡NUEVO!</div>
+
+              <div class="book-glow"></div>
+              <img th:src="${contenido.portadaUrl != null ? contenido.portadaUrl : '/img/portada-default.jpg'}"
+                class="contenido-cover shadow" th:alt="${contenido.obra?.titulo ?: 'Portada del contenido'}">
+            </div>
+
+            <!-- Calificación estilo -->
+            <!-- <div class="rating-stars text-center" th:if="${contenido.calificacionPromedio != null}">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+              <span class="ms-2 text-muted" th:text="${contenido.calificacionPromedio + ' de 5'}">4.5 de 5</span>
+            </div> -->
+
+            <div class="action-buttons">
+              <a th:if="${contenido.enVenta}" th:href="@{'/mi-cuenta/carrito/agregar-rapido/' + ${contenido.id}}"
+                class="btn btn-cart btn-action">
+                <i class="bi bi-cart-plus"></i> Agregar al carrito
+              </a>
+              <a th:if="${contenido.puedeSerPrestado}" th:href="@{'/catalogo/prestamo/' + ${contenido.id}}"
+                class="btn btn-prestamo btn-action">
+                <i class="bi bi-journal-arrow-up"></i> Solicitar préstamo
+              </a>
+              <a th:if="${contenido.permiteDescarga}" href="#" class="btn btn-download btn-action">
+                <i class="bi bi-download"></i> Descargar
+              </a>
+            </div>
+
+            <div class="card info-basica-card">
+              <div class="card-header">
+                <i class="bi bi-info-circle"></i>Información básica
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  <div class="detail-property">
+                    <div class="property-label"><i class="bi bi-collection"></i>Tipo:</div>
+                    <div class="property-value" th:text="${contenido.tipo.toString().replace('_', ' ').toLowerCase()}">
+                      Tipo de contenido</div>
+                  </div>
+                </li>
+                <li class="list-group-item" th:if="${contenido.editorial != null}">
+                  <div class="detail-property">
+                    <div class="property-label"><i class="bi bi-building"></i>Editorial:</div>
+                    <div class="property-value" th:text="${contenido.editorial.nombre}">Nombre de editorial</div>
+                  </div>
+                </li>
+                <li class="list-group-item" th:if="${contenido.isbn != null && !contenido.isbn.isEmpty()}">
+                  <div class="detail-property">
+                    <div class="property-label"><i class="bi bi-upc-scan"></i>ISBN:</div>
+                    <div class="property-value" th:text="${contenido.isbn}">ISBN</div>
+                  </div>
+                </li>
+                <li class="list-group-item" th:if="${contenido.issn != null && !contenido.issn.isEmpty()}">
+                  <div class="detail-property">
+                    <div class="property-label"><i class="bi bi-upc"></i>ISSN:</div>
+                    <div class="property-value" th:text="${contenido.issn}">ISSN</div>
+                  </div>
+                </li>
+                <li class="list-group-item" th:if="${contenido.fechaCreacion != null}">
+                  <div class="detail-property">
+                    <div class="property-label"><i class="bi bi-calendar-event"></i>Disponible desde:</div>
+                    <div class="property-value" th:text="${#temporals.format(contenido.fechaCreacion, 'dd/MM/yyyy')}">
+                      Fecha</div>
+                  </div>
+                </li>
+                <li class="list-group-item" th:if="${contenido.paginas != null}">
+                  <div class="detail-property">
+                    <div class="property-label"><i class="bi bi-file-earmark-text"></i>Páginas:</div>
+                    <div class="property-value" th:text="${contenido.paginas}">Páginas</div>
+                  </div>
+                </li>
+                <li class="list-group-item"
+                  th:if="${contenido.stockDisponible != null && contenido.stockDisponible > 0}">
+                  <div class="detail-property">
+                    <div class="property-label"><i class="bi bi-boxes"></i>Stock:</div>
+                    <div class="property-value">
+                      <span class="fw-bold text-success" th:text="${contenido.stockDisponible}">10</span> unidades
+                      disponibles
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Columna derecha: Detalles -->
+          <div class="col-lg-8 contenido-info-container">
+            <div class="contenido-header">
+              <h1 class="contenido-titulo display-4" th:text="${contenido.obra?.titulo ?: 'Título no disponible'}">
+                Título del contenido
+              </h1>
+
+              <div class="contenido-meta" th:if="${contenido.serie?.ordenEnSerie != null}">
+                <span th:text="${'Volumen ' + contenido.serie.ordenEnSerie}">Volumen 1</span>
+              </div>
+
+              <div class="badge-container">
+                <span th:if="${contenido.enVenta}" class="badge-contenido badge-precio">
+                  S/ 
+                  <span
+                    th:text="${#numbers.formatDecimal(contenido.precio / 100.0, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                </span>
+                <span th:if="${contenido.puedeSerPrestado}" class="badge-contenido bg-primary">
+                  <i class="bi bi-book"></i> Disponible para préstamo
+                </span>
+                <span th:if="${contenido.permiteDescarga}" class="badge-contenido bg-info text-white">
+                  <i class="bi bi-download"></i> Permite descarga
+                </span>
+                <span th:if="${contenido.stockDisponible != null && contenido.stockDisponible > 0}"
+                  class="badge-contenido bg-warning text-dark">
+                  <i class="bi bi-box"></i> <span th:text="${contenido.stockDisponible + ' en stock'}">Stock</span>
+                </span>
+                <span th:if="${contenido.tipo != null}" class="badge-contenido bg-secondary text-white">
+                  <i class="bi bi-tag"></i>
+                  <span th:text="${contenido.tipo.toString().replace('_', ' ').toLowerCase()}">Tipo</span>
+                </span>
+              </div>
+
+              <div class="autores-container"
+                th:if="${contenido.obra?.autores != null && !#lists.isEmpty(contenido.obra.autores)}">
+                <span class="autor-badge" th:each="autor : ${contenido.obra.autores}">
+                  <i class="bi bi-person-fill"></i> <span th:text="${autor.nombre}">Nombre del autor</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="card info-card sinopsis-card">
+              <div class="card-header">
+                <i class="bi bi-book"></i>Sinopsis
+              </div>
+              <div class="card-body">
+                <p class="card-text"
+                  th:text="${contenido.sinopsis ?: 'No hay sinopsis disponible para este contenido.'}">
+                  Sinopsis del contenido...
+                </p>
+              </div>
+            </div>
+
+            <div class="card info-card">
+              <div class="card-header">
+                <i class="bi bi-list-check"></i>Detalles específicos
+              </div>
+              <div class="card-body">
+                <!-- Contenido físico -->
+                <div class="detalle-grupo" th:if="${contenido.stockDisponible != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-book"></i>Detalles físicos</h5>
+                  <div class="detail-property">
+                    <div class="property-label">Ubicación:</div>
+                    <div class="property-value" th:text="${contenido.ubicacionFisica ?: 'No especificada'}">Ubicación
+                    </div>
+                  </div>
+                  <div class="detail-property" th:if="${contenido.formatoFisico}">
+                    <div class="property-label">Formato:</div>
+                    <div class="property-value" th:text="${contenido.formatoFisico}">Formato físico</div>
+                  </div>
+                </div>
+
+                <!-- Publicación ilustrada -->
+                <div class="detalle-grupo" th:if="${contenido.ilustrador != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-brush"></i>Detalles de ilustración</h5>
+                  <div class="detail-property">
+                    <div class="property-label">Ilustrador:</div>
+                    <div class="property-value" th:text="${contenido.ilustrador}">Ilustrador</div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Volumen:</div>
+                    <div class="property-value" th:text="${contenido.volumen}">Volumen</div>
+                  </div>
+                </div>
+
+                <!-- Manga -->
+                <div class="detalle-grupo" th:if="${contenido.sentidoLectura != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-book-half"></i>Detalles de manga</h5>
+                  <div class="detail-property">
+                    <div class="property-label">Sentido de lectura:</div>
+                    <div class="property-value" th:text="${contenido.sentidoLectura}">Sentido de lectura</div>
+                  </div>
+                </div>
+
+                <!-- Comic -->
+                <div class="detalle-grupo" th:if="${contenido.colorido != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-palette"></i>Detalles de comic</h5>
+                  <div class="detail-property">
+                    <div class="property-label">A color:</div>
+                    <div class="property-value">
+                      <span th:if="${contenido.colorido}" class="badge bg-success">Sí</span>
+                      <span th:unless="${contenido.colorido}" class="badge bg-secondary">No</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Revista -->
+                <div class="detalle-grupo" th:if="${contenido.periodicidad != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-newspaper"></i>Detalles de revista</h5>
+                  <div class="detail-property">
+                    <div class="property-label">Periodicidad:</div>
+                    <div class="property-value" th:text="${contenido.periodicidad}">Periodicidad</div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Edición:</div>
+                    <div class="property-value" th:text="${contenido.edicion}">Edición</div>
+                  </div>
+                </div>
+
+                <!-- Contenido digital -->
+                <div class="detalle-grupo" th:if="${contenido.tamanioArchivo != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-file-earmark-binary"></i>Detalles digitales</h5>
+                  <div class="detail-property">
+                    <div class="property-label">Tamaño:</div>
+                    <div class="property-value">
+                      <span class="badge bg-info text-white" th:text="${contenido.tamanioArchivo}">10</span> MB
+                    </div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Formato:</div>
+                    <div class="property-value" th:text="${contenido.formatoDigital}">Formato digital</div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Tipo de licencia:</div>
+                    <div class="property-value" th:text="${contenido.tipoLicencia}">Tipo de licencia</div>
+                  </div>
+                </div>
+
+                <!-- Audiolibro -->
+                <div class="detalle-grupo" th:if="${contenido.duracionAudioLibro != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-headphones"></i>Detalles de audiolibro</h5>
+                  <div class="detail-property">
+                    <div class="property-label">Duración:</div>
+                    <div class="property-value" th:text="${contenido.duracionAudioLibro}">Duración</div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Narrador:</div>
+                    <div class="property-value" th:text="${contenido.narrador}">Narrador</div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Calidad de audio:</div>
+                    <div class="property-value" th:text="${contenido.calidadAudio}">Calidad de audio</div>
+                  </div>
+                </div>
+
+                <!-- Material educativo -->
+                <div class="detalle-grupo" th:if="${contenido.nivelEducativo != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-mortarboard"></i>Detalles educativos</h5>
+                  <div class="detail-property">
+                    <div class="property-label">Nivel educativo:</div>
+                    <div class="property-value">
+                      <span class="badge bg-primary" th:text="${contenido.nivelEducativo}">Primaria</span>
+                    </div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Asignatura:</div>
+                    <div class="property-value" th:text="${contenido.asignatura}">Asignatura</div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Recursos:</div>
+                    <div class="property-value" th:text="${contenido.recursosEducativos}">Recursos</div>
+                  </div>
+                </div>
+
+                <!-- Contenido multimedia -->
+                <div class="detalle-grupo" th:if="${contenido.duracionMultimedia != null}">
+                  <h5 class="detalle-titulo"><i class="bi bi-film"></i>Detalles multimedia</h5>
+                  <div class="detail-property">
+                    <div class="property-label">Duración:</div>
+                    <div class="property-value" th:text="${contenido.duracionMultimedia}">Duración</div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Calidad:</div>
+                    <div class="property-value" th:text="${contenido.calidadMultimedia}">Calidad</div>
+                  </div>
+                  <div class="detail-property">
+                    <div class="property-label">Requisitos:</div>
+                    <div class="property-value" th:text="${contenido.requisitosReproduccion}">Requisitos</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de serie si existe -->
+            <div class="card info-card" th:if="${contenido.serie != null}">
+              <div class="card-header">
+                <i class="bi bi-bookmark-star"></i>Información de serie
+              </div>
+              <div class="card-body">
+                <div class="detail-property">
+                  <div class="property-label">Serie:</div>
+                  <div class="property-value">
+                    <span class="fw-bold" th:text="${contenido.serie.nombre}">Nombre de la serie</span>
+                  </div>
+                </div>
+                <div class="detail-property">
+                  <div class="property-label">Orden:</div>
+                  <div class="property-value">
+                    <span class="badge bg-primary" th:text="${'Volumen ' + contenido.serie.ordenEnSerie}">Volumen
+                      1</span>
+                  </div>
+                </div>
+                <div class="detail-property">
+                  <div class="property-label">Estado:</div>
+                  <div class="property-value">
+                    <span th:if="${contenido.serie.completa}" class="badge bg-success">Completa</span>
+                    <span th:unless="${contenido.serie.completa}" class="badge bg-warning text-dark">En progreso</span>
+                  </div>
+                </div>
+                <div class="detail-property">
+                  <div class="property-label">Descripción:</div>
+                  <div class="property-value" th:text="${contenido.serie.descripcion ?: 'Sin descripción'}">Descripción
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección "Más de esta serie" o "También te puede interesar" -->
+        <div class="recomendaciones-container"
+          th:if="${contenidosRelacionados != null && !contenidosRelacionados.isEmpty()}">
+          <h3 class="recomendaciones-titulo">
+            <i class="bi bi-lightning-charge-fill me-2"></i>También te puede interesar
+          </h3>
+
+          <div class="row g-4">
+            <!-- Mostrar contenidos relacionados aquí -->
+          </div>
+        </div>
+
+        <!-- Botón para volver al catálogo -->
+        <div class="back-btn-container">
+          <a th:href="@{/catalogo}" class="btn btn-outline-primary btn-back">
+            <i class="bi bi-arrow-left me-2"></i>Volver al catálogo
+          </a>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <!-- Scripts adicionales -->
+  <th:block th:fragment="detalleScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Efectos visuales para propiedades
+        const detailProperties = document.querySelectorAll('.detail-property');
+
+        detailProperties.forEach(prop => {
+          prop.addEventListener('mouseenter', () => {
+            prop.style.backgroundColor = 'rgba(45, 110, 126, 0.05)';
+            prop.style.borderRadius = '0.25rem';
+            prop.style.transform = 'translateX(5px)';
+            prop.style.transition = 'all 0.2s ease';
+          });
+
+          prop.addEventListener('mouseleave', () => {
+            prop.style.backgroundColor = '';
+            prop.style.transform = '';
+          });
+        });
+
+        // Efecto de iluminación para la portada
+        const portadaContainer = document.querySelector('.imagen-container');
+        if (portadaContainer) {
+          portadaContainer.addEventListener('mousemove', function (e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Aplicar efecto de luz según la posición del mouse
+            this.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(45, 110, 126, 0.15), rgba(255, 255, 255, 0) 50%)`;
+          });
+
+          portadaContainer.addEventListener('mouseleave', function () {
+            this.style.background = 'linear-gradient(135deg, rgba(45, 110, 126, 0.05) 0%, rgba(255, 255, 255, 0) 100%)';
+          });
+        }
+
+        // Animación para los badges
+        const badges = document.querySelectorAll('.badge-contenido');
+        badges.forEach((badge, index) => {
+          badge.style.animationDelay = `${index * 0.1}s`;
+          badge.style.animation = 'fadeInUp 0.5s ease-out';
+        });
+
+        // Animación para los botones de acción
+        const actionButtons = document.querySelectorAll('.btn-action');
+        actionButtons.forEach((btn, index) => {
+          btn.style.opacity = '0';
+          btn.style.transform = 'translateY(20px)';
+          setTimeout(() => {
+            btn.style.transition = 'all 0.5s ease';
+            btn.style.opacity = '1';
+            btn.style.transform = 'translateY(0)';
+          }, 300 + (index * 200));
+        });
+      });
+
+      // Animación para elementos que entran en viewport
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.info-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        observer.observe(card);
+      });
+    </script>
+    <style>
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-in {
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+    </style>
+  </th:block>
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Gestión de Lectores',
+          pageAdditionalCss=~{::lectoresListCss},
+          pageContent=~{::lectoresListContent},
+          pageAdditionalScripts=~{::lectoresListScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="lectoresListCss">
+    <!-- CSS específico para la lista de lectores -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="lectoresListContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Gestión de Lectores</h1>
+      <a th:href="@{/admin}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Volver al Panel
+      </a>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      <span th:text="${successMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="${errorMessage}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">Filtros</h5>
+      </div>
+      <div class="card-body">
+        <form th:action="@{/admin/lectores}" method="get" class="row g-3">
+          <div class="col-md-4">
+            <label for="searchTerm" class="form-label">Buscar</label>
+            <input type="text" class="form-control" id="searchTerm" name="searchTerm"
+              placeholder="Nombre, apellido o email">
+          </div>
+          <div class="col-md-3">
+            <label for="estadoCuenta" class="form-label">Estado de cuenta</label>
+            <select class="form-select" id="estadoCuenta" name="estadoCuenta">
+              <option value="">Todos</option>
+              <option value="ACTIVO">Activo</option>
+              <option value="SUSPENDIDO">Suspendido</option>
+              <option value="MULTADO">Multado</option>
+              <option value="INACTIVO">Inactivo</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="multasPendientes" class="form-label">Multas pendientes</label>
+            <select class="form-select" id="multasPendientes" name="multasPendientes">
+              <option value="">Todos</option>
+              <option value="con">Con multas pendientes</option>
+              <option value="sin">Sin multas pendientes</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-search me-1"></i> Filtrar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tabla de lectores -->
+    <div class="card">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">Lectores registrados</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive p-3">
+          <table class="table table-hover table-striped datatable">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Nombre completo</th>
+                <th scope="col">Email</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Multas</th>
+                <th scope="col">Fecha registro</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:if="${lectores.empty}">
+                <td colspan="7" class="text-center py-4">No hay lectores registrados</td>
+              </tr>
+              <tr th:each="lector : ${lectores}">
+                <td th:text="${lector.id}">1</td>
+                <td>
+                  <div th:text="${lector.nombre + ' ' + lector.apellido}">Nombre Apellido</div>
+                  <small class="text-muted" th:text="${lector.username}">username</small>
+                </td>
+                <td th:text="${lector.email}">email@example.com</td>
+                <td>
+                  <span class="badge rounded-pill" th:classappend="${lector.estadoCuenta == 'ACTIVO' ? 'bg-success' : 
+                                      lector.estadoCuenta == 'SUSPENDIDO' ? 'bg-danger' : 
+                                      lector.estadoCuenta == 'MULTADO' ? 'bg-warning text-dark' : 'bg-secondary'}"
+                    th:text="${lector.estadoCuenta}">ACTIVO</span>
+                </td>
+                <td th:text="${lector.multasPendientes}">0</td>
+                <td th:text="${#dates.format(lector.fechaRegistro, 'dd/MM/yyyy')}">01/01/2025</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <a th:href="@{/admin/lectores/{username}(username=${lector.username})}"
+                      class="btn btn-primary" title="Ver detalles">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="lectoresListScripts">
+    <!-- Scripts específicos para la lista de lectores -->
+  </th:block>
+</body>
+
+</html>

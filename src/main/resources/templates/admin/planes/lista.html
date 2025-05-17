@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Planes',
+          pageAdditionalCss=~{::planesCss},
+          pageContent=~{::planesContent},
+          pageAdditionalScripts=~{::planesScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="planesCss">
+    <!-- CSS específico para la página de planes -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="planesContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Administración de Planes</h1>
+      <a th:href="@{/admin/planes/nuevo}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Nuevo Plan
+      </a>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      <span th:text="${mensaje}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Tabla de planes -->
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped datatable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio Mensual</th>
+                <th>Precio Anual</th>
+                <th>Días Prueba</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="plan : ${planes}">
+                <td th:text="${plan.id}"></td>
+                <td th:text="${plan.nombre}"></td>
+                <td th:text="${'$' + #numbers.formatDecimal(plan.precioMensual, 1, 2)}"></td>
+                <td th:text="${'$' + #numbers.formatDecimal(plan.precioAnual, 1, 2)}"></td>
+                <td th:text="${plan.diasPrueba}"></td>
+                <td>
+                  <span th:if="${plan.activo}" class="badge bg-success">Activo</span>
+                  <span th:unless="${plan.activo}" class="badge bg-danger">Inactivo</span>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a th:href="@{/admin/planes/{id}/editar(id=${plan.id})}" class="btn btn-sm btn-outline-primary"
+                      title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a th:href="@{/admin/planes-beneficios/plan/{id}(id=${plan.id})}"
+                      class="btn btn-sm btn-outline-info" title="Gestionar Beneficios">
+                      <i class="bi bi-list-check"></i>
+                    </a>
+                    <form th:action="@{/admin/planes/{id}/eliminar(id=${plan.id})}" method="post"
+                      style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar este plan?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                    <form th:if="${plan.activo}" th:action="@{/admin/planes/{id}/cambiar-estado(id=${plan.id})}"
+                      method="post" style="display: inline;">
+                      <input type="hidden" name="activar" value="false">
+                      <button type="submit" class="btn btn-sm btn-outline-warning" title="Desactivar">
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    </form>
+                    <form th:unless="${plan.activo}" th:action="@{/admin/planes/{id}/cambiar-estado(id=${plan.id})}"
+                      method="post" style="display: inline;">
+                      <input type="hidden" name="activar" value="true">
+                      <button type="submit" class="btn btn-sm btn-outline-success" title="Activar">
+                        <i class="bi bi-check-circle"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="planesScripts">
+    <!-- Scripts específicos para la página de planes -->
+  </th:block>
+</body>
+
+</html>

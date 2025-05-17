@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Biblioteca Virtual - Planes de Suscripción',
+          pageAdditionalCss=~{::planesCss},
+          pageContent=~{::planesContent},
+          pageAdditionalScripts=~{::planesScripts}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico -->
+  <th:block th:fragment="planesCss">
+    <style>
+      .plan-card {
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        height: 100%;
+        border: none;
+      }
+
+      .plan-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .plan-header {
+        padding: 2rem 1.5rem;
+        border-radius: 0.5rem 0.5rem 0 0;
+      }
+
+      .plan-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .plan-period {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .plan-feature {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .plan-feature:last-child {
+        border-bottom: none;
+      }
+
+      .plan-badge {
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        z-index: 10;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 5rem 0;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        text-align: center;
+        padding: 1rem;
+      }
+
+      .comparison-table th:first-child,
+      .comparison-table td:first-child {
+        text-align: left;
+      }
+
+      .feature-included {
+        color: #198754;
+        font-size: 1.25rem;
+      }
+
+      .feature-not-included {
+        color: #dc3545;
+        font-size: 1.25rem;
+      }
+
+      .faq-card {
+        transition: transform 0.3s;
+        border: none;
+      }
+
+      .faq-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      .toggle-price {
+        cursor: pointer;
+      }
+
+      .toggle-price.active {
+        font-weight: bold;
+        color: var(--bs-primary);
+      }
+
+      .price-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
+
+      .price-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .price-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+      }
+
+      .price-slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+      }
+
+      input:checked+.price-slider {
+        background-color: var(--bs-primary);
+      }
+
+      input:checked+.price-slider:before {
+        transform: translateX(26px);
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido principal -->
+  <th:block th:fragment="planesContent">
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-4">Planes de Suscripción</h1>
+            <p class="lead fs-4 mb-5">Elige el plan que mejor se adapte a tus necesidades de lectura</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Selector de periodo -->
+    <section class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+          <div class="d-flex justify-content-center align-items-center gap-3">
+            <span class="toggle-price active" id="mensual-toggle">Facturación Mensual</span>
+            <label class="price-switch mx-3">
+              <input type="checkbox" id="precio-switch">
+              <span class="price-slider"></span>
+            </label>
+            <span class="toggle-price" id="anual-toggle">Facturación Anual</span>
+          </div>
+          <p class="text-muted mt-2 small">Ahorra hasta un 20% con facturación anual</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección de Planes -->
+    <section class="container-fluid py-4">
+      <div class="row g-4">
+        <div th:if="${planes == null || planes.isEmpty()}" class="col-12 text-center">
+          <div class="alert alert-info">
+            <h4 class="alert-heading">¡Próximamente nuevos planes!</h4>
+            <p>Estamos trabajando en ofrecer planes de suscripción personalizados para ti. Vuelve pronto para conocer
+              todas las opciones.</p>
+          </div>
+        </div>
+
+        <!-- Tarjeta de plan (se repetirá para cada plan en planes) -->
+        <div th:each="plan : ${planes}" class="col-md-3">
+          <div class="card plan-card shadow-sm h-100">
+            <!-- Badge para destacar un plan -->
+            <div th:if="${plan.nombre.contains('Premium') || plan.nombre.contains('Familiar')}"
+              class="plan-badge badge bg-warning text-dark">Recomendado</div>
+
+            <!-- Header del plan -->
+            <div
+              th:class="'plan-header text-white text-center ' + (${plan.nombre.contains('Premium')} ? 'bg-primary' : 'bg-dark')">
+              <h3 class="fw-bold" th:text="${plan.nombre}">Nombre del Plan</h3>
+              <!-- Precios con toggle -->
+              <div class="plan-price mb-2">
+                <span class="precio-mensual"
+                  th:text="${'S/ ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 2)}">S/ 9.99</span>
+                <span class="precio-anual d-none"
+                  th:text="${'S/ ' + #numbers.formatDecimal(plan.precioAnual/100, 1, 2)}">S/ 99.90</span>
+                <span class="plan-period">
+                  <span class="periodo-mensual">/mes</span>
+                  <span class="periodo-anual d-none">/año</span>
+                </span>
+              </div>
+              <!-- Días de prueba -->
+              <p class="mb-0" th:if="${plan.diasPrueba > 0}">
+                <span class="badge bg-light text-dark" th:text="${plan.diasPrueba + ' días de prueba gratis'}">7 días
+                  gratis</span>
+              </p>
+              <p class="mb-0" th:unless="${plan.diasPrueba > 0}">
+                <span class="badge bg-secondary">Sin período de prueba</span>
+              </p>
+              <p class="mb-0" th:unless="${plan.diasPrueba > 0}">
+                <span class="badge bg-light text-dark">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Plan disponible
+                </span>
+              </p>
+            </div>
+
+            <!-- En la sección de cuerpo del plan con beneficios -->
+            <div class="card-body">
+              <h5 class="card-title text-center mb-4">Beneficios Destacados</h5>
+              <ul class="list-unstyled">
+                <th:block th:with="beneficiosActivosDelPlan = ${beneficiosPorPlan.get(plan.id)?.?[activo == true]}">
+                  <li th:if="${beneficiosActivosDelPlan == null || #lists.isEmpty(beneficiosActivosDelPlan)}"
+                    class="text-muted text-center plan-feature">
+                    <em>No hay beneficios destacados.</em>
+                  </li>
+                  <th:block th:each="pb, iterStat : ${beneficiosActivosDelPlan}">
+                    <li th:if="${iterStat.count <= 5}" class="plan-feature">
+                      <span th:if="${pb.beneficio.tipoDato == 'booleano'}">
+                        <span th:text="${pb.valor == 'true' ? '✓ ' : '✕ '}"
+                          th:class="${pb.valor == 'true' ? 'text-success fw-bold' : 'text-danger fw-bold'}"></span>
+                      </span>
+                      <span th:unless="${pb.beneficio.tipoDato == 'booleano'}">
+                        <span class="text-success fw-bold">✓ </span>
+                      </span>
+                      <span th:text="${pb.beneficio.nombre}">Nombre del beneficio</span>
+                      <span th:if="${pb.valor != null && pb.valor != '' && pb.valor != 'true' && pb.valor != 'false'}"
+                        th:text="${' (' + pb.valor + ')'}" class="text-muted"></span>
+                    </li>
+                  </th:block>
+                  <li th:if="${beneficiosActivosDelPlan != null && #lists.size(beneficiosActivosDelPlan) > 5}"
+                    class="text-muted text-center mt-2 small">
+                    <a th:href="@{/planes/{id}(id=${plan.id})}" class="text-decoration-none">y más beneficios...</a>
+                  </li>
+                </th:block>
+              </ul>
+            </div>
+
+            <!-- Botón de acción -->
+            <div class="card-footer border-0 bg-transparent pb-4 text-center">
+              <a th:href="@{/planes/{id}(id=${plan.id})}" class="btn btn-lg w-75"
+                th:class="${'btn btn-lg w-75 ' + (plan.nombre.contains('Premium') ? 'btn-primary' : 'btn-outline-dark')}">
+                Ver detalles
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ejemplos de planes si no hay datos dinámicos - Esta sección se puede eliminar si siempre hay datos -->
+        <div th:if="${planes == null || planes.isEmpty()}" class="col-md-3">
+          <div class="card plan-card shadow-sm h-100">
+            <div class="plan-header text-white text-center bg-dark">
+              <h3 class="fw-bold">Plan Básico</h3>
+              <div class="plan-price mb-2">
+                <span>S/ 0.00</span>
+                <span>/mes</span>
+              </div>
+              <p class="mb-0">Ideal para lectores ocasionales</p>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title text-center mb-4">Beneficios</h5>
+              <ul class="list-unstyled">
+                <li class="plan-feature">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    <span>Catálogo básico</span>
+                  </div>
+                </li>
+                <li class="plan-feature">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    <span>2 préstamos simultáneos</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="card-footer border-0 bg-transparent pb-4 text-center">
+              <a href="#" class="btn btn-outline-dark btn-lg w-75">Ver detalles</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabla Comparativa -->
+    <section class="container-fluid py-5">
+      <h2 class="text-center fw-bold mb-5">Comparativa de Planes</h2>
+      <div class="table-responsive">
+        <table class="table comparison-table">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Características</th>
+              <!-- Encabezados de planes dinámicos -->
+              <th scope="col" th:each="plan : ${planes}" th:text="${plan.nombre}">Plan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Contenido dinámico de la tabla comparativa -->
+            <th:block th:if="${planes != null && !planes.isEmpty()}">
+              <!-- Precio mensual -->
+              <tr>
+                <td>Precio mensual</td>
+                <td th:each="plan : ${planes}"
+                  th:text="${plan.precioMensual != null ? 'S/ ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 'COMMA', 2, 'POINT') : 'N/A'}">
+                  S/ 9.99</td>
+              </tr>
+              <!-- Precio anual -->
+              <tr>
+                <td>Precio anual</td>
+                <td th:each="plan : ${planes}"
+                  th:text="${plan.precioAnual != null ? 'S/ ' + #numbers.formatDecimal(plan.precioAnual/100, 1, 'COMMA', 2, 'POINT') : 'N/A'}">
+                  S/ 99.90</td>
+              </tr>
+              <!-- Días de prueba -->
+              <tr>
+                <td>Período de prueba</td>
+                <td th:each="plan : ${planes}"
+                  th:text="${plan.diasPrueba != null && plan.diasPrueba > 0 ? plan.diasPrueba + ' días' : 'N/A'}">7 días
+                </td>
+              </tr>
+
+              <!-- Filas para cada característica/beneficio desde la nueva estructura -->
+              <tr th:each="fila : ${filasTablaComparativa}">
+                <td th:text="${fila.nombreCaracteristica}">Nombre del beneficio</td>
+                <td th:each="celda : ${fila.celdasPorPlan}">
+                  <span th:if="${celda.incluido}">
+                    <span th:if="${#strings.equalsIgnoreCase(celda.tipoDatoBeneficio, 'booleano')}">
+                      <span th:if="${#strings.equalsIgnoreCase(celda.valor, 'true')}" class="feature-included"
+                        title="Incluido"><i class="bi bi-check-circle-fill"></i></span>
+                      <span th:unless="${#strings.equalsIgnoreCase(celda.valor, 'true')}" class="feature-not-included"
+                        title="No incluido"><i class="bi bi-x-circle-fill"></i></span>
+                    </span>
+                    <span th:unless="${#strings.equalsIgnoreCase(celda.tipoDatoBeneficio, 'booleano')}">
+                      <span th:if="${celda.valor != null && !#strings.isEmpty(celda.valor)}" th:text="${celda.valor}"
+                        class="fw-bold"></span>
+                      <span th:unless="${celda.valor != null && !#strings.isEmpty(celda.valor)}"
+                        class="feature-included" title="Incluido"><i class="bi bi-check-circle-fill"></i></span>
+                    </span>
+                  </span>
+                  <span th:unless="${celda.incluido}" class="feature-not-included" title="No disponible">
+                    <i class="bi bi-x-circle-fill"></i>
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Fila de botones -->
+              <tr class="table-light">
+                <td></td> <!-- Celda vacía para la columna de características -->
+                <td th:each="plan : ${planes}" class="text-center">
+                  <a th:href="@{/planes/{id}(id=${plan.id})}" class="btn btn-sm"
+                    th:classappend="${plan.nombre != null && (plan.nombre.contains('Premium') || plan.nombre.contains('Familiar')) ? 'btn-primary' : 'btn-outline-dark'}">
+                    Seleccionar
+                  </a>
+                </td>
+              </tr>
+            </th:block>
+            <th:block th:unless="${planes != null && !planes.isEmpty()}">
+              <tr>
+                <td colspan="2" class="text-center text-muted p-4">
+                  <em>No hay planes disponibles para comparar en este momento.</em>
+                </td>
+              </tr>
+            </th:block>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Preguntas Frecuentes -->
+    <section class="container py-5">
+      <h2 class="text-center fw-bold mb-5">Preguntas Frecuentes</h2>
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="accordion" id="accordionFAQ">
+            <div class="accordion-item shadow-sm mb-3 border-0 faq-card">
+              <h2 class="accordion-header" id="faqHeading1">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+                  ¿Cómo funciona el período de prueba gratuita?
+                </button>
+              </h2>
+              <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1"
+                data-bs-parent="#accordionFAQ">
+                <div class="accordion-body">
+                  Al suscribirte a un plan con período de prueba, podrás disfrutar de todos los beneficios del plan sin
+                  costo durante el período indicado. Al finalizar, se realizará el cobro automático según el plan
+                  elegido, a menos que canceles antes.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item shadow-sm mb-3 border-0 faq-card">
+              <h2 class="accordion-header" id="faqHeading2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                  ¿Puedo cambiar de plan en cualquier momento?
+                </button>
+              </h2>
+              <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2"
+                data-bs-parent="#accordionFAQ">
+                <div class="accordion-body">
+                  Sí, puedes cambiar entre planes en cualquier momento. Si cambias a un plan de mayor valor, el cambio
+                  se aplica inmediatamente y se te cobrará la diferencia. Si cambias a un plan de menor valor, el cambio
+                  se aplicará al final de tu período de facturación actual.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item shadow-sm mb-3 border-0 faq-card">
+              <h2 class="accordion-header" id="faqHeading3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                  ¿Cómo se manejan los préstamos simultáneos?
+                </button>
+              </h2>
+              <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3"
+                data-bs-parent="#accordionFAQ">
+                <div class="accordion-body">
+                  Los préstamos simultáneos indican cuántos libros puedes tener prestados al mismo tiempo. Una vez
+                  alcanzado ese límite, deberás devolver alguno de los títulos para poder solicitar uno nuevo. Los
+                  planes superiores te permiten tener más títulos a la vez.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="bg-primary text-white py-5 mb-5">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-9 text-center text-lg-start">
+            <h2 class="fw-bold mb-3">¿Listo para empezar tu viaje de lectura?</h2>
+            <p class="lead mb-0">Elige ahora tu plan ideal y comienza a disfrutar de miles de libros</p>
+          </div>
+          <div class="col-lg-3 text-center text-lg-end mt-4 mt-lg-0">
+            <a th:href="@{/planes}" class="btn btn-light btn-lg">¡Comenzar ahora!</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </th:block>
+
+  <th:block th:fragment="planesScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Toggle para cambiar entre precios mensuales y anuales
+        const precioSwitch = document.getElementById('precio-switch');
+        const mensualToggle = document.getElementById('mensual-toggle');
+        const anualToggle = document.getElementById('anual-toggle');
+
+        if (precioSwitch && mensualToggle && anualToggle) {
+          const preciosMensuales = document.querySelectorAll('.precio-mensual');
+          const preciosAnuales = document.querySelectorAll('.precio-anual');
+          const periodosMensuales = document.querySelectorAll('.periodo-mensual');
+          const periodosAnuales = document.querySelectorAll('.periodo-anual');
+
+          // Función para cambiar los precios mostrados
+          const cambiarPrecios = function () {
+            const isAnual = precioSwitch.checked;
+
+            // Actualizar toggle de texto
+            mensualToggle.classList.toggle('active', !isAnual);
+            anualToggle.classList.toggle('active', isAnual);
+
+            // Actualizar precios visibles
+            preciosMensuales.forEach(p => p.classList.toggle('d-none', isAnual));
+            preciosAnuales.forEach(p => p.classList.toggle('d-none', !isAnual));
+
+            // Actualizar periodos visibles
+            periodosMensuales.forEach(p => p.classList.toggle('d-none', isAnual));
+            periodosAnuales.forEach(p => p.classList.toggle('d-none', !isAnual));
+          };
+
+          // Evento de switch
+          precioSwitch.addEventListener('change', cambiarPrecios);
+
+          // Eventos de texto
+          mensualToggle.addEventListener('click', function () {
+            precioSwitch.checked = false;
+            cambiarPrecios();
+          });
+
+          anualToggle.addEventListener('click', function () {
+            precioSwitch.checked = true;
+            cambiarPrecios();
+          });
+        }
+
+        // Efectos visuales al hacer scroll
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+            }
+          });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.plan-card').forEach(card => {
+          observer.observe(card);
+        });
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

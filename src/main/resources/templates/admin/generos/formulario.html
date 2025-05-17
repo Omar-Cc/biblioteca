@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle=${generoId != null ? 'Editar Género' : 'Nuevo Género'},
+          pageAdditionalCss=~{::generoFormCss},
+          pageContent=~{::generoFormContent},
+          pageAdditionalScripts=~{::generoFormScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="generoFormCss">
+    <!-- CSS específico para el formulario de géneros -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="generoFormContent" class="container-fluid py-4">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <h1 class="h2 mb-0" th:text="${generoId != null ? 'Editar Género' : 'Nuevo Género'}">Gestión de Género</h1>
+          <a th:href="@{/admin/generos}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver a la lista
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas de errores -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <span th:text="${errorMessage}">Error en la operación</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <form th:object="${generoRequestDTO}"
+              th:action="${generoId != null ? '/admin/generos/actualizar/' + generoId : '/admin/generos/guardar'}"
+              method="post">
+
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre *</label>
+                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="3"></textarea>
+                <div class="text-danger" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+              </div>
+
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <a th:href="@{/admin/generos}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-save me-1"></i>
+                  <span th:text="${generoId != null ? 'Actualizar' : 'Guardar'}">Guardar</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="generoFormScripts">
+    <!-- Scripts específicos para el formulario de géneros -->
+  </th:block>
+</body>
+
+</html>

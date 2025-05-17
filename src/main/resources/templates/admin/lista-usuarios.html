@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Gestion de Usuarios',
+          pageAdditionalCss=~{::usuariosListCss},
+          pageContent=~{::usuariosListContent},
+          pageAdditionalScripts=~{::usuariosListScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="usuariosListCss">
+    <!-- CSS específico -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="usuariosListContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h2">Gestión de Usuarios</h1>
+      <div>
+        <a th:href="@{/admin/usuarios/nuevo}" class="btn btn-primary me-2">
+          <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive p-3">
+          <table class="table table-hover mb-0 datatable">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Usuario</th>
+                <th scope="col">Email</th>
+                <th scope="col">Roles</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Fecha de registro</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:if="${usuarios.empty}">
+                <td colspan="7" class="text-center py-4">No hay usuarios registrados</td>
+              </tr>
+              <tr th:each="usuario : ${usuarios}">
+                <td th:text="${usuario.id}">1</td>
+                <td th:text="${usuario.username}">usuario1</td>
+                <td th:text="${usuario.email}">email@example.com</td>
+                <td>
+                  <span th:each="rol, iterStat : ${usuario.roles}" class="badge bg-secondary me-1"
+                    th:text="${rol.nombre.replace('ROLE_', '')}">
+                    ADMIN
+                  </span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill" th:classappend="${usuario.activo ? 'bg-success' : 'bg-danger'}"
+                    th:text="${usuario.activo ? 'Activo' : 'Inactivo'}">
+                    Activo
+                  </span>
+                </td>
+                <td th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">01/01/2025</td>
+                <td>
+                  <div class="d-flex gap-2">
+                    <a th:href="@{/admin/usuarios/detalle/{id}(id=${usuario.id})}"
+                      class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <form th:if="${usuario.username != 'admin'}"
+                      th:action="@{/admin/usuarios/toggle-estado/{id}(id=${usuario.id})}" method="post"
+                      class="d-inline">
+                      <button type="submit" class="btn btn-sm"
+                        th:classappend="${usuario.activo ? 'btn-outline-danger' : 'btn-outline-success'}">
+                        <i class="bi" th:classappend="${usuario.activo ? 'bi-toggle-off' : 'bi-toggle-on'}"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="usuariosListScripts">
+    <!-- Scripts específicos para el formulario de autores -->
+  </th:block>
+</body>
+
+</html>

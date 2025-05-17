@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle=${planId != null ? 'Editar Plan' : 'Nuevo Plan'},
+          pageAdditionalCss=~{::planFormCss},
+          pageContent=~{::planFormContent},
+          pageAdditionalScripts=~{::planFormScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="planFormCss">
+    <!-- CSS específico para el formulario -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="planFormContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0" th:text="${planId != null ? 'Editar Plan' : 'Nuevo Plan'}"></h1>
+      <a th:href="@{/admin/planes}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Volver
+      </a>
+    </div>
+
+    <!-- Formulario -->
+    <div class="card">
+      <div class="card-body">
+        <form th:action="${planId != null ? '/admin/planes/' + planId + '/actualizar' : '/admin/planes/crear'}"
+          method="post" th:object="${planForm}">
+
+          <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre del Plan</label>
+            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+            <div class="form-text text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="precioMensual" class="form-label">Precio Mensual</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" id="precioMensual" th:field="*{precioMensual}" step="0.01"
+                  min="0" required>
+              </div>
+              <div class="form-text text-danger" th:if="${#fields.hasErrors('precioMensual')}"
+                th:errors="*{precioMensual}"></div>
+            </div>
+            <div class="col-md-6">
+              <label for="precioAnual" class="form-label">Precio Anual</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" id="precioAnual" th:field="*{precioAnual}" step="0.01" min="0"
+                  required>
+              </div>
+              <div class="form-text text-danger" th:if="${#fields.hasErrors('precioAnual')}" th:errors="*{precioAnual}">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="diasPrueba" class="form-label">Días de Prueba</label>
+            <input type="number" class="form-control" id="diasPrueba" th:field="*{diasPrueba}" min="0">
+            <div class="form-text text-danger" th:if="${#fields.hasErrors('diasPrueba')}" th:errors="*{diasPrueba}">
+            </div>
+          </div>
+
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="activo" th:field="*{activo}">
+            <label class="form-check-label" for="activo">Plan Activo</label>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a th:href="@{/admin/planes}" class="btn btn-secondary me-md-2">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="planFormScripts">
+    <!-- Scripts específicos para el formulario -->
+  </th:block>
+</body>
+
+</html>

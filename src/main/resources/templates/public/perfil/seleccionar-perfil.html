@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Quién está leyendo? - Biblioteca Virtual</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" th:href="@{/css/custom-theme.css}">
+  <style>
+    body {
+      background-color: #141414;
+      color: white;
+      max-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem 0;
+    }
+
+    .profile-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .profile-title {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+      font-weight: 300;
+      color: #e5e5e5;
+    }
+
+    .profiles-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    .profile-box {
+      text-align: center;
+      width: 150px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .profile-box:hover {
+      transform: scale(1.1);
+    }
+
+    .profile-img {
+      width: 150px;
+      height: 150px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      background-color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      position: relative;
+    }
+
+    .profile-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-img.add {
+      background-color: transparent;
+      border: 2px dashed #666;
+      color: #666;
+    }
+
+    .profile-name {
+      color: #ccc;
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    .profile-principal {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 0.2rem;
+      background-color: rgba(0, 0, 0, 0.7);
+      font-size: 0.7rem;
+      color: #e5e5e5;
+    }
+
+    .profile-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      background-color: rgba(0, 123, 255, 0.7);
+    }
+
+    .profile-form {
+      display: inline;
+    }
+
+    .btn-gestionar {
+      margin-top: 3rem;
+      border: 1px solid #aaa;
+      color: #aaa;
+      background: transparent;
+      padding: 0.5rem 1.5rem;
+      font-size: 1.2rem;
+    }
+
+    .btn-gestionar:hover {
+      color: white;
+      border-color: white;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .logo-text {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    .logo-colored {
+      color: var(--bs-primary);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="logo">
+    <div class="logo-text">Biblio<span class="logo-colored">Virtual</span></div>
+  </div>
+
+  <div class="container profile-container">
+    <h1 class="profile-title">¿Quién está leyendo?</h1>
+
+    <!-- Alertas -->
+    <div th:if="${errorMessage}" class="alert alert-danger text-center mb-4" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Nuevo mensaje para caso sin perfiles -->
+    <div th:if="${infoMessage}" class="alert alert-info text-center mb-4" role="alert">
+      <i class="bi bi-info-circle me-2"></i>
+      <span th:text="${infoMessage}"></span>
+    </div>
+
+    <!-- Caso especial: no hay perfiles -->
+    <div th:if="${sinPerfiles}" class="text-center mb-5">
+      <div class="mb-4">
+        <i class="bi bi-people-fill text-secondary" style="font-size: 5rem;"></i>
+      </div>
+      <p class="lead mb-4">¡Parece que no tienes perfiles creados todavía!</p>
+      <a th:href="@{/mi-cuenta/perfiles/nuevo}" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-lg me-2"></i>Crear mi primer perfil
+      </a>
+    </div>
+
+    <!-- Mostrar perfiles solo si existen -->
+    <div th:if="${!sinPerfiles}" class="profiles-wrapper">
+      <!-- Perfiles existentes -->
+      <div th:each="perfil : ${perfiles}" class="profile-box">
+        <form th:action="@{/mi-cuenta/perfiles/{id}/activar(id=${perfil.id})}" method="post" class="profile-form">
+          <button type="submit" class="btn p-0 border-0 w-100">
+            <div class="profile-img">
+              <img th:if="${perfil.fotoPerfil}" th:src="${perfil.fotoPerfil}" alt="Foto de perfil">
+              <i th:unless="${perfil.fotoPerfil}" class="bi bi-person-fill"></i>
+              <span th:if="${perfil.esPerfilPrincipal}" class="profile-principal">Principal</span>
+              <span th:if="${perfil.esInfantil}" class="profile-badge">
+                <i class="bi bi-emoji-smile"></i>
+              </span>
+            </div>
+            <div class="profile-name" th:text="${perfil.nombreVisible}">Nombre del perfil</div>
+          </button>
+        </form>
+      </div>
+
+      <!-- Botón para agregar nuevo perfil (si no se ha llegado al máximo) -->
+      <div th:if="${perfiles.size() < 5}" class="profile-box">
+        <a th:href="@{/mi-cuenta/perfiles/nuevo}" class="text-decoration-none">
+          <div class="profile-img add">
+            <i class="bi bi-plus-lg"></i>
+          </div>
+          <div class="profile-name">Agregar perfil</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Botón de gestionar perfiles solo si hay perfiles -->
+    <div th:if="${!sinPerfiles}" class="text-center mt-5">
+      <a th:href="@{/mi-cuenta/perfiles}" class="btn btn-gestionar">Gestionar perfiles</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+  
+</body>
+
+</html>

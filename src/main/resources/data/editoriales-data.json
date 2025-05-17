@@ -1,0 +1,77 @@
+[
+  {
+    "nombre": "Penguin Random House",
+    "pais": "Estados Unidos",
+    "website": "https://www.penguinrandomhouse.com/"
+  },
+  {
+    "nombre": "HarperCollins",
+    "pais": "Estados Unidos",
+    "website": "https://www.harpercollins.com/"
+  },
+  {
+    "nombre": "Grupo Planeta",
+    "pais": "España",
+    "website": "https://www.planeta.es/"
+  },
+  {
+    "nombre": "Anagrama",
+    "pais": "España",
+    "website": "https://www.anagrama-ed.es/"
+  },
+  {
+    "nombre": "Minotauro",
+    "pais": "España",
+    "website": "https://www.planetadelibros.com/editorial/minotauro/21"
+  },
+  {
+    "nombre": "Viz Media",
+    "pais": "Japón",
+    "website": "https://www.viz.com/"
+  },
+  {
+    "nombre": "Norma Editorial",
+    "pais": "España",
+    "website": "https://www.normaeditorial.com/"
+  },
+  {
+    "nombre": "Panini Comics",
+    "pais": "Italia",
+    "website": "https://www.panini.es/"
+  },
+  {
+    "nombre": "DC Comics",
+    "pais": "Estados Unidos",
+    "website": "https://www.dccomics.com/"
+  },
+  {
+    "nombre": "Marvel Comics",
+    "pais": "Estados Unidos",
+    "website": "https://www.marvel.com/"
+  },
+  {
+    "nombre": "Ivrea",
+    "pais": "Argentina",
+    "website": "https://www.ivrea.com.ar/"
+  },
+  {
+    "nombre": "Kodansha",
+    "pais": "Japón",
+    "website": "https://kodansha.us/"
+  },
+  {
+    "nombre": "Shueisha",
+    "pais": "Japón",
+    "website": "https://www.shueisha.co.jp/"
+  },
+  {
+    "nombre": "Oxford University Press",
+    "pais": "Reino Unido",
+    "website": "https://global.oup.com/"
+  },
+  {
+    "nombre": "Cambridge University Press",
+    "pais": "Reino Unido",
+    "website": "https://www.cambridge.org/"
+  }
+]

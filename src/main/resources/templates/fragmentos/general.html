@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Fragment para el Head con parámetros opcionales -->
+
+<head th:fragment="head(title, additionalCss)">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${title} ?: 'Biblioteca Virtual'">Biblioteca Virtual</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <!-- CSS base -->
+  <link rel="stylesheet" th:href="@{/css/custom-theme.css}">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <!-- CSS adicional (si existe) -->
+  <th:block th:replace="${additionalCss} ?: ~{}"></th:block>
+</head>
+
+<body>
+  <!-- Fragment para el navbar -->
+  <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+    <div class="container">
+      <!-- Logo y marca -->
+      <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
+        <i class="bi bi-book-half fs-3 me-2 text-primary"></i>
+        <span class="fw-bold">Biblio<span class="text-primary">Virtual</span></span>
+      </a>
+
+      <!-- Botón móvil -->
+      <div class="d-flex align-items-center order-lg-last">
+        <!-- Carrito -->
+        <a class="btn btn-outline-light position-relative me-2" th:href="@{/mi-cuenta/carrito}" aria-label="Carrito de compra">
+          <i class="bi bi-cart"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            th:text="${carritoItems != null && carritoItems > 0 ? carritoItems : ''}"
+            th:classappend="${carritoItems == null || carritoItems == 0 ? 'd-none' : ''}">0</span>
+        </a>
+
+        <!-- Usuario no autenticado: mostrar botones de login/registro -->
+        <div sec:authorize="isAnonymous()">
+          <a class="btn btn-outline-light me-2" th:href="@{/login}">
+            <i class="bi bi-person-circle me-2"></i>Ingresar
+          </a>
+        </div>
+
+        <!-- Usuario autenticado: mostrar menú de usuario -->
+        <div class="dropdown" sec:authorize="isAuthenticated()">
+          <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle me-1"></i>
+            <span th:if="${session.perfilActivoNombre}" th:text="${session.perfilActivoNombre}">Nombre del perfil</span>
+            <span th:unless="${session.perfilActivoNombre}" sec:authentication="name">Usuario</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><span class="dropdown-item-text text-primary"><strong>Plan:</strong> Mi Plan</span></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMIN')">
+              <a class="dropdown-item" th:href="@{/admin/dashboard}">
+                <i class="bi bi-speedometer2 me-2"></i>Panel de Administración
+              </a>
+            </li>
+            <li><a class="dropdown-item" th:href="@{/mi-cuenta/perfiles/seleccionar}"><i class="bi bi-people me-2"></i>Cambiar
+                perfil</a>
+            </li>
+            <li><a class="dropdown-item" th:href="@{/mis-prestamos}"><i class="bi bi-book me-2"></i>Mis Préstamos</a>
+            </li>
+            <li><a class="dropdown-item" th:href="@{/favoritos}"><i class="bi bi-heart me-2"></i>Favoritos</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <form th:action="@{/logout}" method="post">
+                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>Cerrar
+                  sesión</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Botón hamburguesa -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <!-- Menú principal -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/}" th:classappend="${activeTab == 'home' ? 'active' : ''}">
+              <i class="bi bi-house-door me-1"></i> Inicio
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" th:href="@{/catalogo}" id="catalogoDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false"
+              th:classappend="${activeTab == 'catalogo' ? 'active' : ''}">
+              <i class="bi bi-journal-bookmark me-1"></i> Catálogo
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="catalogoDropdown">
+              <li><a class="dropdown-item" th:href="@{/catalogo}">Todo el catálogo</a></li>
+              <li><a class="dropdown-item" th:href="@{/catalogo?tipo=LIBRO_FISICO}">Libros físicos</a></li>
+              <li><a class="dropdown-item" th:href="@{/catalogo?tipo=LIBRO_DIGITAL}">Libros digitales</a></li>
+              <li><a class="dropdown-item" th:href="@{/catalogo?tipo=AUDIO_LIBRO}">Audiolibros</a></li>
+              <li><a class="dropdown-item" th:href="@{/catalogo?tipo=MANGA_FISICO}">Manga</a></li>
+              <li><a class="dropdown-item" th:href="@{/catalogo?tipo=COMIC_FISICO}">Cómics</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/suscripciones}">
+              <i class="bi bi-stars me-1"></i> Suscripciones
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/nosotros}">
+              <i class="bi bi-people me-1"></i> Nosotros
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/contacto}">
+              <i class="bi bi-chat-dots me-1"></i> Contacto
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Fragment para el footer -->
+  <footer th:fragment="footer" class="bg-dark text-white py-5 mt-5">
+    <div class="container">
+      <!-- Sección principal del footer -->
+      <div class="row g-4">
+        <!-- Columna información de la biblioteca -->
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-book-half fs-2 me-2 text-primary"></i>
+            <h5 class="mb-0">BiblioVirtual</h5>
+          </div>
+          <p class="mb-3">
+            Tu biblioteca digital completa, disponible en cualquier momento y lugar. Miles de libros al
+            alcance de un clic.
+          </p>
+          <div class="social-media mb-3">
+            <a href="#" class="text-white me-3" title="Facebook"><i class="bi bi-facebook fs-4"></i></a>
+            <a href="#" class="text-white me-3" title="Twitter"><i class="bi bi-twitter-x fs-4"></i></a>
+            <a href="#" class="text-white me-3" title="Instagram"><i class="bi bi-instagram fs-4"></i></a>
+            <a href="#" class="text-white" title="YouTube"><i class="bi bi-youtube fs-4"></i></a>
+          </div>
+          <p class="small">© 2025 BiblioVirtual. Todos los derechos reservados.</p>
+        </div>
+
+        <!-- Columna de enlaces rápidos -->
+        <div class="col-lg-2 col-md-6">
+          <h5 class="mb-3 pb-2 border-bottom border-secondary">Enlaces rápidos</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a th:href="@{/index}" class="text-decoration-none text-white"><i
+                  class="bi bi-house-door me-2"></i>Inicio</a></li>
+            <li class="mb-2"><a th:href="@{/catalogo}" class="text-decoration-none text-white"><i
+                  class="bi bi-journal-bookmark me-2"></i>Catálogo</a></li>
+            <li class="mb-2"><a th:href="@{/suscripciones}" class="text-decoration-none text-white"><i
+                  class="bi bi-stars me-2"></i>Planes</a></li>
+            <li class="mb-2"><a th:href="@{/nosotros}" class="text-decoration-none text-white"><i
+                  class="bi bi-people me-2"></i>Nosotros</a></li>
+            <li class="mb-2"><a th:href="@{/contacto}" class="text-decoration-none text-white"><i
+                  class="bi bi-chat-dots me-2"></i>Contacto</a></li>
+          </ul>
+        </div>
+
+        <!-- Columna de servicios -->
+        <div class="col-lg-2 col-md-6">
+          <h5 class="mb-3 pb-2 border-bottom border-secondary">Servicios</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a th:href="@{/mis-prestamos}" class="text-decoration-none text-white"><i
+                  class="bi bi-book me-2"></i>Mis préstamos</a></li>
+            <li class="mb-2"><a th:href="@{/carrito}" class="text-decoration-none text-white"><i
+                  class="bi bi-cart me-2"></i>Mi carrito</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
+                  class="bi bi-bookmark-heart me-2"></i>Favoritos</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
+                  class="bi bi-headset me-2"></i>Soporte</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
+                  class="bi bi-question-circle me-2"></i>Ayuda</a></li>
+          </ul>
+        </div>
+
+        <!-- Columna de contacto -->
+        <div class="col-lg-4 col-md-6">
+          <h5 class="mb-3 pb-2 border-bottom border-secondary">Contacto</h5>
+          <address class="mb-3">
+            <div class="mb-2"><i class="bi bi-geo-alt-fill me-2 text-primary"></i> Av. Universidad 123, Col. Centro
+            </div>
+            <div class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i> <a
+                href="mailto:info@bibliovirtual.com"
+                class="text-white text-decoration-none">contacto@bibliovirtual.com</a>
+            </div>
+            <div class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i> (123) 456-7890</div>
+            <div><i class="bi bi-clock-fill me-2 text-primary"></i> Lunes a Viernes: 9:00 AM - 6:00 PM</div>
+          </address>
+
+          <!-- Formulario de newsletter -->
+          <div class="newsletter">
+            <h6 class="mb-2">Suscríbete a nuestro newsletter</h6>
+            <div class="input-group mb-2">
+              <input type="email" class="form-control" placeholder="Tu email" aria-label="Email"
+                aria-describedby="subscribe-btn">
+              <button class="btn btn-primary" type="button" id="subscribe-btn">Suscribir</button>
+            </div>
+            <small class="text-muted">Recibe las últimas novedades y promociones.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección inferior del footer -->
+      <div class="mt-4 pt-4 border-top border-secondary">
+        <div class="row align-items-center">
+          <div class="col-md-6 text-center text-md-start">
+            <p class="small mb-md-0">Desarrollado con <i class="bi bi-heart-fill text-danger"></i> por
+              BiblioVirtual Team</p>
+          </div>
+          <div class="col-md-6">
+            <ul class="list-inline text-center text-md-end mb-0">
+              <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Términos
+                  y Condiciones</a></li>
+              <li class="list-inline-item mx-2">|</li>
+              <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Política
+                  de Privacidad</a></li>
+              <li class="list-inline-item mx-2">|</li>
+              <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Mapa
+                  del Sitio</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts comunes -->
+  <div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js"></script>
+  </div>
+
+</body>
+
+</html>

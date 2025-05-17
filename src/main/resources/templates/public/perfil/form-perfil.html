@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle=${pageTitle} + ' | Biblioteca Virtual',
+        paramCss=~{public/perfil/form-perfil :: perfilFormPageCss},
+        paramScripts=~{public/perfil/form-perfil :: perfilFormPageScripts},
+        activeMenu='perfiles', 
+        pageSpecificContent=~{public/perfil/form-perfil :: perfilFormSpecificContent}
+      )}">
+
+<head>
+  <th:block th:fragment="perfilFormPageCss">
+    <style>
+      .form-card {
+        border-radius: 15px;
+        border: none;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .form-card .card-header {
+        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-darkest) 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+        padding: 1.5rem;
+      }
+
+      .form-card .card-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(25deg);
+      }
+
+      .input-group-text {
+        background-color: var(--bs-primary);
+        color: white;
+        border: none;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+      }
+
+      .photo-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+        font-size: 3rem;
+        overflow: hidden;
+        position: relative;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .photo-preview:hover .photo-preview-overlay {
+        opacity: 1;
+      }
+
+      .photo-preview-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        cursor: pointer;
+      }
+
+      .photo-preview-overlay i {
+        color: white;
+        font-size: 2rem;
+      }
+
+      .photo-upload-tabs {
+        margin-bottom: 1rem;
+      }
+
+      .photo-upload-tabs .nav-link {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        color: var(--bs-gray-600);
+      }
+
+      .photo-upload-tabs .nav-link.active {
+        background-color: var(--bs-primary);
+        color: white;
+      }
+
+      /* Estilos para los switches */
+      .form-switch-lg {
+        padding-left: 3.5rem;
+        min-height: 2.5rem;
+      }
+
+      .form-switch-lg .form-check-input {
+        width: 3rem;
+        height: 1.5rem;
+        margin-left: -3.5rem;
+      }
+
+      .form-switch-lg .form-check-label {
+        padding-top: 0.35rem;
+        font-weight: 500;
+      }
+
+      .form-switch-lg .form-check-input:checked {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+      }
+
+      .profile-options {
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .form-floating>.form-control,
+      .form-floating>.form-select {
+        height: calc(3.5rem + 2px);
+        padding: 1rem 0.75rem;
+      }
+
+      .form-floating>label {
+        padding: 1rem 0.75rem;
+      }
+
+      .btn-gradient-primary {
+        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-darkest) 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-gradient-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(var(--bs-primary-rgb), 0.3);
+      }
+
+      #urlImagePreview,
+      #fileImagePreview {
+        max-width: 100%;
+        margin-top: 10px;
+        border-radius: 5px;
+        display: none;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+
+  <th:block th:fragment="perfilFormSpecificContent">
+    <div class="card form-card">
+      <div class="card-header">
+        <h1 class="h4 mb-0"
+          th:text="${pageTitle.contains(' | ') ? pageTitle.substring(0, pageTitle.indexOf(' | ')) : pageTitle}">
+          Crear/Editar Perfil
+        </h1>
+      </div>
+      <div class="card-body p-4">
+        <!-- Mensajes de error generales -->
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <span th:text="${errorMessage}"></span>
+        </div>
+
+        <form th:action="@{${formAction}}" th:object="${perfilRequestDTO}" method="post" class="needs-validation"
+          enctype="multipart/form-data">
+
+          <!-- Previsualización de la foto de perfil -->
+          <div class="text-center mb-4">
+            <div class="photo-preview" id="photoPreview">
+              <!-- Imagen existente o placeholder -->
+              <img th:if="${perfilRequestDTO.fotoPerfil != null && !perfilRequestDTO.fotoPerfil.isEmpty()}"
+                th:src="${perfilRequestDTO.fotoPerfil}" alt="Foto de perfil" id="currentProfileImage">
+              <i th:unless="${perfilRequestDTO.fotoPerfil != null && !perfilRequestDTO.fotoPerfil.isEmpty()}"
+                class="bi bi-person"></i>
+
+              <div class="photo-preview-overlay" onclick="document.getElementById('fotoPerfilFile').click()">
+                <i class="bi bi-camera"></i>
+              </div>
+            </div>
+
+            <!-- Tabs para elegir entre URL o archivo -->
+            <ul class="nav nav-pills photo-upload-tabs justify-content-center" id="photoUploadTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-option"
+                  type="button" role="tab" aria-selected="true">
+                  <i class="bi bi-file-earmark-image me-1"></i> Subir imagen
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url-option" type="button"
+                  role="tab" aria-selected="false">
+                  <i class="bi bi-link-45deg me-1"></i> URL de imagen
+                </button>
+              </li>
+            </ul>
+
+            <!-- Contenido de los tabs -->
+            <div class="tab-content" id="photoUploadTabContent">
+              <!-- Opción de subir archivo -->
+              <div class="tab-pane fade show active" id="file-option" role="tabpanel" aria-labelledby="file-tab">
+                <div class="mb-3">
+                  <input type="file" class="form-control" id="fotoPerfilFile" name="fotoPerfilFile" accept="image/*"
+                    style="display:none">
+                  <input type="hidden" id="fotoPerfilFileSelected" name="fotoPerfilFileSelected" value="false">
+                  <button type="button" class="btn btn-outline-primary"
+                    onclick="document.getElementById('fotoPerfilFile').click()">
+                    <i class="bi bi-upload me-1"></i> Seleccionar archivo
+                  </button>
+                  <div class="form-text" id="fileNameDisplay">No se ha seleccionado ningún archivo</div>
+                  <img id="urlImagePreview" src="" alt="Vista previa" style="display:none">
+                </div>
+              </div>
+
+              <!-- Opción de URL -->
+              <div class="tab-pane fade" id="url-option" role="tabpanel" aria-labelledby="url-tab">
+                <div class="mb-3">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-link"></i></span>
+                    <input type="text" class="form-control" id="fotoPerfil" th:field="*{fotoPerfil}"
+                      placeholder="https://ejemplo.com/tu-foto.jpg">
+                  </div>
+                  <div class="form-text">Ingresa la URL de una imagen para tu perfil</div>
+                  <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoPerfil')}" th:errors="*{fotoPerfil}">
+                    Error en URL de la foto
+                  </div>
+                  <img id="urlImagePreview" src="" alt="Vista previa" style="display:none">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <!-- Campo nombre visible -->
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="nombreVisible" th:field="*{nombreVisible}" required
+                  placeholder="Nombre visible">
+                <label for="nombreVisible">Nombre visible <span class="text-danger">*</span></label>
+                <div class="form-text">Este nombre será visible en tus préstamos y actividades.</div>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombreVisible')}"
+                  th:errors="*{nombreVisible}">
+                  Error en el nombre visible
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <!-- Campo idioma preferido -->
+              <div class="form-floating mb-3">
+                <select class="form-select" id="idiomaPreferido" th:field="*{idiomaPreferido}" required>
+                  <option value="">Selecciona un idioma</option>
+                  <option value="Español">Español</option>
+                  <option value="Inglés">Inglés</option>
+                  <option value="Francés">Francés</option>
+                  <option value="Alemán">Alemán</option>
+                  <option value="Italiano">Italiano</option>
+                  <option value="Portugués">Portugués</option>
+                  <option value="Japonés">Japonés</option>
+                </select>
+                <label for="idiomaPreferido">Idioma preferido <span class="text-danger">*</span></label>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('idiomaPreferido')}"
+                  th:errors="*{idiomaPreferido}">
+                  Error en idioma preferido
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Campo límite préstamos -->
+          <div class="mb-4">
+            <label for="limitePrestamosDesignado" class="form-label">Límite de préstamos <span
+                class="text-danger">*</span></label>
+            <div class="d-flex align-items-center">
+              <input type="range" class="form-range flex-grow-1 me-3" id="limitePrestamosRange" min="1" max="10"
+                step="1" value="5" onInput="updatePrestamoValue(this.value)">
+              <div class="input-group flex-shrink-0" style="width: 110px;">
+                <input type="number" class="form-control text-center" id="limitePrestamosDesignado"
+                  th:field="*{limitePrestamosDesignado}" required min="1" max="10"
+                  onInput="document.getElementById('limitePrestamosRange').value = this.value">
+                <span class="input-group-text">libros</span>
+              </div>
+            </div>
+            <div class="form-text">Número máximo de libros que podrás tener prestados simultáneamente (1-10).</div>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('limitePrestamosDesignado')}"
+              th:errors="*{limitePrestamosDesignado}">
+              Error en límite de préstamos
+            </div>
+          </div>
+
+          <!-- Opciones de perfil con diseño mejorado -->
+          <div class="profile-options mb-4">
+            <h5 class="mb-3">Opciones de perfil</h5>
+            <div class="row">
+              <div class="col-md-6 mb-2">
+                <div class="form-check form-switch form-switch-lg">
+                  <input class="form-check-input" type="checkbox" id="esInfantil" th:field="*{esInfantil}">
+                  <label class="form-check-label" for="esInfantil">
+                    <i class="bi bi-emoji-smile text-warning me-1"></i> Perfil infantil
+                  </label>
+                </div>
+                <div class="form-text ms-4">Los perfiles infantiles solo acceden a contenido apto para menores.</div>
+              </div>
+              <div class="col-md-6 mb-2">
+                <div class="form-check form-switch form-switch-lg">
+                  <!-- Checkbox visible (puede estar deshabilitado) -->
+                  <input class="form-check-input" type="checkbox" id="esPerfilPrincipal" th:field="*{esPerfilPrincipal}"
+                    th:disabled="${existePerfilPrincipal != null && existePerfilPrincipal == true && (esEdicionPerfilPrincipal == null || esEdicionPerfilPrincipal == false)}">
+
+                  <!-- Campo oculto que siempre se enviará -->
+                  <input type="hidden" name="esPerfilPrincipal"
+                    th:value="${existePerfilPrincipal != null && existePerfilPrincipal == true && (esEdicionPerfilPrincipal == null || esEdicionPerfilPrincipal == false) ? 'false' : _}">
+
+                  <label class="form-check-label" for="esPerfilPrincipal">
+                    <i class="bi bi-star-fill text-primary me-1"></i> Perfil principal
+                  </label>
+                </div>
+                <div class="form-text ms-4"
+                  th:if="${existePerfilPrincipal != null && existePerfilPrincipal == true && (esEdicionPerfilPrincipal == null || esEdicionPerfilPrincipal == false)}">
+                  Ya existe un perfil principal. Solo puede haber uno por cuenta.
+                </div>
+                <div class="form-text ms-4"
+                  th:unless="${existePerfilPrincipal != null && existePerfilPrincipal == true && (esEdicionPerfilPrincipal == null || esEdicionPerfilPrincipal == false)}">
+                  El perfil principal se selecciona automáticamente al iniciar sesión.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="d-flex justify-content-between mt-4">
+            <a th:href="@{/mi-cuenta/perfiles}" class="btn btn-outline-secondary btn-lg">
+              <i class="bi bi-arrow-left me-1"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-gradient-primary btn-lg">
+              <i class="bi bi-save me-1"></i> Guardar perfil
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="perfilFormPageScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Inicializar el valor del rango
+        const rangeInput = document.getElementById('limitePrestamosRange');
+        const numberInput = document.getElementById('limitePrestamosDesignado');
+        if (numberInput.value) {
+          rangeInput.value = numberInput.value;
+        } else {
+          numberInput.value = rangeInput.value;
+        }
+
+        // Manejar la selección de tabs para que sean mutuamente excluyentes
+        const fileTab = document.getElementById('file-tab');
+        const urlTab = document.getElementById('url-tab');
+        const fotoPerfilInput = document.getElementById('fotoPerfil');
+        const fotoPerfilFile = document.getElementById('fotoPerfilFile');
+        const fileSelectedInput = document.getElementById('fotoPerfilFileSelected');
+
+        fileTab.addEventListener('shown.bs.tab', function () {
+          // Si se selecciona la opción de archivo, limpiar la URL
+          fotoPerfilInput.value = '';
+          fileSelectedInput.value = 'true';
+          document.getElementById('urlImagePreview').style.display = 'none';
+        });
+
+        urlTab.addEventListener('shown.bs.tab', function () {
+          // Si se selecciona la opción de URL, limpiar el archivo
+          fotoPerfilFile.value = '';
+          fileSelectedInput.value = 'false';
+          document.getElementById('fileNameDisplay').textContent = 'No se ha seleccionado ningún archivo';
+          document.getElementById('fileImagePreview').style.display = 'none';
+        });
+
+        // Manejar la previsualización de la imagen subida
+        fotoPerfilFile.addEventListener('change', function () {
+          const fileNameDisplay = document.getElementById('fileNameDisplay');
+          const fileImagePreview = document.getElementById('fileImagePreview');
+
+          if (this.files && this.files[0]) {
+            const fileName = this.files[0].name;
+            fileNameDisplay.textContent = `Archivo seleccionado: ${fileName}`;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              // Actualizar la previsualización
+              fileImagePreview.src = e.target.result;
+              fileImagePreview.style.display = 'block';
+              fileImagePreview.classList.add('fade-in');
+
+              // Actualizar la imagen principal
+              document.querySelector('#photoPreview i')?.remove();
+              const currentImage = document.getElementById('currentProfileImage');
+              if (currentImage) {
+                currentImage.src = e.target.result;
+              } else {
+                const newImage = document.createElement('img');
+                newImage.src = e.target.result;
+                newImage.alt = 'Foto de perfil';
+                newImage.id = 'currentProfileImage';
+                document.getElementById('photoPreview').prepend(newImage);
+              }
+            };
+            reader.readAsDataURL(this.files[0]);
+          } else {
+            fileNameDisplay.textContent = 'No se ha seleccionado ningún archivo';
+            fileImagePreview.style.display = 'none';
+          }
+        });
+
+        // Previsualización de URL de imagen
+        fotoPerfilInput.addEventListener('input', function () {
+          const urlImagePreview = document.getElementById('urlImagePreview');
+          const url = this.value.trim();
+
+          if (url) {
+            urlImagePreview.src = url;
+            urlImagePreview.style.display = 'block';
+
+            // Actualizar la imagen principal cuando cargue la URL
+            urlImagePreview.onload = function () {
+              document.querySelector('#photoPreview i')?.remove();
+              const currentImage = document.getElementById('currentProfileImage');
+              if (currentImage) {
+                currentImage.src = url;
+              } else {
+                const newImage = document.createElement('img');
+                newImage.src = url;
+                newImage.alt = 'Foto de perfil';
+                newImage.id = 'currentProfileImage';
+                document.getElementById('photoPreview').prepend(newImage);
+              }
+            };
+
+            // Manejar error de carga
+            urlImagePreview.onerror = function () {
+              urlImagePreview.style.display = 'none';
+              alert('La URL proporcionada no es una imagen válida o no es accesible');
+            };
+          } else {
+            urlImagePreview.style.display = 'none';
+          }
+        });
+
+        // Determinar qué tab mostrar inicialmente basado en si hay una URL de imagen ya guardada
+        if (fotoPerfilInput.value && fotoPerfilInput.value.trim() !== '') {
+          // Activar el tab de URL si hay una URL guardada
+          const urlTabInstance = new bootstrap.Tab(urlTab);
+          urlTabInstance.show();
+
+          // Simular un evento input para cargar la previsualización
+          fotoPerfilInput.dispatchEvent(new Event('input'));
+        }
+      });
+
+      // Función para actualizar el valor del input de préstamos
+      function updatePrestamoValue(val) {
+        document.getElementById('limitePrestamosDesignado').value = val;
+      }
+    </script>
+  </th:block>
+</body>
+
+</html>

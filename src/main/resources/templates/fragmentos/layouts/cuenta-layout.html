@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+  <th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/cuenta-layout.css}">
+  </th:block>
+
+  <!-- Fragmento para combinar CSS -->
+  <th:block th:fragment="combinedCss">
+    <link rel="stylesheet" th:href="@{/css/cuenta-layout.css}">
+    <th:block th:if="${paramCss != null}" th:replace="${paramCss}"></th:block>
+  </th:block>
+
+  <th:block th:fragment="layoutConSideNav(paramTitle, paramCss, paramScripts, activeMenu, pageSpecificContent)">
+    <th:block th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+        pageTitle = ${paramTitle},
+        pageAdditionalCss = ~{:: combinedCss},
+        pageAdditionalScripts = ${paramScripts},
+        pageContent = ~{:: cuentaLayoutContentForBase(currentActiveMenu=${activeMenu}, finalPageContent=${pageSpecificContent})}
+      )}">
+    </th:block>
+  </th:block>
+
+  <th:block th:fragment="cuentaLayoutContentForBase(currentActiveMenu, finalPageContent)">
+    <!-- Perfil Header -->
+    <div class="profile-header text-md-start bg-primary">
+      <div th:replace="~{fragmentos/componentes/headerCuenta :: headerCuenta}"></div>
+    </div>
+
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-3 mb-4">
+          <!-- Sidebar de navegación -->
+          <div th:replace="~{fragmentos/componentes/sidebarCuenta :: sidebarCuenta}"></div>
+        </div>
+
+        <div class="col-lg-9">
+          <div th:replace="~{fragmentos/componentes/alerts :: alerts}"></div>
+
+          <th:block th:replace="${finalPageContent}"></th:block>
+        </div>
+      </div>
+    </div>
+  </th:block>
+</body>
+
+</html>

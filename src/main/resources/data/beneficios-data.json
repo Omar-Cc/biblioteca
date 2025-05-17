@@ -1,0 +1,178 @@
+[
+  {
+    "categoriaId": 1,
+    "nombre": "Catálogo disponible",
+    "descripcion": "Número de títulos a los que puedes acceder",
+    "icono": "book-collection",
+    "tipoDato": "texto",
+    "activo": true
+  },
+  {
+    "categoriaId": 1,
+    "nombre": "Préstamos simultáneos",
+    "descripcion": "Número de libros que puedes tener prestados al mismo tiempo",
+    "icono": "book-stack",
+    "tipoDato": "numero",
+    "activo": true
+  },
+  {
+    "categoriaId": 1,
+    "nombre": "Período de préstamo",
+    "descripcion": "Duración máxima de préstamo en días",
+    "icono": "calendar",
+    "tipoDato": "numero",
+    "activo": true
+  },
+  {
+    "categoriaId": 1,
+    "nombre": "Renovación de préstamos",
+    "descripcion": "Veces que puedes renovar un préstamo",
+    "icono": "refresh",
+    "tipoDato": "texto",
+    "activo": true
+  },
+  {
+    "categoriaId": 1,
+    "nombre": "Descarga para lectura offline",
+    "descripcion": "Permite descargar contenido para leer sin conexión",
+    "icono": "download",
+    "tipoDato": "numero",
+    "activo": true
+  },
+  {
+    "categoriaId": 1,
+    "nombre": "Acceso a audiolibros",
+    "descripcion": "Permite escuchar audiolibros",
+    "icono": "headphones",
+    "tipoDato": "texto",
+    "activo": true
+  },
+  {
+    "categoriaId": 1,
+    "nombre": "Acceso anticipado a novedades",
+    "descripcion": "Acceso prioritario a nuevos lanzamientos",
+    "icono": "star-fill",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 1,
+    "nombre": "Acceso a contenido digital",
+    "descripcion": "Permite acceder a la biblioteca de contenido digital",
+    "icono": "device-digital",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 2,
+    "nombre": "Marcadores y notas",
+    "descripcion": "Funcionalidad para guardar marcadores y hacer anotaciones",
+    "icono": "bookmark",
+    "tipoDato": "texto",
+    "activo": true
+  },
+  {
+    "categoriaId": 2,
+    "nombre": "Modo nocturno / ajustes visuales",
+    "descripcion": "Opciones para personalizar la experiencia de lectura",
+    "icono": "eye",
+    "tipoDato": "texto",
+    "activo": true
+  },
+  {
+    "categoriaId": 2,
+    "nombre": "Sincronización entre dispositivos",
+    "descripcion": "Sincronización de progreso entre diferentes dispositivos",
+    "icono": "sync",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 2,
+    "nombre": "Búsqueda dentro de libros",
+    "descripcion": "Capacidad de buscar términos dentro del contenido",
+    "icono": "search",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 2,
+    "nombre": "Diccionario integrado",
+    "descripcion": "Consulta definiciones sin salir del libro",
+    "icono": "book",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 2,
+    "nombre": "Exportación de notas y citas",
+    "descripcion": "Exportación de anotaciones a otros formatos",
+    "icono": "box-arrow-up",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 3,
+    "nombre": "Recomendaciones personalizadas",
+    "descripcion": "Sugerencias basadas en tus preferencias de lectura",
+    "icono": "lightbulb",
+    "tipoDato": "texto",
+    "activo": true
+  },
+  {
+    "categoriaId": 3,
+    "nombre": "Número de perfiles",
+    "descripcion": "Cantidad de perfiles que pueden usar la cuenta",
+    "icono": "people",
+    "tipoDato": "numero",
+    "activo": true
+  },
+  {
+    "categoriaId": 3,
+    "nombre": "Estadísticas de lectura",
+    "descripcion": "Seguimiento de hábitos y progresos de lectura",
+    "icono": "graph-up",
+    "tipoDato": "texto",
+    "activo": true
+  },
+  {
+    "categoriaId": 3,
+    "nombre": "Grupos de lectura",
+    "descripcion": "Participación en comunidades de lectores",
+    "icono": "people-fill",
+    "tipoDato": "texto",
+    "activo": true
+  },
+  {
+    "categoriaId": 3,
+    "nombre": "Grupos de lectura ilimitados",
+    "descripcion": "Permite crear y unirse a grupos de lectura sin límite",
+    "icono": "people-fill",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 3,
+    "nombre": "Sin publicidad",
+    "descripcion": "Experiencia de lectura sin anuncios",
+    "icono": "slash-circle",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 3,
+    "nombre": "Soporte prioritario",
+    "descripcion": "Acceso a soporte técnico prioritario",
+    "icono": "headset",
+    "tipoDato": "booleano",
+    "activo": true
+  },
+  {
+    "categoriaId": 3,
+    "nombre": "Control parental",
+    "descripcion": "Opciones para supervisar y limitar el acceso de menores",
+    "icono": "shield",
+    "tipoDato": "booleano",
+    "activo": true
+  }
+]

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Seguridad de la Cuenta | Biblioteca Virtual',
+        paramCss=~{usuarios/seguridad :: seguridadPageCss},
+        paramScripts=~{usuarios/seguridad :: seguridadPageScripts},
+        activeMenu='seguridad', 
+        pageSpecificContent=~{usuarios/seguridad :: seguridadSpecificContent}
+      )}">
+
+<head>
+  <th:block th:fragment="seguridadPageCss">
+    <style>
+      .security-icon {
+        font-size: 2rem;
+        color: var(--bs-primary);
+      }
+
+      .danger-zone {
+        border: 1px solid #dc3545;
+        border-radius: 0.25rem;
+      }
+
+      .danger-zone .card-header {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border-bottom: 1px solid #dc3545;
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <th:block th:fragment="seguridadSpecificContent">
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="seguridad">
+        <!-- Contraseña -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Contraseña</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                <p class="text-muted">Tu contraseña debe ser segura y única. Es recomendable cambiarla periódicamente.
+                </p>
+                <p class="mb-0">
+                  <i class="bi bi-shield-lock me-2"></i>
+                  <span>Última actualización de contraseña: <strong th:text="${#temporals.format(usuario.ultimaActualizacionPassword, 'dd/MM/yyyy HH:mm')}" >Hace 30 días</strong></span>
+                </p>
+              </div>
+              <div class="col-md-4 text-md-end">
+                <a th:href="@{/mi-cuenta/cambiar-password}" class="btn btn-primary">
+                  <i class="bi bi-key me-1"></i> Cambiar contraseña
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sesiones activas -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Sesiones activas</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-4">
+              <div class="col-md-8">
+                <p class="text-muted">Estas son las sesiones donde tu cuenta está actualmente conectada.</p>
+                <div class="alert alert-warning" role="alert">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  Si no reconoces alguna sesión, cierra todas las sesiones inmediatamente y cambia tu contraseña.
+                </div>
+              </div>
+              <div class="col-md-4 text-md-end">
+                <form th:action="@{/mi-cuenta/seguridad/cerrar-sesiones}" method="post">
+                  <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-x-circle me-1"></i> Cerrar todas las sesiones
+                  </button>
+                </form>
+              </div>
+            </div>
+            <!-- Lista de sesiones -->
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Dispositivo</th>
+                    <th>Dirección IP</th>
+                    <th>Ubicación</th>
+                    <th>Última actividad</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="sesion : ${sesiones}">
+                    <td>
+                      <i th:class="${sesion.deviceInfo.contains('Windows') ? 'bi bi-laptop' : 
+                    sesion.deviceInfo.contains('Android') ? 'bi bi-phone' : 
+                    sesion.deviceInfo.contains('iPhone') || sesion.deviceInfo.contains('iPad') ? 'bi bi-tablet' : 
+                    'bi bi-display'} + ' me-2'"></i>
+                      <span th:text="${sesion.deviceInfo}">Dispositivo</span>
+                    </td>
+                    <td>
+                      <code th:text="${sesion.ipAddress}">127.0.0.1</code>
+                    </td>
+                    <td th:text="${sesion.location}">Ubicación</td>
+                    <td>
+                      <!-- Usar helper para formatear el tiempo -->
+                      <span th:if="${sesion.id == sesionActualId}" class="badge bg-success">Actual</span>
+                      <span th:unless="${sesion.id == sesionActualId}"
+                        th:text="${helper.formatLastActivity(sesion.lastActivity, sesion.id, sesionActualId)}">Fecha</span>
+                    </td>
+                    <td>
+                      <!-- No mostrar botón para la sesión actual -->
+                      <span th:if="${sesion.id == sesionActualId}">-</span>
+                      <form th:unless="${sesion.id == sesionActualId}" th:action="@{/mi-cuenta/seguridad/cerrar-sesion}"
+                        method="post" style="display: inline;">
+                        <input type="hidden" name="sessionId" th:value="${sesion.id}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                          <i class="bi bi-x-circle"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+
+                  <!-- Mensaje si no hay sesiones -->
+                  <tr th:if="${sesiones.isEmpty()}">
+                    <td colspan="5" class="text-center">No hay sesiones activas registradas.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verificación en dos pasos -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Verificación en dos pasos</h5>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="twoFactorToggle" disabled>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-9">
+                <p class="text-muted">La verificación en dos pasos añade una capa adicional de seguridad a tu cuenta.
+                  Además de tu contraseña, necesitarás un código enviado a tu dispositivo móvil.</p>
+                <div class="alert alert-info" role="alert">
+                  <i class="bi bi-info-circle-fill me-2"></i>
+                  Actualmente esta función no está disponible. Próximamente podrás activar esta opción para mejorar la
+                  seguridad de tu cuenta.
+                </div>
+              </div>
+              <div class="col-md-3 text-center">
+                <div class="security-icon mb-2">
+                  <i class="bi bi-shield-lock"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Eliminar cuenta - Zona peligrosa -->
+        <div class="card shadow-sm danger-zone">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i> Zona peligrosa</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                <h6 class="fw-bold text-danger">Eliminar cuenta</h6>
+                <p class="text-muted">Esta acción eliminará permanentemente tu cuenta, incluyendo todos tus perfiles,
+                  historial de préstamos y datos personales. Esta acción no se puede deshacer.</p>
+              </div>
+              <div class="col-md-4 text-md-end">
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                  data-bs-target="#deleteAccountModal">
+                  <i class="bi bi-trash me-1"></i> Eliminar mi cuenta
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar cuenta -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="deleteAccountModalLabel">Confirmar eliminación de cuenta</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <strong>¡Advertencia!</strong> Esta acción no se puede deshacer.
+            </div>
+            <p>Todos tus datos serán eliminados permanentemente, incluyendo:</p>
+            <ul>
+              <li>Todos tus perfiles</li>
+              <li>Tu historial de préstamos</li>
+              <li>Tus datos personales</li>
+              <li>Tu información de contacto</li>
+            </ul>
+            <p>Para confirmar, escribe "<strong>ELIMINAR</strong>" en el siguiente campo:</p>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="confirmDeleteText" placeholder="Escribe 'ELIMINAR'" required>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Contraseña actual:</label>
+              <input type="password" class="form-control" id="password" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <form th:action="@{/usuarios/eliminar-cuenta}" method="post">
+              <input type="hidden" name="confirmText" id="confirmTextHidden">
+              <input type="hidden" name="password" id="passwordHidden">
+              <button type="submit" class="btn btn-danger" id="deleteAccountBtn" disabled>
+                <i class="bi bi-trash me-1"></i> Eliminar permanentemente
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <!-- Fragmento para el script personalizado -->
+  <th:block th:fragment="seguridadPageScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Validación para el modal de eliminación de cuenta
+        const confirmDeleteText = document.getElementById('confirmDeleteText');
+        const confirmTextHidden = document.getElementById('confirmTextHidden');
+        const password = document.getElementById('password');
+        const passwordHidden = document.getElementById('passwordHidden');
+        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+
+        function validateDeleteForm() {
+          if (confirmDeleteText.value === 'ELIMINAR' && password.value.length > 0) {
+            deleteAccountBtn.disabled = false;
+            confirmTextHidden.value = confirmDeleteText.value;
+            passwordHidden.value = password.value;
+          } else {
+            deleteAccountBtn.disabled = true;
+          }
+        }
+
+        if (confirmDeleteText && password && deleteAccountBtn) {
+          confirmDeleteText.addEventListener('input', validateDeleteForm);
+          password.addEventListener('input', validateDeleteForm);
+        }
+
+        // Limpiar campos del modal al cerrar
+        const deleteModal = document.getElementById('deleteAccountModal');
+        if (deleteModal) {
+          deleteModal.addEventListener('hidden.bs.modal', function () {
+            confirmDeleteText.value = '';
+            password.value = '';
+            deleteAccountBtn.disabled = true;
+          });
+        }
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

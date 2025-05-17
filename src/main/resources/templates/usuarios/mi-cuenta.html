@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Mi Cuenta | Biblioteca Virtual',
+        paramCss=~{usuarios/mi-cuenta :: miCuentaPageCss},
+        paramScripts=~{usuarios/mi-cuenta :: miCuentaPageScripts},
+        activeMenu='informacion', 
+        pageSpecificContent=~{usuarios/mi-cuenta :: miCuentaSpecificContent}
+      )}">
+
+<head>
+  <th:block th:fragment="miCuentaPageCss">
+    <style>
+      .info-card {
+        border-radius: 15px;
+        border: none;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      .card-header-custom {
+        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-darkest) 100%);
+        color: white;
+        padding: 1.25rem;
+        position: relative;
+        overflow: hidden;
+        border-bottom: none;
+      }
+
+      .card-header-custom::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(25deg);
+      }
+
+      .card-header-light {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        color: var(--bs-dark);
+        border-bottom: none;
+      }
+
+      .info-section {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+      }
+
+      .info-section:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        font-weight: 600;
+        color: var(--bs-gray-600);
+        width: 40%;
+        font-size: 0.9rem;
+      }
+
+      .info-value {
+        color: var(--bs-dark);
+        width: 60%;
+        font-size: 0.95rem;
+      }
+
+      .stat-card {
+        border-radius: 12px;
+        padding: 1.25rem;
+        height: 100%;
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card-primary {
+        background: linear-gradient(45deg, var(--bs-primary) 0%, var(--bs-primary-darkest) 100%);
+        color: white;
+      }
+
+      .stat-card-secondary {
+        background: linear-gradient(45deg, var(--bs-secondary) 0%, #495057 100%);
+        color: white;
+      }
+
+      .stat-card-success {
+        background: linear-gradient(45deg, var(--bs-success) 0%, #198754 100%);
+        color: white;
+      }
+
+      .stat-card-danger {
+        background: linear-gradient(45deg, var(--bs-danger) 0%, #dc3545 100%);
+        color: white;
+      }
+
+      .stat-card-info {
+        background: linear-gradient(45deg, var(--bs-info) 0%, #0dcaf0 100%);
+        color: white;
+      }
+
+      .stat-card::before {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        right: -15px;
+        width: 90px;
+        height: 90px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0;
+      }
+
+      .stat-title {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .stat-icon {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        font-size: 2.5rem;
+        opacity: 0.4;
+      }
+
+      .action-btn {
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .action-btn i {
+        margin-right: 0.5rem;
+      }
+
+      .empty-state {
+        padding: 3rem 2rem;
+        text-align: center;
+        border-radius: 15px;
+        background-color: #f8f9fa;
+      }
+
+      .empty-state-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1.5rem;
+      }
+
+      .tab-content {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .info-section {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .info-label,
+        .info-value {
+          width: 100%;
+        }
+
+        .info-label {
+          margin-bottom: 0.25rem;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <th:block th:fragment="miCuentaSpecificContent">
+    <!-- Tarjetas de estadísticas -->
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <div class="stat-card stat-card-primary shadow-sm">
+          <div class="stat-title">Préstamos activos</div>
+          <p class="stat-number">0</p>
+          <div class="stat-icon">
+            <i class="bi bi-journal-bookmark"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="stat-card stat-card-success shadow-sm">
+          <div class="stat-title">Libros leídos</div>
+          <p class="stat-number">0</p>
+          <div class="stat-icon">
+            <i class="bi bi-book"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="stat-card stat-card-info shadow-sm">
+          <div class="stat-title">Días como miembro</div>
+          <p class="stat-number"
+            th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(usuario.fechaRegistro, T(java.time.LocalDateTime).now())}">
+            0</p>
+          <div class="stat-icon">
+            <i class="bi bi-calendar-check"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content">
+      <!-- Información Personal -->
+      <div class="tab-pane fade show active" id="informacion">
+        <!-- Datos de Usuario -->
+        <div class="info-card shadow-sm">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-1">Información Personal</h5>
+              <p class="mb-0 opacity-75 small">Datos principales de tu cuenta</p>
+            </div>
+            <!-- Botón de editar solo visible si es perfil principal o no hay perfiles -->
+            <a th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+              th:href="@{/mi-cuenta/editar}" class="action-btn btn btn-light">
+              <i class="bi bi-pencil"></i> Editar
+            </a>
+          </div>
+          <div class="card-body p-0">
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-person-badge me-2 text-primary"></i>Usuario
+              </div>
+              <div class="info-value" th:text="${usuario.username}">username</div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-envelope me-2 text-primary"></i>Email
+              </div>
+              <div class="info-value" th:text="${usuario.email}">email@ejemplo.com</div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-calendar-date me-2 text-primary"></i>Fecha de registro
+              </div>
+              <div class="info-value" th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">01/01/2025
+              </div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-shield-check me-2 text-primary"></i>Estado de la cuenta
+              </div>
+              <div class="info-value">
+                <span class="badge rounded-pill bg-success" th:if="${usuario.activo}">Activa</span>
+                <span class="badge rounded-pill bg-danger" th:unless="${usuario.activo}">Inactiva</span>
+              </div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-clock-history me-2 text-primary"></i>Última actividad
+              </div>
+              <div class="info-value" th:text="${#temporals.format(usuario.ultimaActividad, 'dd/MM/yyyy HH:mm')}">
+                01/01/2025 12:00</div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-star me-2 text-primary"></i>Plan
+              </div>
+              <div class="info-value">
+                <span class="badge bg-warning text-dark">Plan Básico</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos de Lector - Mostrar solo si hay datos de lector -->
+        <div class="info-card shadow-sm" th:if="${lector != null}">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-1">Perfil de Lector</h5>
+              <p class="mb-0 opacity-75 small">Información personal como lector</p>
+            </div>
+            <!-- Botón de editar solo visible si es perfil principal -->
+            <a th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}" th:href="@{/mi-cuenta/lector}"
+              class="action-btn btn btn-light">
+              <i class="bi bi-pencil"></i> Editar
+            </a>
+          </div>
+          <div class="card-body p-0">
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-person me-2 text-primary"></i>Nombre completo
+              </div>
+              <div class="info-value" th:text="${lector.nombre + ' ' + lector.apellido}">Nombre Apellido</div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-geo-alt me-2 text-primary"></i>Dirección
+              </div>
+              <div class="info-value" th:text="${lector.direccion}">Dirección del lector</div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-telephone me-2 text-primary"></i>Teléfono
+              </div>
+              <div class="info-value" th:text="${lector.telefono}">Teléfono</div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-calendar me-2 text-primary"></i>Fecha de nacimiento
+              </div>
+              <div class="info-value" th:text="${#dates.format(lector.fechaNacimiento, 'dd/MM/yyyy')}">01/01/1990
+              </div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-card-checklist me-2 text-primary"></i>Estado
+              </div>
+              <div class="info-value" th:text="${lector.estadoCuenta}">Estado</div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">
+                <i class="bi bi-cash-coin me-2 text-primary"></i>Multas pendientes
+              </div>
+              <div class="info-value">
+                <span class="badge rounded-pill bg-danger" th:if="${lector.multasPendientes > 0}">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  <span th:text="${lector.multasPendientes}">0</span>
+                </span>
+                <span class="badge rounded-pill bg-success" th:unless="${lector.multasPendientes > 0}">
+                  <i class="bi bi-check-circle me-1"></i>0
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Si no hay datos de lector y es perfil principal, mostrar botón para completar perfil -->
+        <div class="info-card shadow-sm mb-4"
+          th:if="${lector == null && (session.esPerfilPrincipal == null || session.esPerfilPrincipal)}">
+          <div class="card-body text-center py-5">
+            <div class="empty-state-icon">
+              <i class="bi bi-person-badge"></i>
+            </div>
+            <h5 class="mb-3">No has completado tu perfil de lector</h5>
+            <p class="text-muted mb-4">
+              Con tu perfil completo podrás:
+            <div class="row mt-3 justify-content-center">
+              <div class="col-md-4 text-start">
+                <p><i class="bi bi-check-circle-fill text-success me-2"></i> Solicitar préstamos</p>
+                <p><i class="bi bi-check-circle-fill text-success me-2"></i> Recibir recomendaciones</p>
+              </div>
+              <div class="col-md-4 text-start">
+                <p><i class="bi bi-check-circle-fill text-success me-2"></i> Acceder a ofertas</p>
+                <p><i class="bi bi-check-circle-fill text-success me-2"></i> Participar en grupos</p>
+              </div>
+            </div>
+            </p>
+            <a th:href="@{/mi-cuenta/lector}" class="action-btn btn btn-primary btn-lg">
+              <i class="bi bi-pencil-square"></i> Completar perfil de lector
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seguridad -->
+      <div class="tab-pane fade" id="seguridad">
+        <div class="info-card shadow-sm mb-4">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-1">Seguridad de la Cuenta</h5>
+              <p class="mb-0 opacity-75 small">Administra la seguridad de tu cuenta</p>
+            </div>
+          </div>
+          <div class="card-body px-4 py-3">
+            <div class="row align-items-center mb-4 py-3 border-bottom">
+              <div class="col-md-2 text-center mb-3 mb-md-0">
+                <i class="bi bi-key-fill text-primary" style="font-size: 2.5rem;"></i>
+              </div>
+              <div class="col-md-7 mb-3 mb-md-0">
+                <h6 class="fw-bold">Contraseña</h6>
+                <p class="text-muted mb-0">Tu contraseña debe ser segura y única. Se recomienda cambiarla
+                  periódicamente.</p>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <a th:href="@{/mi-cuenta/cambiar-password}" class="action-btn btn btn-primary">
+                  <i class="bi bi-key"></i> Cambiar contraseña
+                </a>
+              </div>
+            </div>
+
+            <div class="row align-items-center py-3">
+              <div class="col-md-2 text-center mb-3 mb-md-0">
+                <i class="bi bi-shield-lock-fill text-primary" style="font-size: 2.5rem;"></i>
+              </div>
+              <div class="col-md-7 mb-3 mb-md-0">
+                <h6 class="fw-bold">Sesiones activas</h6>
+                <p class="text-muted mb-0">Si sospechas que alguien ha accedido a tu cuenta, puedes cerrar todas las
+                  sesiones activas.</p>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <form th:action="@{/mi-cuenta/seguridad/cerrar-sesiones}" method="post">
+                  <button type="submit" class="action-btn btn btn-danger">
+                    <i class="bi bi-x-circle"></i> Cerrar sesiones
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Préstamos -->
+      <div class="tab-pane fade" id="prestamos">
+        <div class="info-card shadow-sm">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-1">Mis Préstamos</h5>
+              <p class="mb-0 opacity-75 small">Administra tus préstamos activos</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <i class="bi bi-book"></i>
+              </div>
+              <h5 class="mb-3">No tienes préstamos activos</h5>
+              <p class="text-muted mb-4">Explora nuestro catálogo y solicita préstamos para leer tus libros favoritos.
+              </p>
+              <a th:href="@{/catalogo}" class="action-btn btn btn-primary btn-lg">
+                <i class="bi bi-search"></i> Explorar catálogo
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial -->
+      <div class="tab-pane fade" id="historial">
+        <div class="info-card shadow-sm">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-1">Historial de Actividad</h5>
+              <p class="mb-0 opacity-75 small">Registro de tus acciones recientes</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <h5 class="mb-3">Historial vacío</h5>
+              <p class="text-muted mb-4">Aquí se registrarán todas tus actividades como préstamos, compras y
+                devoluciones.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <!-- Fragmento para el script personalizado -->
+  <th:block th:fragment="miCuentaPageScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const hash = window.location.hash;
+        if (hash) {
+          const targetTabPaneId = hash.substring(1); // remove #
+          const targetTabPane = document.getElementById(targetTabPaneId);
+          const triggerLink = document.querySelector('.list-group-item[href$="' + hash + '"]');
+
+          if (targetTabPane && triggerLink) {
+            // Desactivar todos los tabs y enlaces activos
+            document.querySelectorAll('.tab-pane.show.active').forEach(activeTab => activeTab.classList.remove('show', 'active'));
+            document.querySelectorAll('.list-group-item.active').forEach(activeLink => activeLink.classList.remove('active'));
+
+            // Activar el tab y enlace correctos
+            targetTabPane.classList.add('show', 'active');
+            triggerLink.classList.add('active');
+          }
+        }
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

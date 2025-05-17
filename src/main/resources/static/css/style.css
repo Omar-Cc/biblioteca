@@ -1,0 +1,189 @@
+body {
+    background-color: #f8f4ef;
+}
+
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80");
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 80px 0;
+    margin-bottom: 30px;
+}
+
+.breadcrumb {
+    background-color: rgba(0, 0, 0, 0.03);
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    padding: 0 5px;
+    color: #6c757d;
+}
+
+/* Mejoras para el navbar */
+.navbar {
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    background: linear-gradient(to right, #1a1e23, #343a40) !important;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+.navbar .nav-link {
+    position: relative;
+    margin: 0 0.2rem;
+    transition: color 0.3s ease;
+}
+
+.navbar .nav-link::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    background: var(--bs-primary);
+    left: 0;
+    bottom: -3px;
+    transition: width 0.3s ease;
+}
+
+.navbar .nav-link:hover::after,
+.navbar .nav-link.active::after {
+    width: 100%;
+}
+
+.navbar .dropdown-menu {
+    border-top: 3px solid var(--bs-primary);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.navbar .dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: rgba(45, 110, 126, 0.1);
+}
+
+.navbar .dropdown-header {
+    color: var(--bs-primary);
+    font-weight: 600;
+}
+
+.navbar .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: var(--bs-primary);
+    color: #fff;
+}
+
+/* Mejoras para focus visible - accesibilidad */
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+/* Mejorar los link buttons activos */
+.btn-link {
+    color: var(--bs-primary);
+}
+
+.btn-link:hover,
+.btn-link:focus {
+    color: #1d4b55;
+}
+
+.btn-link:active,
+.btn-link.active {
+    color: #1a535f;
+    text-decoration: underline;
+}
+
+/* Mejorar los checkboxes y radios con estado checked */
+.form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* Mejorar los switches */
+.form-switch .form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* Estilo para toast */
+.toast {
+    border-color: rgba(45, 110, 126, 0.1);
+}
+
+/* Mejoras responsivas */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .navbar .input-group {
+        width: 100%;
+    }
+}
+
+/* Mejoras para responsividad de planes */
+@media (max-width: 767px) {
+    .subscription-section h2 {
+        font-size: 1.8rem;
+    }
+
+    .card-header h3.card-title {
+        font-size: 1.3rem !important;
+    }
+
+    .subscription-card .card-body h4 {
+        font-size: 1.4rem;
+    }
+
+    .badge.bg-danger {
+        transform: scale(0.85);
+    }
+}
+
+@media (max-width: 575px) {
+    .plan-switch-container {
+        padding: 15px 10px;
+    }
+
+    .plan-switch-container h4 {
+        font-size: 1.2rem;
+    }
+
+    .subscription-card {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .subscription-card:hover {
+        transform: translateY(-5px);
+    }
+}
+
+/* Para asegurar que las tarjetas tengan la misma altura en cada fila */
+@media (min-width: 576px) and (max-width: 991px) {
+    .row-cols-sm-2 .subscription-card {
+        height: calc(100% - 1rem);
+    }
+}

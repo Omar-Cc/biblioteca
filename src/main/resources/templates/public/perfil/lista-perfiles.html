@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Mis Perfiles | Biblioteca Virtual',
+        paramCss=~{public/perfil/lista-perfiles :: perfilListPageCss},
+        paramScripts=~{public/perfil/lista-perfiles :: perfilListPageScripts},
+        activeMenu='perfiles', 
+        pageSpecificContent=~{public/perfil/lista-perfiles :: perfilListSpecificContent}
+      )}">
+
+<head>
+  <th:block th:fragment="perfilListPageCss">
+    <style>
+      .profile-card {
+        transition: all 0.3s ease;
+        border-radius: 0.8rem;
+        overflow: hidden;
+        border: none;
+      }
+
+      .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .profile-avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .profile-card:hover .profile-avatar {
+        transform: scale(1.05);
+      }
+
+      .profile-card-header {
+        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-darkest) 100%);
+        color: white;
+        padding: 1rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .profile-card-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(25deg);
+      }
+
+      .profile-card.active {
+        border: 2px solid var(--bs-primary);
+      }
+
+      .profile-card.active::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 25px;
+        height: 25px;
+        background-color: var(--bs-light);
+        border-radius: 50%;
+        z-index: 1;
+      }
+
+      .profile-card.active::after {
+        content: '\F26E';
+        font-family: "bootstrap-icons";
+        position: absolute;
+        left: 8px;
+        top: 2px;
+        color: var(--bs-primary);
+        font-size: 1.5rem;
+        z-index: 2;
+      }
+
+      .profile-type-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+      }
+
+      .profile-info {
+        background-color: rgba(0, 0, 0, 0.03);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .profile-info i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .profile-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .empty-state {
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+        padding: 3rem 2rem;
+        text-align: center;
+      }
+
+      .empty-state-icon {
+        font-size: 5rem;
+        color: #dee2e6;
+        margin-bottom: 1.5rem;
+      }
+
+      .profile-switch-btn {
+        position: absolute;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .profile-card:hover .profile-switch-btn {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .profile-card.active .profile-switch-btn {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      @media (max-width: 767.98px) {
+        .profile-card {
+          max-width: 320px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+
+  <th:block th:fragment="perfilListSpecificContent">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-people-fill me-2 text-primary"></i>Mis Perfiles
+        </h5>
+        <a th:href="@{/mi-cuenta/perfiles/nuevo}" class="btn btn-primary rounded-pill">
+          <i class="bi bi-person-plus me-1"></i> Nuevo perfil
+        </a>
+      </div>
+      <div class="card-body">
+        <!-- Sin perfiles -->
+        <div th:if="${#lists.isEmpty(perfiles)}" class="empty-state">
+          <div class="empty-state-icon">
+            <i class="bi bi-person-badge"></i>
+          </div>
+          <h2 class="h4 mb-3">Personaliza tu experiencia con perfiles</h2>
+          <p class="text-muted mb-4">
+            Crea perfiles para diferentes miembros de tu familia o para separar tus intereses de lectura.<br>
+            Cada perfil puede tener sus propias preferencias, colecciones y recomendaciones.
+          </p>
+          <a th:href="@{/mi-cuenta/perfiles/nuevo}" class="btn btn-primary btn-lg rounded-pill">
+            <i class="bi bi-person-plus me-2"></i> Crear mi primer perfil
+          </a>
+        </div>
+
+        <!-- Lista de perfiles -->
+        <div th:if="${!#lists.isEmpty(perfiles)}" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          <div th:each="perfil : ${perfiles}" class="col">
+            <div
+              th:class="${perfil.id == session.perfilActivoId} ? 'card profile-card shadow-sm h-100 active' : 'card profile-card shadow-sm h-100'">
+              <!-- Cabecera -->
+              <div class="profile-card-header text-center position-relative">
+                <span th:if="${perfil.esPerfilPrincipal}" class="profile-type-badge bg-warning text-dark">
+                  <i class="bi bi-star-fill me-1"></i>Principal
+                </span>
+                <span th:if="${!perfil.esPerfilPrincipal && perfil.esInfantil}"
+                  class="profile-type-badge bg-info text-white">
+                  <i class="bi bi-emoji-smile me-1"></i>Infantil
+                </span>
+                <div class="my-3">
+                  <img th:if="${not #strings.isEmpty(perfil.fotoPerfil)}" th:src="${perfil.fotoPerfil}"
+                    alt="Foto de perfil" class="profile-avatar rounded-circle">
+                  <div th:unless="${not #strings.isEmpty(perfil.fotoPerfil)}" class="profile-avatar-placeholder">
+                    <i class="bi bi-person text-secondary" style="font-size: 3rem;"></i>
+                  </div>
+                </div>
+                <h5 class="mb-1 mt-2 fw-bold" th:text="${perfil.nombreVisible}">Nombre del perfil</h5>
+                <form th:if="${perfil.id != session.perfilActivoId}"
+                  th:action="@{/mi-cuenta/perfiles/{id}/activar(id=${perfil.id})}" method="post">
+                  <button type="submit" class="btn btn-sm btn-light profile-switch-btn">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Cambiar a este perfil
+                  </button>
+                </form>
+              </div>
+
+              <!-- Cuerpo -->
+              <div class="card-body pb-5">
+                <div class="profile-info">
+                  <i class="bi bi-translate text-primary"></i>
+                  <span th:text="${perfil.idiomaPreferido}">Español</span>
+                </div>
+                <div class="profile-info">
+                  <i class="bi bi-book text-primary"></i>
+                  <span th:text="${'Límite: ' + perfil.limitePrestamosDesignado + ' préstamos'}">Límite: 5
+                    préstamos</span>
+                </div>
+                <div th:if="${perfil.ultimaActividad}" class="profile-info">
+                  <i class="bi bi-clock-history text-primary"></i>
+                  <span th:text="${'Última actividad: ' + perfil.ultimaActividad}">Última actividad</span>
+                </div>
+              </div>
+
+              <!-- Pie -->
+              <div class="card-footer bg-white border-0 pt-0">
+                <div class="profile-actions">
+                  <a th:href="@{/mi-cuenta/perfiles/{id}/editar(id=${perfil.id})}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-pencil me-1"></i> Editar
+                  </a>
+                  <form th:if="${!perfil.esPerfilPrincipal && perfil.id != session.perfilActivoId}"
+                    th:action="@{/mi-cuenta/perfiles/{id}/eliminar(id=${perfil.id})}" method="post" class="w-100"
+                    onsubmit="return confirm('¿Seguro que quieres eliminar este perfil? Se perderán todos sus datos asociados.');">
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                      <i class="bi bi-trash me-1"></i> Eliminar
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="perfilListPageScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Efecto hover para las tarjetas
+        const profileCards = document.querySelectorAll('.profile-card');
+        profileCards.forEach(card => {
+          card.addEventListener('mouseenter', function () {
+            this.classList.add('shadow');
+          });
+          card.addEventListener('mouseleave', function () {
+            this.classList.remove('shadow');
+          });
+        });
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

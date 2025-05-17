@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Asociar Beneficio a Plan',
+          pageAdditionalCss=~{::asociarFormCss},
+          pageContent=~{::asociarFormContent},
+          pageAdditionalScripts=~{::asociarFormScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="asociarFormCss">
+    <!-- CSS específico -->
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="asociarFormContent" class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Asociar Beneficio a Plan</h1>
+      <a th:href="${planSeleccionado != null ? '/admin/planes-beneficios/plan/' + planSeleccionado.id : 
+                    (beneficioSeleccionado != null ? '/admin/planes-beneficios/beneficio/' + beneficioSeleccionado.id : '/admin/planes')}"
+        class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Volver
+      </a>
+    </div>
+
+    <!-- Información preseleccionada -->
+    <div th:if="${planSeleccionado != null}" class="alert alert-info mb-4">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+        <div>
+          <strong>Plan seleccionado:</strong> <span th:text="${planSeleccionado.nombre}"></span>
+          <p class="mb-0 small">Asociarás un beneficio a este plan</p>
+        </div>
+      </div>
+    </div>
+
+    <div th:if="${beneficioSeleccionado != null}" class="alert alert-info mb-4">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+        <div>
+          <strong>Beneficio seleccionado:</strong>
+          <i th:if="${beneficioSeleccionado.icono}" th:class="${beneficioSeleccionado.icono} + ' me-1'"></i>
+          <span th:text="${beneficioSeleccionado.nombre}"></span>
+          <p class="mb-0 small">Asociarás este beneficio a un plan</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="card">
+      <div class="card-body">
+        <form th:action="@{/admin/planes-beneficios/asociar}" method="post" th:object="${planBeneficioForm}">
+
+          <div class="mb-3" th:if="${planSeleccionado == null}">
+            <label for="planId" class="form-label">Seleccionar Plan</label>
+            <select class="form-select" id="planId" th:field="*{planId}" required>
+              <option value="">-- Selecciona un plan --</option>
+              <option th:each="plan : ${planes}" th:value="${plan.id}" th:text="${plan.nombre}"></option>
+            </select>
+            <div class="form-text text-danger" th:if="${#fields.hasErrors('planId')}" th:errors="*{planId}"></div>
+          </div>
+
+          <div class="mb-3" th:if="${beneficioSeleccionado == null}">
+            <label for="beneficioId" class="form-label">Seleccionar Beneficio</label>
+            <select class="form-select" id="beneficioId" th:field="*{beneficioId}" required>
+              <option value="">-- Selecciona un beneficio --</option>
+              <option th:each="beneficio : ${beneficios}" th:value="${beneficio.id}">
+                <span th:text="${beneficio.nombre}"></span>
+              </option>
+            </select>
+            <div class="form-text text-danger" th:if="${#fields.hasErrors('beneficioId')}" th:errors="*{beneficioId}">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="valor" class="form-label">Valor del Beneficio (opcional)</label>
+            <input type="text" class="form-control" id="valor" th:field="*{valor}"
+              placeholder="Ej: '10GB', '3 meses', 'ilimitado', etc.">
+            <div class="form-text">
+              Dependiendo del tipo de beneficio, puedes especificar un valor concreto
+              (número de libros, porcentaje de descuento, etc.)
+            </div>
+            <div class="form-text text-danger" th:if="${#fields.hasErrors('valor')}" th:errors="*{valor}"></div>
+          </div>
+
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="activo" th:field="*{activo}">
+            <label class="form-check-label" for="activo">Asociación Activa</label>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a th:href="${planSeleccionado != null ? '/admin/planes-beneficios/plan/' + planSeleccionado.id : 
+                      (beneficioSeleccionado != null ? '/admin/planes-beneficios/beneficio/' + beneficioSeleccionado.id : '/admin/planes')}"
+              class="btn btn-secondary me-md-2">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Asociar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="asociarFormScripts">
+    <!-- Scripts específicos -->
+  </th:block>
+</body>
+
+</html>

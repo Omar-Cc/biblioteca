@@ -1,0 +1,65 @@
+[
+  {
+    "nombre": "Patrick Rothfuss",
+    "biografia": "Escritor estadounidense de fantasía épica, conocido por su obra 'El nombre del viento'.",
+    "fechaNacimiento": "1973-06-06",
+    "nacionalidad": "Estadounidense",
+    "foto": "url_foto_rothfuss.jpg"
+  },
+  {
+    "nombre": "Frank Herbert",
+    "biografia": "Escritor estadounidense de ciencia ficción, famoso por su saga 'Dune'.",
+    "fechaNacimiento": "1920-10-08",
+    "nacionalidad": "Estadounidense",
+    "foto": "url_foto_herbert.jpg"
+  },
+  {
+    "nombre": "Gabriel García Márquez",
+    "biografia": "Escritor colombiano, premio Nobel de Literatura en 1982, autor de 'Cien años de soledad'.",
+    "fechaNacimiento": "1927-03-06",
+    "nacionalidad": "Colombiana",
+    "foto": "url_foto_gabo.jpg"
+  },
+  {
+    "nombre": "Alan Moore",
+    "biografia": "Guionista británico de cómics, reconocido por obras como 'Watchmen' y 'V de Vendetta'.",
+    "fechaNacimiento": "1953-11-18",
+    "nacionalidad": "Británica",
+    "foto": "url_foto_moore.jpg"
+  },
+  {
+    "nombre": "Dave Gibbons",
+    "biografia": "Dibujante británico de cómics, conocido por ilustrar 'Watchmen'.",
+    "fechaNacimiento": "1949-04-14",
+    "nacionalidad": "Británica",
+    "foto": "url_foto_gibbons.jpg"
+  },
+  {
+    "nombre": "Tsugumi Ohba",
+    "biografia": "Guionista japonés de manga, creador de 'Death Note'.",
+    "fechaNacimiento": "1969-02-17",
+    "nacionalidad": "Japonesa",
+    "foto": "url_foto_ohba.jpg"
+  },
+  {
+    "nombre": "Takeshi Obata",
+    "biografia": "Dibujante japonés de manga, ilustrador de 'Death Note' y 'Bakuman'.",
+    "fechaNacimiento": "1969-02-11",
+    "nacionalidad": "Japonesa",
+    "foto": "url_foto_obata.jpg"
+  },
+  {
+    "nombre": "George Orwell",
+    "biografia": "Escritor británico, autor de '1984' y 'Rebelión en la granja'.",
+    "fechaNacimiento": "1903-06-25",
+    "nacionalidad": "Británica",
+    "foto": "url_foto_orwell.jpg"
+  },
+  {
+    "nombre": "Eiichiro Oda",
+    "biografia": "Mangaka japonés, creador de la popular serie 'One Piece'.",
+    "fechaNacimiento": "1975-01-01",
+    "nacionalidad": "Japonesa",
+    "foto": "url_foto_oda.jpg"
+  }
+]
