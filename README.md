@@ -16,6 +16,7 @@
 9. [👨‍💻 Desarrollo](#desarrollo)
 
 ## ℹ️ Vista General
+
 BiblioVirtual es una plataforma digital innovadora que ofrece una experiencia completa de gestión bibliotecaria. Diseñada tanto para usuarios como para administradores, permite la catalogación, préstamo y seguimiento de recursos bibliográficos de manera eficiente y moderna.
 
 Esta aplicación surge como respuesta a la necesidad de modernizar las bibliotecas tradicionales, facilitando el acceso a materiales educativos y recreativos a través de una interfaz intuitiva y responsive. Nuestro sistema integra todas las funcionalidades esenciales de una biblioteca física, potenciadas con las ventajas del entorno digital.
@@ -23,6 +24,7 @@ Esta aplicación surge como respuesta a la necesidad de modernizar las bibliotec
 BiblioVirtual no solo gestiona libros, sino que también permite administrar diversos formatos como revistas, tesis, recursos audiovisuales y documentos digitales, convirtiéndola en una solución completa para instituciones educativas, bibliotecas públicas y privadas.
 
 ## 🛠️ Tecnologías Utilizadas
+
 ### 🖥️ Backend
 ![Java 17](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.5-green)
