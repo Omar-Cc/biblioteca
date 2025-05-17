@@ -1,11 +1,5 @@
 # BiblioVirtual 📚
 
-![Estado](https://img.shields.io/badge/Estado-Activo-success)
-![Versión](https://img.shields.io/badge/Versión-1.0.0-blue)
-![Cobertura](https://img.shields.io/badge/Cobertura-87%25-brightgreen)
-![Tests](https://img.shields.io/badge/Tests-Passing-success)
-![Issues](https://img.shields.io/badge/Issues-Welcome-orange)
-
 ## 📚 Tabla de Contenidos
 1. [Vista General](#vista-general)
 2. [Tecnologías Utilizadas](#-tecnologías-utilizadas)
@@ -97,7 +91,7 @@ src/
 │   │   ├── mapper/         # 🔄 Transformaciones con MapStruct
 │   │   ├── models/         # 🧩 Entidades y modelos
 │   │   └── service/
-│   │       └── impl/       # 💼 Lógica de negocio
+│   │       └── impl/       # 💼 Lógica de negocio (implementaciones de servicio)
 │   └── resources/
 │       ├── data/           # 🗂️ Datos JSON de la aplicación
 │       ├── static/         # 🖼️ Recursos estáticos (JS, CSS, imágenes)
@@ -130,7 +124,7 @@ El proyecto implementa Spring Security para la autenticación y autorización de
 - Validación y políticas de contraseñas
 
 ## Configuración
-La aplicación utiliza archivos JSON para almacenar datos. Estos se encuentran en: src/main/resources/data/
+La aplicación utiliza archivos JSON para almacenar datos iniciales (seed data) y configuraciones específicas. Estos se encuentran en: `src/main/resources/data/`.
 
 ## Desarrollo
 Para el desarrollo se recomienda utilizar los siguientes comandos:
