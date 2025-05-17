@@ -1,22 +1,38 @@
 # BiblioVirtual 📚
-Vista General
-BiblioVirtual es una plataforma digital innovadora que ofrece una experiencia completa de biblioteca virtual. Permite a los usuarios acceder a una amplia colección de libros digitales, revistas, artículos académicos y otros formatos, disponibles para préstamo o adquisición desde cualquier dispositivo.
 
-Backend:
+## 📚 Tabla de Contenidos
+1. [Vista General](#vista-general)
+2. [Tecnologías Utilizadas](#-tecnologías-utilizadas)
+   - [Backend](#backend)
+   - [Frontend](#frontend)
+3. [Características Principales](#-características-principales)
+   - [Para Usuarios](#para-usuarios)
+   - [Para Administradores](#para-administradores)
+4. [Instalación](#-instalación)
+5. [Estructura del Proyecto](#-estructura-del-proyecto)
+6. [Arquitectura Frontend](#-arquitectura-frontend)
+7. [Seguridad](#-seguridad)
+8. [Configuración](#configuración)
+9. [Desarrollo](#desarrollo)
 
-<img alt="Java 17" src="https://img.shields.io/badge/Java-17-orange">
-<img alt="Spring Boot" src="https://img.shields.io/badge/Spring Boot-3.4.5-green">
-<img alt="Spring Security" src="https://img.shields.io/badge/Spring Security-Latest-green">
-<img alt="Lombok" src="https://img.shields.io/badge/Lombok-Latest-blue">
-<img alt="MapStruct" src="https://img.shields.io/badge/MapStruct-Latest-blue">
-Frontend:
+## Vista General
+BiblioVirtual es una plataforma digital innovadora que ofrece una experiencia completa...
 
-<img alt="Thymeleaf" src="https://img.shields.io/badge/Thymeleaf-Latest-green">
-<img alt="Bootstrap" src="https://img.shields.io/badge/Bootstrap-5.3.5-purple">
-<img alt="Bootstrap Icons" src="https://img.shields.io/badge/Bootstrap Icons-1.11.1-purple">
-<img alt="Font Awesome" src="https://img.shields.io/badge/Font Awesome-6.5.2-blue">
-<img alt="jQuery" src="https://img.shields.io/badge/jQuery-3.7.0-blue">
-<img alt="DataTables" src="https://img.shields.io/badge/DataTables-1.13.4-blue">
+## 🛠️ Tecnologías Utilizadas
+### 🖥️ Backend
+![Java 17](https://img.shields.io/badge/Java-17-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.5-green)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-Latest-green)
+![Lombok](https://img.shields.io/badge/Lombok-Latest-blue)
+![MapStruct](https://img.shields.io/badge/MapStruct-Latest-blue)
+
+### 🎨 Frontend
+![Thymeleaf](https://img.shields.io/badge/Thymeleaf-Latest-green)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.5-purple)
+![Bootstrap Icons](https://img.shields.io/badge/Bootstrap%20Icons-1.11.1-purple)
+![Font Awesome](https://img.shields.io/badge/Font%20Awesome-6.5.2-blue)
+![jQuery](https://img.shields.io/badge/jQuery-3.7.0-blue)
+![DataTables](https://img.shields.io/badge/DataTables-1.13.4-blue)
 
 ✨ Características Principales
 Para Usuarios
@@ -33,77 +49,84 @@ Administración de préstamos
 Reportes y estadísticas
 Gestión de planes y suscripciones
 
-# 🚀 Instalación
-Requisitos Previos
-Java JDK 17 o superior
-Maven 3.6 o superior
-Pasos
-# Clonar el repositorio
+## 🚀 Instalación
+
+### Requisitos Previos
+- Java JDK 17 o superior
+- Maven 3.6 o superior
+
+### Pasos para ejecutar localmente
+
+```bash
+# 1. Clonar el repositorio
 git clone https://github.com/Omar-Cc/biblioteca.git
 cd biblioteca
 
-# Compilar el proyecto
+# 2. Compilar el proyecto
 mvn clean install
 
-# Ejecutar la aplicación
+# 3. Ejecutar la aplicación
 mvn spring-boot:run
+```
 
-# ESTRUCTURA DEL PROYECTO
-<pre>
+
+## 📁 Estructura del Proyecto
+
+```bash
 src/
 ├── main/
 │   ├── java/com/biblioteca/
-│   │   ├── config/        # Configuraciones de la aplicación
-│   │   ├── controller/    # Controladores MVC
-│   │   │   ├── admin/     # Controladores para área de administración
-│   │   │   ├── cuenta/    # Controladores para cuenta de usuario
-│   │   │   └── publico/   # Controladores para área pública
-│   │   ├── dto/           # Objetos de transferencia de datos
-│   │   ├── enums/         # Enumeraciones
-│   │   ├── mapper/        # Mappers para transformar objetos (MapStruct)
-│   │   ├── models/        # Entidades y modelos
-│   │   └── service/       # Servicios de negocio
-│   │       └── impl/      # Implementaciones de servicios
+│   │   ├── config/         # ⚙️ Configuraciones de la aplicación
+│   │   ├── controller/     # 🌐 Controladores MVC
+│   │   │   ├── admin/      # Panel de administración
+│   │   │   ├── cuenta/     # Sección de cuenta de usuario
+│   │   │   └── publico/    # Sección pública
+│   │   ├── dto/            # 📦 DTOs (Data Transfer Objects)
+│   │   ├── enums/          # 🔢 Enumeraciones
+│   │   ├── mapper/         # 🔄 Transformaciones con MapStruct
+│   │   ├── models/         # 🧩 Entidades y modelos
+│   │   └── service/
+│   │       └── impl/       # 💼 Lógica de negocio
 │   └── resources/
-│       ├── data/          # Datos JSON de la aplicación
-│       ├── static/        # Recursos estáticos (JS, CSS, imágenes)
-│       ├── templates/     # Plantillas Thymeleaf
-│       └── application.properties # Configuración de la aplicación
-</pre>
+│       ├── data/           # 🗂️ Datos JSON de la aplicación
+│       ├── static/         # 🖼️ Recursos estáticos (JS, CSS, imágenes)
+│       ├── templates/      # 📝 Plantillas Thymeleaf
+│       └── application.properties # ⚙️ Configuración general
+```
 
-🎨 Arquitectura Frontend
+## 🎨 Arquitectura Frontend
 La interfaz de usuario está construida con Thymeleaf y Bootstrap, siguiendo una estructura modular:
 
-Layouts Base
+## Layouts Base
 base-layout.html: Estructura principal para usuarios
 admin-layout.html: Diseño para el panel de administración
 cuenta-layout.html: Layout para sección de cuenta de usuario
 
-Características Frontend
+## Características Frontend
 Tablas interactivas con paginación y búsqueda
 Sistema de notificaciones con auto-cierre
 Interfaces responsivas para múltiples dispositivos
 Sidebar colapsable en panel de administración
 Componentes reutilizables mediante fragmentos Thymeleaf
 
-🔒 Seguridad
-Autenticación y autorización con Spring Security
-Manejo personalizado de sesiones
-Protección contra CSRF
-Diferentes niveles de acceso según rol (ADMIN, USER, LECTOR)
-Configuración de políticas de contraseñas
+## 🔐 Seguridad
+- Autenticación y autorización con Spring Security
+- Manejo personalizado de sesiones
+- Protección contra CSRF
+- Gestión de roles y permisos (ADMIN, USER, LECTOR)
+- Validación y políticas de contraseñas
 
-CONFIGURACIÓN
+## CONFIGURACIÓN
 La aplicación utiliza archivos JSON para almacenar datos. Estos se encuentran en: src/main/resources/data/
 
-SEGURIDAD
+## SEGURIDAD
 El proyecto implementa Spring Security para la autenticación y autorización de usuarios, con funcionalidades como:
 
 Manejo personalizado de inicio y cierre de sesión
 Validación de sesiones
 Gestión de roles y permisos
 
-DESARROLLO
+## DESARROLLO
 Para el desarrollo se recomienda utilizar los siguientes comandos:
 
 Ejecutar en modo desarrollo con recarga automática: mvn spring-boot:run
