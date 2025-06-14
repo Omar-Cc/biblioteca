@@ -171,14 +171,54 @@
 <body>
 
   <th:block th:fragment="perfilListSpecificContent">
+    <!-- Modal para límite de perfiles alcanzado -->
+    <div class="modal fade" id="limitePerfilesModal" tabindex="-1" aria-labelledby="limitePerfilesModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="limitePerfilesModalLabel"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Límite de Perfiles Alcanzado</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Has alcanzado el límite de perfiles (<span th:text="${perfilesPermitidos != null ? perfilesPermitidos : 'N/A'}"></span>) permitidos para tu plan actual.</p>
+            <p th:if="${planInfo != null && planInfo.esPlanPremium == false}"> 
+              Para crear más perfiles, por favor, considera <a th:href="@{/mi-cuenta/suscripciones/mejorar}" class="fw-bold text-decoration-none">mejorar tu plan</a>.
+            </p>
+            <p th:if="${planInfo != null && planInfo.esPlanPremium == true}">
+              Ya tienes el plan más alto. Si necesitas más perfiles, por favor, <a th:href="@{/soporte}" class="fw-bold text-decoration-none">contacta con soporte</a>.
+            </p>
+            <p th:if="${planInfo == null}">
+              No pudimos determinar la información de tu plan actual. Por favor, <a th:href="@{/soporte}" class="fw-bold text-decoration-none">contacta con soporte</a>.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
+            <a th:if="${planInfo != null && planInfo.esPlanPremium == false}" th:href="@{/mi-cuenta/suscripciones/mejorar}" class="btn btn-primary">Mejorar Plan</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="card shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
         <h5 class="card-title mb-0">
           <i class="bi bi-people-fill me-2 text-primary"></i>Mis Perfiles
         </h5>
-        <a th:href="@{/mi-cuenta/perfiles/nuevo}" class="btn btn-primary rounded-pill">
-          <i class="bi bi-person-plus me-1"></i> Nuevo perfil
-        </a>
+        <div>
+          <span th:if="${perfilesDisponibles != null && perfilesDisponibles > 0 && perfilesPermitidos != null && perfilesPermitidos > 1}" class="text-muted me-3">
+            Puedes crear <strong th:text="${perfilesDisponibles}"></strong> perfil(es) más (límite de <span th:text="${perfilesPermitidos}"></span>).
+          </span>
+          <span th:if="${perfilesDisponibles != null && perfilesDisponibles <= 0 && perfilesPermitidos != null && perfilesPermitidos > 0}" class="text-warning me-3">
+             Límite de <strong th:text="${perfilesPermitidos}"></strong> perfiles alcanzado.
+          </span>
+          <a th:href="@{/mi-cuenta/perfiles/nuevo}" 
+             th:classappend="${perfilesDisponibles != null && perfilesDisponibles <= 0} ? 'disabled' : ''"
+             th:attr="data-bs-toggle=${perfilesDisponibles != null && perfilesDisponibles <= 0} ? 'modal' : null, 
+                      data-bs-target=${perfilesDisponibles != null && perfilesDisponibles <= 0} ? '#limitePerfilesModal' : null"
+             class="btn btn-primary rounded-pill">
+            <i class="bi bi-person-plus me-1"></i> Nuevo perfil
+          </a>
+        </div>
       </div>
       <div class="card-body">
         <!-- Sin perfiles -->

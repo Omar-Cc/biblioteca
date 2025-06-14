@@ -1,141 +1,159 @@
 package com.biblioteca.service.impl;
 
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.biblioteca.dto.comercial.PlanRequestDTO;
 import com.biblioteca.dto.comercial.PlanResponseDTO;
+import com.biblioteca.exceptions.RecursoNoEncontradoException;
 import com.biblioteca.mapper.comercial.PlanMapper;
 import com.biblioteca.models.comercial.Plan;
+import com.biblioteca.repositories.comercial.PlanRepository;
 import com.biblioteca.service.PlanService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PlanServiceImpl implements PlanService {
 
-  private final List<Plan> planes = new ArrayList<>();
-  private final AtomicLong planIdCounter = new AtomicLong(0);
+  private final PlanRepository planRepository;
   private final PlanMapper planMapper;
-  private final ObjectMapper objectMapper;
-  private final ResourceLoader resourceLoader;
-
-  @PostConstruct
-  public void initPlanesData() {
-    try {
-      InputStream inputStream = resourceLoader.getResource("classpath:data/planes-data.json").getInputStream();
-      List<PlanRequestDTO> planesDTOs = objectMapper.readValue(inputStream,
-          new TypeReference<List<PlanRequestDTO>>() {
-          });
-      planesDTOs.forEach(this::crearPlan);
-      System.out.println("Datos iniciales de Planes cargados desde JSON: " + planes.size() + " planes.");
-    } catch (Exception e) {
-      System.err.println("Error al cargar datos iniciales de planes desde JSON: " + e.getMessage());
-      e.printStackTrace();
-
-    }
-  }
 
   @Override
+  @Transactional
   public PlanResponseDTO crearPlan(PlanRequestDTO planDTO) {
     Plan plan = planMapper.toEntity(planDTO);
-    plan.setId(planIdCounter.incrementAndGet());
-    planes.add(plan);
-    return planMapper.toResponseDTO(plan);
+    // Las colecciones planBeneficios y suscripciones se inicializan vacías por
+    // defecto en la entidad Plan.
+    // Si el DTO incluyera información para estas colecciones, se manejaría aquí.
+    Plan planGuardado = planRepository.save(plan);
+    return planMapper.toResponseDTO(planGuardado);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<PlanResponseDTO> obtenerPlanPorId(Long id) {
-    return planes.stream()
-        .filter(p -> p.getId().equals(id))
-        .findFirst()
+    return planRepository.findById(id)
         .map(planMapper::toResponseDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<PlanResponseDTO> obtenerTodosLosPlanes() {
-    return planes.stream()
+    return planRepository.findAll().stream()
         .map(planMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<PlanResponseDTO> obtenerPlanesActivos() {
-    return planes.stream()
-        .filter(Plan::isActivo)
+    return planRepository.findByActivoTrue().stream()
         .map(planMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional
   public Optional<PlanResponseDTO> actualizarPlan(Long id, PlanRequestDTO planDTO) {
-    return planes.stream()
-        .filter(p -> p.getId().equals(id))
-        .findFirst()
+    return planRepository.findById(id)
         .map(plan -> {
-          planMapper.updateEntityFromDTO(planDTO, plan);
-          return planMapper.toResponseDTO(plan);
+          planMapper.updateEntityFromDTO(planDTO, plan); // El mapper actualiza la entidad existente
+          // La gestión de planBeneficios y suscripciones se haría a través de sus
+          // respectivos servicios
+          // o si el DTO de Plan incluyera IDs para asociar/desasociar.
+          // Por ahora, este método solo actualiza los campos directos de Plan.
+          Plan planActualizado = planRepository.save(plan);
+          return planMapper.toResponseDTO(planActualizado);
         });
   }
 
   @Override
+  @Transactional
   public boolean eliminarPlan(Long id) {
-    return planes.removeIf(p -> p.getId().equals(id));
+    if (planRepository.existsById(id)) {
+      // Considerar el impacto en PlanBeneficio y Suscripcion.
+      // Con CascadeType.ALL y orphanRemoval=true en Plan, las entidades asociadas se
+      // eliminarán.
+      // Si no, se podría necesitar lógica adicional o la BD podría bloquear la
+      // eliminación
+      // si hay restricciones de clave externa.
+      planRepository.deleteById(id);
+      return true;
+    }
+    return false;
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Plan> obtenerEntidadPlanPorId(Long id) {
-    return planes.stream()
-        .filter(p -> p.getId().equals(id))
-        .findFirst();
+    return planRepository.findById(id);
   }
 
   @Override
+  @Transactional
   public PlanResponseDTO aplicarDescuento(Long id, double porcentajeDescuento) {
     if (porcentajeDescuento < 0 || porcentajeDescuento > 100) {
       throw new IllegalArgumentException("El porcentaje de descuento debe estar entre 0 y 100");
     }
 
-    Plan plan = obtenerEntidadPlanPorId(id)
-        .orElseThrow(() -> new IllegalArgumentException("Plan no encontrado con ID: " + id));
+    Plan plan = planRepository.findById(id)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Plan no encontrado con ID: " + id));
 
     double factor = 1 - (porcentajeDescuento / 100.0);
 
     // Aplicar descuento a los precios (redondeo a entero)
-    plan.setPrecioMensual((int) Math.round(plan.getPrecioMensual() * factor));
-    plan.setPrecioAnual((int) Math.round(plan.getPrecioAnual() * factor));
+    if (plan.getPrecioMensual() != null) {
+      plan.setPrecioMensual((int) Math.round(plan.getPrecioMensual() * factor));
+    }
+    if (plan.getPrecioAnual() != null) {
+      plan.setPrecioAnual((int) Math.round(plan.getPrecioAnual() * factor));
+    }
 
-    return planMapper.toResponseDTO(plan);
+    Plan planActualizado = planRepository.save(plan);
+    return planMapper.toResponseDTO(planActualizado);
   }
 
   @Override
+  @Transactional
   public boolean activarPlan(Long id) {
-    return obtenerEntidadPlanPorId(id)
+    return planRepository.findById(id)
         .map(plan -> {
           plan.setActivo(true);
+          planRepository.save(plan);
           return true;
         })
         .orElse(false);
   }
 
   @Override
+  @Transactional
   public boolean desactivarPlan(Long id) {
-    return obtenerEntidadPlanPorId(id)
+    return planRepository.findById(id)
         .map(plan -> {
           plan.setActivo(false);
+          planRepository.save(plan);
           return true;
         })
         .orElse(false);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Long> obtenerPlanIdPorNombre(String nombre) {
+    return planRepository.findByNombre(nombre)
+        .map(Plan::getId);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<PlanResponseDTO> obtenerPlanPorNombre(String nombre) {
+    return planRepository.findByNombre(nombre)
+        .map(planMapper::toResponseDTO);
   }
 }

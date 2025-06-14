@@ -10,29 +10,240 @@
 <head>
   <th:block th:fragment="miCuentaPageCss">
     <style>
-      .info-card {
-        border-radius: 15px;
-        border: none;
+      /* ========================================
+         VARIABLES Y CONFIGURACIÓN
+         ======================================== */
+      :root {
+        --account-primary: #2d6e7e;
+        --account-primary-dark: #1e5f6f;
+        --account-secondary: #6c757d;
+        --account-success: #28a745;
+        --account-danger: #dc3545;
+        --account-warning: #ffc107;
+        --account-info: #17a2b8;
+        --account-light: #f8f9fa;
+        --account-dark: #343a40;
+        --account-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --account-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        --account-border-radius: 16px;
+        --account-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* ========================================
+         CARDS Y CONTENEDORES PRINCIPALES
+         ======================================== */
+      .account-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .welcome-banner {
+        background: linear-gradient(135deg, var(--account-primary) 0%, var(--account-primary-dark) 100%);
+        border-radius: var(--account-border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
+      }
+
+      .welcome-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.5;
+      }
+
+      .welcome-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .welcome-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .welcome-subtitle {
+        opacity: 0.9;
+        font-size: 1.1rem;
         margin-bottom: 1.5rem;
       }
 
-      .info-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+      .quick-actions-banner {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
       }
 
-      .card-header-custom {
-        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-darkest) 100%);
+      .quick-action-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
         color: white;
-        padding: 1.25rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: var(--account-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+      }
+
+      .quick-action-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      /* ========================================
+         ESTADÍSTICAS
+         ======================================== */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card-modern {
+        background: white;
+        border-radius: var(--account-border-radius);
+        padding: 2rem;
+        box-shadow: var(--account-shadow);
+        transition: var(--account-transition);
         position: relative;
         overflow: hidden;
-        border-bottom: none;
+        border: 1px solid rgba(0, 0, 0, 0.05);
       }
 
-      .card-header-custom::before {
+      .stat-card-modern:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--account-shadow-hover);
+      }
+
+      .stat-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--card-accent, var(--account-primary));
+      }
+
+      .stat-card-modern.primary {
+        --card-accent: var(--account-primary);
+      }
+
+      .stat-card-modern.success {
+        --card-accent: var(--account-success);
+      }
+
+      .stat-card-modern.info {
+        --card-accent: var(--account-info);
+      }
+
+      .stat-card-modern.warning {
+        --card-accent: var(--account-warning);
+      }
+
+      .stat-card-modern.danger {
+        --card-accent: var(--account-danger);
+      }
+
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .stat-icon-modern {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        background: var(--card-accent, var(--account-primary));
+      }
+
+      .stat-content {
+        flex: 1;
+      }
+
+      .stat-number-modern {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        color: var(--account-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label-modern {
+        font-size: 0.95rem;
+        color: var(--account-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+      }
+
+      .trend-positive {
+        color: var(--account-success);
+      }
+
+      .trend-negative {
+        color: var(--account-danger);
+      }
+
+      .trend-neutral {
+        color: var(--account-secondary);
+      }
+
+      /* ========================================
+         CARDS DE INFORMACIÓN
+         ======================================== */
+      .info-card-modern {
+        background: white;
+        border-radius: var(--account-border-radius);
+        box-shadow: var(--account-shadow);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: var(--account-transition);
+      }
+
+      .info-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--account-shadow-hover);
+      }
+
+      .card-header-modern {
+        background: linear-gradient(135deg, var(--account-primary) 0%, var(--account-primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-header-modern::before {
         content: '';
         position: absolute;
         top: -50%;
@@ -43,142 +254,320 @@
         transform: rotate(25deg);
       }
 
-      .card-header-light {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        color: var(--bs-dark);
-        border-bottom: none;
+      .card-header-modern.light {
+        background: var(--account-light);
+        color: var(--account-dark);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       }
 
-      .info-section {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      .card-header-content {
+        position: relative;
+        z-index: 2;
         display: flex;
+        justify-content: space-between;
         align-items: center;
       }
 
-      .info-section:last-child {
+      .card-title-modern {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .card-subtitle-modern {
+        opacity: 0.8;
+        font-size: 0.95rem;
+        margin: 0;
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      .card-action-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: var(--account-transition);
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .card-action-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .card-action-btn.light {
+        background: var(--account-primary);
+        border-color: var(--account-primary);
+        color: white;
+      }
+
+      .card-action-btn.light:hover {
+        background: var(--account-primary-dark);
+        border-color: var(--account-primary-dark);
+        color: white;
+      }
+
+      /* ========================================
+         INFORMACIÓN EN FILAS
+         ======================================== */
+      .info-row {
+        display: flex;
+        align-items: center;
+        padding: 1.25rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        transition: var(--account-transition);
+      }
+
+      .info-row:last-child {
         border-bottom: none;
       }
 
-      .info-label {
-        font-weight: 600;
-        color: var(--bs-gray-600);
-        width: 40%;
-        font-size: 0.9rem;
+      .info-row:hover {
+        background: rgba(45, 110, 126, 0.02);
       }
 
-      .info-value {
-        color: var(--bs-dark);
-        width: 60%;
+      .info-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: rgba(45, 110, 126, 0.1);
+        color: var(--account-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+      }
+
+      .info-content {
+        flex: 1;
+      }
+
+      .info-label-modern {
+        font-weight: 600;
+        color: var(--account-dark);
+        margin-bottom: 0.25rem;
         font-size: 0.95rem;
       }
 
-      .stat-card {
-        border-radius: 12px;
-        padding: 1.25rem;
-        height: 100%;
-        border: none;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .stat-card-primary {
-        background: linear-gradient(45deg, var(--bs-primary) 0%, var(--bs-primary-darkest) 100%);
-        color: white;
-      }
-
-      .stat-card-secondary {
-        background: linear-gradient(45deg, var(--bs-secondary) 0%, #495057 100%);
-        color: white;
-      }
-
-      .stat-card-success {
-        background: linear-gradient(45deg, var(--bs-success) 0%, #198754 100%);
-        color: white;
-      }
-
-      .stat-card-danger {
-        background: linear-gradient(45deg, var(--bs-danger) 0%, #dc3545 100%);
-        color: white;
-      }
-
-      .stat-card-info {
-        background: linear-gradient(45deg, var(--bs-info) 0%, #0dcaf0 100%);
-        color: white;
-      }
-
-      .stat-card::before {
-        content: '';
-        position: absolute;
-        bottom: -15px;
-        right: -15px;
-        width: 90px;
-        height: 90px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-      }
-
-      .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0;
-      }
-
-      .stat-title {
+      .info-value-modern {
+        color: var(--account-secondary);
         font-size: 0.9rem;
-        opacity: 0.8;
-        text-transform: uppercase;
-        letter-spacing: 1px;
       }
 
-      .stat-icon {
-        position: absolute;
-        bottom: 15px;
-        right: 15px;
-        font-size: 2.5rem;
-        opacity: 0.4;
+      .info-badge {
+        margin-left: auto;
       }
 
-      .action-btn {
+      /* ========================================
+         BADGES Y ESTADOS
+         ======================================== */
+      .status-badge {
+        padding: 0.5rem 1rem;
         border-radius: 50px;
-        padding: 0.5rem 1.25rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         display: inline-flex;
         align-items: center;
+        gap: 0.5rem;
       }
 
-      .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+      .status-badge.active {
+        background: rgba(40, 167, 69, 0.15);
+        color: var(--account-success);
       }
 
-      .action-btn i {
-        margin-right: 0.5rem;
+      .status-badge.inactive {
+        background: rgba(220, 53, 69, 0.15);
+        color: var(--account-danger);
       }
 
-      .empty-state {
-        padding: 3rem 2rem;
+      .status-badge.warning {
+        background: rgba(255, 193, 7, 0.15);
+        color: #856404;
+      }
+
+      .plan-badge-modern {
+        background: linear-gradient(135deg, var(--account-warning) 0%, #e0a800 100%);
+        color: #212529;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* ========================================
+         ESTADOS VACÍOS
+         ======================================== */
+      .empty-state-modern {
+        padding: 4rem 2rem;
         text-align: center;
-        border-radius: 15px;
-        background-color: #f8f9fa;
+        background: white;
+        border-radius: var(--account-border-radius);
+        box-shadow: var(--account-shadow);
       }
 
-      .empty-state-icon {
-        font-size: 4rem;
-        color: #dee2e6;
-        margin-bottom: 1.5rem;
+      .empty-state-icon-modern {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 2rem;
+        background: rgba(45, 110, 126, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--account-primary);
       }
 
-      .tab-content {
-        animation: fadeIn 0.5s ease-in-out;
+      .empty-state-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--account-dark);
+        margin-bottom: 1rem;
+      }
+
+      .empty-state-description {
+        color: var(--account-secondary);
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+      }
+
+      .empty-state-action {
+        background: var(--account-primary);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: var(--account-transition);
+      }
+
+      .empty-state-action:hover {
+        background: var(--account-primary-dark);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      /* ========================================
+         BENEFICIOS
+         ======================================== */
+      .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: rgba(40, 167, 69, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(40, 167, 69, 0.1);
+      }
+
+      .benefit-icon {
+        color: var(--account-success);
+        font-size: 1.2rem;
+      }
+
+      .benefit-text {
+        font-weight: 500;
+        color: var(--account-dark);
+      }
+
+      /* ========================================
+         SEGURIDAD
+         ======================================== */
+      .security-item {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        transition: var(--account-transition);
+      }
+
+      .security-item:last-child {
+        border-bottom: none;
+      }
+
+      .security-item:hover {
+        background: rgba(45, 110, 126, 0.02);
+      }
+
+      .security-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: rgba(45, 110, 126, 0.1);
+        color: var(--account-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1.5rem;
+        font-size: 1.3rem;
+      }
+
+      .security-content {
+        flex: 1;
+      }
+
+      .security-title {
+        font-weight: 600;
+        color: var(--account-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .security-description {
+        color: var(--account-secondary);
+        font-size: 0.9rem;
+        margin: 0;
+      }
+
+      .security-action {
+        margin-left: auto;
+      }
+
+      /* ========================================
+         ANIMACIONES
+         ======================================== */
+      .fade-in {
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      .slide-up {
+        animation: slideUp 0.6s ease-out;
       }
 
       @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(10px);
+          transform: translateY(20px);
         }
 
         to {
@@ -187,20 +576,252 @@
         }
       }
 
-      @media (max-width: 768px) {
-        .info-section {
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .stat-card-modern:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+
+      .stat-card-modern:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .stat-card-modern:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .stat-card-modern:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+
+      /* ========================================
+         RESPONSIVE
+         ======================================== */
+      @media (max-width: 992px) {
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .card-header-content {
           flex-direction: column;
           align-items: flex-start;
+          gap: 1rem;
         }
 
-        .info-label,
-        .info-value {
+        .card-actions {
+          width: 100%;
+          justify-content: flex-start;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .welcome-banner {
+          padding: 1.5rem;
+        }
+
+        .welcome-title {
+          font-size: 1.5rem;
+        }
+
+        .quick-actions-banner {
+          justify-content: center;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stat-card-modern {
+          padding: 1.5rem;
+        }
+
+        .info-row {
+          padding: 1rem;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .info-badge {
+          margin-left: 0;
+        }
+
+        .security-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .security-action {
+          margin-left: 0;
           width: 100%;
         }
+      }
 
-        .info-label {
-          margin-bottom: 0.25rem;
+      @media (max-width: 576px) {
+        .welcome-banner {
+          padding: 1rem;
         }
+
+        .benefits-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .empty-state-modern {
+          padding: 2rem 1rem;
+        }
+
+        .quick-action-btn {
+          flex: 1;
+          justify-content: center;
+        }
+      }
+
+      /* ========================================
+       ESTADOS DESHABILITADOS Y PERMISOS
+       ======================================== */
+      .disabled-section {
+        position: relative;
+        opacity: 0.6;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      .disabled-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border-radius: var(--account-border-radius);
+      }
+
+      .permission-message {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: var(--account-shadow);
+        text-align: center;
+        max-width: 300px;
+        border: 2px solid var(--account-warning);
+      }
+
+      .permission-icon {
+        font-size: 2rem;
+        color: var(--account-warning);
+        margin-bottom: 1rem;
+      }
+
+      .permission-title {
+        font-weight: 700;
+        color: var(--account-dark);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+      }
+
+      .permission-description {
+        color: var(--account-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+
+      .permission-action {
+        background: var(--account-warning);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--account-transition);
+      }
+
+      .permission-action:hover {
+        background: #e0a800;
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .btn-disabled {
+        background: var(--account-secondary) !important;
+        border-color: var(--account-secondary) !important;
+        color: white !important;
+        cursor: not-allowed !important;
+        opacity: 0.6 !important;
+        pointer-events: none !important;
+      }
+
+      .info-badge-disabled {
+        opacity: 0.5;
+      }
+
+      .restricted-info {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .restricted-info-icon {
+        color: var(--account-warning);
+        font-size: 1.1rem;
+      }
+
+      .restricted-info-text {
+        color: #856404;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      /* Tooltip para elementos deshabilitados */
+      .tooltip-disabled {
+        position: relative;
+        cursor: help;
+      }
+
+      .tooltip-disabled::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--account-dark);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--account-transition);
+        z-index: 1000;
+      }
+
+      .tooltip-disabled:hover::after {
+        opacity: 1;
+        visibility: visible;
       }
     </style>
   </th:block>
@@ -208,281 +829,471 @@
 
 <body>
   <th:block th:fragment="miCuentaSpecificContent">
-    <!-- Tarjetas de estadísticas -->
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <div class="stat-card stat-card-primary shadow-sm">
-          <div class="stat-title">Préstamos activos</div>
-          <p class="stat-number">0</p>
-          <div class="stat-icon">
-            <i class="bi bi-journal-bookmark"></i>
+    <div class="account-container">
+      <!-- Banner informativo para perfil secundario -->
+      <div th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+        class="alert alert-warning fade-in"
+        style="border-radius: var(--account-border-radius); margin-bottom: 2rem; border: none; background: rgba(255, 193, 7, 0.1); border-left: 4px solid var(--account-warning);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <i class="bi bi-info-circle" style="font-size: 2rem; color: var(--account-warning);"></i>
+          <div>
+            <h5 style="margin: 0 0 0.5rem 0; color: #856404; font-weight: 700;">Perfil Secundario</h5>
+            <p style="margin: 0; color: #856404;">
+              Estás viendo la información en modo de solo lectura. Para realizar cambios, contacta al administrador de
+              la cuenta.
+            </p>
           </div>
         </div>
       </div>
-      <div class="col-md-4 mb-3">
-        <div class="stat-card stat-card-success shadow-sm">
-          <div class="stat-title">Libros leídos</div>
-          <p class="stat-number">0</p>
-          <div class="stat-icon">
-            <i class="bi bi-book"></i>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 mb-3">
-        <div class="stat-card stat-card-info shadow-sm">
-          <div class="stat-title">Días como miembro</div>
-          <p class="stat-number"
-            th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(usuario.fechaRegistro, T(java.time.LocalDateTime).now())}">
-            0</p>
-          <div class="stat-icon">
-            <i class="bi bi-calendar-check"></i>
-          </div>
-        </div>
-      </div>
-    </div>
+      <!-- Banner de bienvenida -->
+      <div class="welcome-banner fade-in">
+        <div class="welcome-content">
+          <h1 class="welcome-title">¡Bienvenido de vuelta, <span th:text="${usuario.username}">Usuario</span>!</h1>
+          <p class="welcome-subtitle">Gestiona tu cuenta y mantente al día con tus actividades</p>
 
-    <div class="tab-content">
-      <!-- Información Personal -->
-      <div class="tab-pane fade show active" id="informacion">
-        <!-- Datos de Usuario -->
-        <div class="info-card shadow-sm">
-          <div class="card-header-custom d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="card-title mb-1">Información Personal</h5>
-              <p class="mb-0 opacity-75 small">Datos principales de tu cuenta</p>
-            </div>
-            <!-- Botón de editar solo visible si es perfil principal o no hay perfiles -->
-            <a th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
-              th:href="@{/mi-cuenta/editar}" class="action-btn btn btn-light">
-              <i class="bi bi-pencil"></i> Editar
+          <div class="quick-actions-banner">
+            <a th:href="@{/mi-cuenta/perfiles}" class="quick-action-btn">
+              <i class="bi bi-person-circle"></i>
+              Mis Perfiles
+            </a>
+            <a th:href="@{/mi-cuenta/orden}" class="quick-action-btn">
+              <i class="bi bi-bag-check"></i>
+              Mis Órdenes
+            </a>
+            <a th:href="@{/mi-cuenta/seguridad}" class="quick-action-btn">
+              <i class="bi bi-shield-lock"></i>
+              Seguridad
             </a>
           </div>
-          <div class="card-body p-0">
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-person-badge me-2 text-primary"></i>Usuario
-              </div>
-              <div class="info-value" th:text="${usuario.username}">username</div>
+        </div>
+      </div>
+
+      <!-- Estadísticas principales -->
+      <div class="stats-grid">
+        <div class="stat-card-modern primary slide-up">
+          <div class="stat-header">
+            <div class="stat-icon-modern">
+              <i class="bi bi-journal-bookmark"></i>
             </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-envelope me-2 text-primary"></i>Email
-              </div>
-              <div class="info-value" th:text="${usuario.email}">email@ejemplo.com</div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-calendar-date me-2 text-primary"></i>Fecha de registro
-              </div>
-              <div class="info-value" th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">01/01/2025
-              </div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-shield-check me-2 text-primary"></i>Estado de la cuenta
-              </div>
-              <div class="info-value">
-                <span class="badge rounded-pill bg-success" th:if="${usuario.activo}">Activa</span>
-                <span class="badge rounded-pill bg-danger" th:unless="${usuario.activo}">Inactiva</span>
-              </div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-clock-history me-2 text-primary"></i>Última actividad
-              </div>
-              <div class="info-value" th:text="${#temporals.format(usuario.ultimaActividad, 'dd/MM/yyyy HH:mm')}">
-                01/01/2025 12:00</div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-star me-2 text-primary"></i>Plan
-              </div>
-              <div class="info-value">
-                <span class="badge bg-warning text-dark">Plan Básico</span>
-              </div>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number-modern" data-count="0">0</div>
+            <div class="stat-label-modern">Préstamos activos</div>
+            <div class="stat-trend trend-neutral">
+              <i class="bi bi-dash-circle"></i>
+              <span>Sin cambios</span>
             </div>
           </div>
         </div>
 
-        <!-- Datos de Lector - Mostrar solo si hay datos de lector -->
-        <div class="info-card shadow-sm" th:if="${lector != null}">
-          <div class="card-header-custom d-flex justify-content-between align-items-center">
+        <div class="stat-card-modern success slide-up">
+          <div class="stat-header">
+            <div class="stat-icon-modern">
+              <i class="bi bi-book-fill"></i>
+            </div>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number-modern" data-count="0">0</div>
+            <div class="stat-label-modern">Libros completados</div>
+            <div class="stat-trend trend-positive">
+              <i class="bi bi-arrow-up-circle"></i>
+              <span>¡Comienza a leer!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card-modern info slide-up">
+          <div class="stat-header">
+            <div class="stat-icon-modern">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number-modern" th:text="${diasComoMiembro}">0</div>
+            <div class="stat-label-modern">Días como miembro</div>
+            <div class="stat-trend trend-positive">
+              <i class="bi bi-star-fill"></i>
+              <span>¡Gracias por acompañarnos!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card-modern warning slide-up">
+          <div class="stat-header">
+            <div class="stat-icon-modern">
+              <i class="bi bi-heart-fill"></i>
+            </div>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number-modern" data-count="0">0</div>
+            <div class="stat-label-modern">Favoritos</div>
+            <div class="stat-trend trend-neutral">
+              <i class="bi bi-bookmark"></i>
+              <span>Explora nuestro catálogo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información personal -->
+      <div class="info-card-modern fade-in">
+        <div class="card-header-modern light">
+          <div class="card-header-content">
             <div>
-              <h5 class="card-title mb-1">Perfil de Lector</h5>
-              <p class="mb-0 opacity-75 small">Información personal como lector</p>
+              <h2 class="card-title-modern">Información Personal</h2>
+              <p class="card-subtitle-modern">Datos básicos de tu cuenta</p>
             </div>
-            <!-- Botón de editar solo visible si es perfil principal -->
-            <a th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}" th:href="@{/mi-cuenta/lector}"
-              class="action-btn btn btn-light">
-              <i class="bi bi-pencil"></i> Editar
-            </a>
-          </div>
-          <div class="card-body p-0">
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-person me-2 text-primary"></i>Nombre completo
-              </div>
-              <div class="info-value" th:text="${lector.nombre + ' ' + lector.apellido}">Nombre Apellido</div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-geo-alt me-2 text-primary"></i>Dirección
-              </div>
-              <div class="info-value" th:text="${lector.direccion}">Dirección del lector</div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-telephone me-2 text-primary"></i>Teléfono
-              </div>
-              <div class="info-value" th:text="${lector.telefono}">Teléfono</div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-calendar me-2 text-primary"></i>Fecha de nacimiento
-              </div>
-              <div class="info-value" th:text="${#dates.format(lector.fechaNacimiento, 'dd/MM/yyyy')}">01/01/1990
-              </div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-card-checklist me-2 text-primary"></i>Estado
-              </div>
-              <div class="info-value" th:text="${lector.estadoCuenta}">Estado</div>
-            </div>
-            <div class="info-section">
-              <div class="info-label">
-                <i class="bi bi-cash-coin me-2 text-primary"></i>Multas pendientes
-              </div>
-              <div class="info-value">
-                <span class="badge rounded-pill bg-danger" th:if="${lector.multasPendientes > 0}">
-                  <i class="bi bi-exclamation-circle me-1"></i>
-                  <span th:text="${lector.multasPendientes}">0</span>
-                </span>
-                <span class="badge rounded-pill bg-success" th:unless="${lector.multasPendientes > 0}">
-                  <i class="bi bi-check-circle me-1"></i>0
-                </span>
-              </div>
+            <div class="card-actions">
+              <!-- Botón habilitado para perfil principal -->
+              <a th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                th:href="@{/mi-cuenta/editar}" class="card-action-btn light">
+                <i class="bi bi-pencil-square"></i>
+                Editar información
+              </a>
+
+              <!-- Botón deshabilitado para perfil secundario -->
+              <button th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                class="card-action-btn light btn-disabled tooltip-disabled"
+                data-tooltip="Solo el perfil principal puede editar esta información" disabled>
+                <i class="bi bi-lock"></i>
+                Editar información
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Si no hay datos de lector y es perfil principal, mostrar botón para completar perfil -->
-        <div class="info-card shadow-sm mb-4"
-          th:if="${lector == null && (session.esPerfilPrincipal == null || session.esPerfilPrincipal)}">
-          <div class="card-body text-center py-5">
-            <div class="empty-state-icon">
+        <div class="card-body p-0">
+          <!-- Mensaje informativo si no es perfil principal -->
+          <div th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}" class="restricted-info"
+            style="margin: 1rem 2rem 0;">
+            <i class="bi bi-info-circle restricted-info-icon"></i>
+            <span class="restricted-info-text">
+              Estás viendo la información como perfil secundario. Solo el perfil principal puede realizar
+              modificaciones.
+            </span>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
               <i class="bi bi-person-badge"></i>
             </div>
-            <h5 class="mb-3">No has completado tu perfil de lector</h5>
-            <p class="text-muted mb-4">
-              Con tu perfil completo podrás:
-            <div class="row mt-3 justify-content-center">
-              <div class="col-md-4 text-start">
-                <p><i class="bi bi-check-circle-fill text-success me-2"></i> Solicitar préstamos</p>
-                <p><i class="bi bi-check-circle-fill text-success me-2"></i> Recibir recomendaciones</p>
-              </div>
-              <div class="col-md-4 text-start">
-                <p><i class="bi bi-check-circle-fill text-success me-2"></i> Acceder a ofertas</p>
-                <p><i class="bi bi-check-circle-fill text-success me-2"></i> Participar en grupos</p>
-              </div>
+            <div class="info-content">
+              <div class="info-label-modern">Nombre de usuario</div>
+              <div class="info-value-modern" th:text="${usuario.username}">username</div>
             </div>
-            </p>
-            <a th:href="@{/mi-cuenta/lector}" class="action-btn btn btn-primary btn-lg">
-              <i class="bi bi-pencil-square"></i> Completar perfil de lector
-            </a>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-envelope"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Correo electrónico</div>
+              <div class="info-value-modern" th:text="${usuario.email}">email@ejemplo.com</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-calendar-date"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Miembro desde</div>
+              <div class="info-value-modern" th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">
+                01/01/2025</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Estado de la cuenta</div>
+              <div class="info-value-modern">Tu cuenta está funcionando correctamente</div>
+            </div>
+            <div class="info-badge">
+              <span class="status-badge active" th:if="${usuario.activo}">
+                <i class="bi bi-check-circle"></i>
+                Activa
+              </span>
+              <span class="status-badge inactive" th:unless="${usuario.activo}">
+                <i class="bi bi-x-circle"></i>
+                Inactiva
+              </span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Última actividad</div>
+              <div class="info-value-modern"
+                th:text="${#temporals.format(usuario.ultimaActividad, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:00</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-star"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Plan actual</div>
+              <div class="info-value-modern">Disfruta de los beneficios de tu plan</div>
+            </div>
+            <div class="info-badge">
+              <span class="plan-badge-modern">
+                <i class="bi bi-crown-fill"></i>
+                Plan Básico
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Seguridad -->
-      <div class="tab-pane fade" id="seguridad">
-        <div class="info-card shadow-sm mb-4">
-          <div class="card-header-custom d-flex justify-content-between align-items-center">
+      <!-- Perfil de lector -->
+      <div class="info-card-modern fade-in" th:if="${lector != null}">
+        <div class="card-header-modern">
+          <div class="card-header-content">
             <div>
-              <h5 class="card-title mb-1">Seguridad de la Cuenta</h5>
-              <p class="mb-0 opacity-75 small">Administra la seguridad de tu cuenta</p>
+              <h2 class="card-title-modern">Perfil de Lector</h2>
+              <p class="card-subtitle-modern">Información personal como lector</p>
             </div>
-          </div>
-          <div class="card-body px-4 py-3">
-            <div class="row align-items-center mb-4 py-3 border-bottom">
-              <div class="col-md-2 text-center mb-3 mb-md-0">
-                <i class="bi bi-key-fill text-primary" style="font-size: 2.5rem;"></i>
-              </div>
-              <div class="col-md-7 mb-3 mb-md-0">
-                <h6 class="fw-bold">Contraseña</h6>
-                <p class="text-muted mb-0">Tu contraseña debe ser segura y única. Se recomienda cambiarla
-                  periódicamente.</p>
-              </div>
-              <div class="col-md-3 text-md-end">
-                <a th:href="@{/mi-cuenta/cambiar-password}" class="action-btn btn btn-primary">
-                  <i class="bi bi-key"></i> Cambiar contraseña
-                </a>
-              </div>
-            </div>
-
-            <div class="row align-items-center py-3">
-              <div class="col-md-2 text-center mb-3 mb-md-0">
-                <i class="bi bi-shield-lock-fill text-primary" style="font-size: 2.5rem;"></i>
-              </div>
-              <div class="col-md-7 mb-3 mb-md-0">
-                <h6 class="fw-bold">Sesiones activas</h6>
-                <p class="text-muted mb-0">Si sospechas que alguien ha accedido a tu cuenta, puedes cerrar todas las
-                  sesiones activas.</p>
-              </div>
-              <div class="col-md-3 text-md-end">
-                <form th:action="@{/mi-cuenta/seguridad/cerrar-sesiones}" method="post">
-                  <button type="submit" class="action-btn btn btn-danger">
-                    <i class="bi bi-x-circle"></i> Cerrar sesiones
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Préstamos -->
-      <div class="tab-pane fade" id="prestamos">
-        <div class="info-card shadow-sm">
-          <div class="card-header-custom d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="card-title mb-1">Mis Préstamos</h5>
-              <p class="mb-0 opacity-75 small">Administra tus préstamos activos</p>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="empty-state">
-              <div class="empty-state-icon">
-                <i class="bi bi-book"></i>
-              </div>
-              <h5 class="mb-3">No tienes préstamos activos</h5>
-              <p class="text-muted mb-4">Explora nuestro catálogo y solicita préstamos para leer tus libros favoritos.
-              </p>
-              <a th:href="@{/catalogo}" class="action-btn btn btn-primary btn-lg">
-                <i class="bi bi-search"></i> Explorar catálogo
+            <div class="card-actions">
+              <!-- Botón habilitado para perfil principal -->
+              <a th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                th:href="@{/mi-cuenta/lector}" class="card-action-btn">
+                <i class="bi bi-pencil-square"></i>
+                Editar perfil
               </a>
+
+              <!-- Botón deshabilitado para perfil secundario -->
+              <button th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                class="card-action-btn btn-disabled tooltip-disabled"
+                data-tooltip="Solo el perfil principal puede editar el perfil de lector" disabled>
+                <i class="bi bi-lock"></i>
+                Editar perfil
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <!-- Mensaje informativo si no es perfil principal -->
+          <div th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}" class="restricted-info"
+            style="margin: 1rem 2rem 0;">
+            <i class="bi bi-shield-exclamation restricted-info-icon"></i>
+            <span class="restricted-info-text">
+              Los datos del perfil de lector solo pueden ser modificados por el perfil principal por razones de
+              seguridad.
+            </span>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-person"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Nombre completo</div>
+              <div class="info-value-modern" th:text="${lector.nombre + ' ' + lector.apellido}">Nombre Apellido</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Dirección</div>
+              <div class="info-value-modern" th:text="${lector.direccion}">Dirección del lector</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-telephone"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Teléfono</div>
+              <div class="info-value-modern" th:text="${lector.telefono}">Teléfono</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-calendar"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Fecha de nacimiento</div>
+              <div class="info-value-modern" th:text="${#dates.format(lector.fechaNacimiento, 'dd/MM/yyyy')}">01/01/1990
+              </div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="bi bi-cash-coin"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label-modern">Estado financiero</div>
+              <div class="info-value-modern">Multas y pagos pendientes</div>
+            </div>
+            <div class="info-badge">
+              <span class="status-badge active" th:if="${lector.multasPendientes == 0}">
+                <i class="bi bi-check-circle"></i>
+                Al día
+              </span>
+              <span class="status-badge warning" th:if="${lector.multasPendientes > 0}">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span th:text="'S/. ' + ${lector.multasPendientes}">S/. 0</span>
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Historial -->
-      <div class="tab-pane fade" id="historial">
-        <div class="info-card shadow-sm">
-          <div class="card-header-custom d-flex justify-content-between align-items-center">
+      <!-- Estado vacío para completar perfil -->
+      <div class="empty-state-modern fade-in mb-3" th:if="${lector == null}">
+        <div class="empty-state-icon-modern">
+          <i class="bi bi-person-plus"></i>
+        </div>
+        <h3 class="empty-state-title">Completa tu perfil de lector</h3>
+        <p class="empty-state-description">
+          Desbloquea todas las funciones de la biblioteca completando tu información personal
+        </p>
+
+        <div class="benefits-grid">
+          <div class="benefit-item">
+            <i class="bi bi-check-circle-fill benefit-icon"></i>
+            <span class="benefit-text">Solicitar préstamos de libros</span>
+          </div>
+          <div class="benefit-item">
+            <i class="bi bi-check-circle-fill benefit-icon"></i>
+            <span class="benefit-text">Recibir recomendaciones personalizadas</span>
+          </div>
+          <div class="benefit-item">
+            <i class="bi bi-check-circle-fill benefit-icon"></i>
+            <span class="benefit-text">Acceder a ofertas exclusivas</span>
+          </div>
+          <div class="benefit-item">
+            <i class="bi bi-check-circle-fill benefit-icon"></i>
+            <span class="benefit-text">Participar en grupos de lectura</span>
+          </div>
+        </div>
+
+        <a th:href="@{/mi-cuenta/lector}" class="empty-state-action">
+          <i class="bi bi-pencil-square"></i>
+          Completar perfil ahora
+        </a>
+      </div>
+
+      <!-- Sección de seguridad -->
+      <div class="info-card-modern fade-in">
+        <div class="card-header-modern light">
+          <div class="card-header-content">
             <div>
-              <h5 class="card-title mb-1">Historial de Actividad</h5>
-              <p class="mb-0 opacity-75 small">Registro de tus acciones recientes</p>
+              <h2 class="card-title-modern">Seguridad de la Cuenta</h2>
+              <p class="card-subtitle-modern">Mantén tu cuenta segura y protegida</p>
             </div>
           </div>
-          <div class="card-body">
-            <div class="empty-state">
-              <div class="empty-state-icon">
-                <i class="bi bi-clock-history"></i>
-              </div>
-              <h5 class="mb-3">Historial vacío</h5>
-              <p class="text-muted mb-4">Aquí se registrarán todas tus actividades como préstamos, compras y
-                devoluciones.</p>
+        </div>
+
+        <div class="card-body p-0">
+          <!-- Mensaje general si no es perfil principal -->
+          <div th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}" class="restricted-info"
+            style="margin: 1rem 2rem 0;">
+            <i class="bi bi-shield-lock restricted-info-icon"></i>
+            <span class="restricted-info-text">
+              Las configuraciones de seguridad están limitadas para perfiles secundarios.
+            </span>
+          </div>
+
+          <div class="security-item">
+            <div class="security-icon">
+              <i class="bi bi-key-fill"></i>
+            </div>
+            <div class="security-content">
+              <h6 class="security-title">Contraseña</h6>
+              <p class="security-description">
+                Mantén tu contraseña segura y actualizada. Se recomienda cambiarla periódicamente.
+              </p>
+            </div>
+            <div class="security-action">
+              <!-- Habilitado para perfil principal -->
+              <a th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                th:href="@{/mi-cuenta/cambiar-password}" class="card-action-btn light">
+                <i class="bi bi-key"></i>
+                Cambiar contraseña
+              </a>
+
+              <!-- Deshabilitado para perfil secundario -->
+              <button th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                class="card-action-btn light btn-disabled tooltip-disabled"
+                data-tooltip="Solo el perfil principal puede cambiar la contraseña" disabled>
+                <i class="bi bi-lock"></i>
+                Cambiar contraseña
+              </button>
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="security-icon">
+              <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <div class="security-content">
+              <h6 class="security-title">Sesiones activas</h6>
+              <p class="security-description">
+                Gestiona todas las sesiones abiertas en diferentes dispositivos.
+              </p>
+            </div>
+            <div class="security-action">
+              <!-- Habilitado para perfil principal -->
+              <form th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                th:action="@{/mi-cuenta/seguridad/cerrar-sesiones}" method="post" style="display: inline;">
+                <button type="submit" class="card-action-btn"
+                  style="background: var(--account-danger); border-color: var(--account-danger);">
+                  <i class="bi bi-x-circle"></i>
+                  Cerrar otras sesiones
+                </button>
+              </form>
+
+              <!-- Deshabilitado para perfil secundario -->
+              <button th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                class="card-action-btn btn-disabled tooltip-disabled"
+                data-tooltip="Solo el perfil principal puede gestionar sesiones"
+                style="background: var(--account-secondary); border-color: var(--account-secondary);" disabled>
+                <i class="bi bi-lock"></i>
+                Cerrar otras sesiones
+              </button>
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="security-icon">
+              <i class="bi bi-gear-fill"></i>
+            </div>
+            <div class="security-content">
+              <h6 class="security-title">Configuración avanzada</h6>
+              <p class="security-description">
+                Accede a configuraciones avanzadas de seguridad y privacidad.
+              </p>
+            </div>
+            <div class="security-action">
+              <!-- Habilitado para perfil principal -->
+              <a th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                th:href="@{/mi-cuenta/seguridad}" class="card-action-btn light">
+                <i class="bi bi-arrow-right"></i>
+                Ver más opciones
+              </a>
+
+              <!-- Deshabilitado para perfil secundario -->
+              <button th:unless="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}"
+                class="card-action-btn light btn-disabled tooltip-disabled"
+                data-tooltip="Configuración avanzada disponible solo para el perfil principal" disabled>
+                <i class="bi bi-lock"></i>
+                Ver más opciones
+              </button>
             </div>
           </div>
         </div>
@@ -490,26 +1301,62 @@
     </div>
   </th:block>
 
-  <!-- Fragmento para el script personalizado -->
   <th:block th:fragment="miCuentaPageScripts">
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        const hash = window.location.hash;
-        if (hash) {
-          const targetTabPaneId = hash.substring(1); // remove #
-          const targetTabPane = document.getElementById(targetTabPaneId);
-          const triggerLink = document.querySelector('.list-group-item[href$="' + hash + '"]');
+        // Animación de números en las estadísticas
+        const statNumbers = document.querySelectorAll('.stat-number-modern[data-count]');
 
-          if (targetTabPane && triggerLink) {
-            // Desactivar todos los tabs y enlaces activos
-            document.querySelectorAll('.tab-pane.show.active').forEach(activeTab => activeTab.classList.remove('show', 'active'));
-            document.querySelectorAll('.list-group-item.active').forEach(activeLink => activeLink.classList.remove('active'));
+        const animateNumber = (element) => {
+          const target = parseInt(element.getAttribute('data-count'));
+          const duration = 2000;
+          const step = target / (duration / 16);
+          let current = 0;
 
-            // Activar el tab y enlace correctos
-            targetTabPane.classList.add('show', 'active');
-            triggerLink.classList.add('active');
-          }
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+          }, 16);
+        };
+
+        // Observer para activar la animación cuando sea visible
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animateNumber(entry.target);
+              observer.unobserve(entry.target);
+            }
+          });
+        });
+
+        statNumbers.forEach(number => {
+          observer.observe(number);
+        });
+
+        // Confirmación para cerrar sesiones
+        const cerrarSesionesForm = document.querySelector('form[action*="cerrar-sesiones"]');
+        if (cerrarSesionesForm) {
+          cerrarSesionesForm.addEventListener('submit', function (e) {
+            if (!confirm('¿Estás seguro de que quieres cerrar todas las otras sesiones activas?')) {
+              e.preventDefault();
+            }
+          });
         }
+
+        const cards = document.querySelectorAll('.stat-card-modern, .info-card-modern');
+        cards.forEach(card => {
+          card.addEventListener('mouseenter', function () {
+            this.style.transform = 'translateY(-8px)';
+          });
+
+          card.addEventListener('mouseleave', function () {
+            this.style.transform = 'translateY(0)';
+          });
+        });
       });
     </script>
   </th:block>

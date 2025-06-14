@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu período de prueba ha terminado</title>
+  <style>
+    /* Incluir estilos básicos inline para mejor compatibilidad */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+    }
+
+    .plan-info {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .footer {
+      background: #343a40;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>📚 Biblioteca Digital</h1>
+      <p>Tu período de prueba ha terminado</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <h2 style="color: #007bff;">¡Hola <span th:text="${nombreUsuario}">Usuario</span>!</h2>
+
+      <p>Te escribimos para informarte que tu período de prueba ha llegado a su fin.</p>
+
+      <div class="plan-info">
+        <h3>📋 Información de tu plan:</h3>
+        <ul>
+          <li><strong>Plan:</strong> <span th:text="${nombrePlan}">Plan Básico</span></li>
+          <li><strong>Tipo:</strong> <span th:if="${esGratuito}">Gratuito</span><span th:unless="${esGratuito}">De
+              pago</span></li>
+          <li th:unless="${esGratuito}"><strong>Precio:</strong> $<span th:text="${precio}">9.99</span>/mes</li>
+        </ul>
+      </div>
+
+      <div th:if="${esGratuito}" class="success-box"
+        style="background: #d4edda; border-left: 4px solid #28a745; padding: 15px; color: #155724;">
+        <h4>🎉 ¡Buenas noticias!</h4>
+        <p>Tu plan es <strong>completamente gratuito</strong>. Puedes seguir disfrutando de todos los beneficios sin
+          costo alguno.</p>
+      </div>
+
+      <div th:unless="${esGratuito}" class="warning-box">
+        <h4>⚠️ Acción requerida</h4>
+        <p>Para continuar disfrutando de tu plan <strong><span th:text="${nombrePlan}">Premium</span></strong>,
+          necesitas actualizar tu método de pago.</p>
+        <p><strong>Precio:</strong> $<span th:text="${precio}">9.99</span> por mes</p>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="#" class="btn" th:unless="${esGratuito}">💳 Configurar método de pago</a>
+        <a href="#" class="btn" style="background: #6c757d; margin-left: 10px;">📖 Ver mi biblioteca</a>
+      </div>
+
+      <div style="background: #e9ecef; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <h4>🔥 ¿Por qué continuar con nosotros?</h4>
+        <ul>
+          <li>✅ Acceso ilimitado a miles de libros</li>
+          <li>✅ Nuevos títulos cada semana</li>
+          <li>✅ Lectura offline en todos tus dispositivos</li>
+          <li>✅ Recomendaciones personalizadas</li>
+          <li>✅ Sin anuncios ni interrupciones</li>
+        </ul>
+      </div>
+
+      <p>Si tienes alguna pregunta, no dudes en <a href="mailto:soporte@biblioteca.com">contactarnos</a>. Estamos aquí
+        para ayudarte.</p>
+
+      <p>
+        Saludos cordiales,<br>
+        <strong>El equipo de Biblioteca Digital</strong>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>📧 contacto@biblioteca.com | 📞 (123) 456-7890</p>
+      <p>© 2024 Biblioteca Digital. Todos los derechos reservados.</p>
+      <p><a href="#" style="color: #adb5bd;">Darse de baja</a> | <a href="#" style="color: #adb5bd;">Preferencias</a>
+      </p>
+    </div>
+  </div>
+</body>
+
+</html>

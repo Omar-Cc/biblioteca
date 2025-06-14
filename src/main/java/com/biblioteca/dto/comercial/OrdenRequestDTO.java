@@ -15,4 +15,5 @@ public class OrdenRequestDTO {
     private Long perfilId;
     
     private Long carritoId; // Puede ser null si se crea una orden directamente
+    private String estadoOrden;
 }

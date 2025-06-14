@@ -1,108 +1,1200 @@
-<!-- Fragment para el footer -->
-<footer th:fragment="footer" class="bg-dark text-white py-5 mt-5">
-  <div class="container">
-    <!-- Sección principal del footer -->
-    <div class="row g-4">
-      <!-- Columna información de la biblioteca -->
-      <div class="col-lg-4 col-md-6">
-        <div class="d-flex align-items-center mb-3">
-          <i class="bi bi-book-half fs-2 me-2 text-primary"></i>
-          <h5 class="mb-0">BiblioVirtual</h5>
+<footer th:fragment="footer" class="footer-enhanced">
+  <!-- Sección principal del footer -->
+  <div class="footer-main">
+    <div class="container">
+      <div class="row g-4">
+        <!-- Columna información de la biblioteca -->
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-brand">
+            <div class="d-flex align-items-center mb-4">
+              <div class="brand-icon">
+                <i class="bi bi-book-half"></i>
+              </div>
+              <div class="brand-text">
+                <h5 class="mb-0 fw-bold">BiblioVirtual</h5>
+                <small class="text-muted">Tu biblioteca digital</small>
+              </div>
+            </div>
+
+            <p class="footer-description mb-4">
+              Conectamos lectores con miles de libros digitales. Una experiencia de lectura moderna,
+              accesible y disponible 24/7 desde cualquier dispositivo.
+            </p>
+
+            <!-- Estadísticas rápidas -->
+            <div class="footer-stats mb-4">
+              <div class="row text-center">
+                <div class="col-4">
+                  <div class="stat-item">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Libros</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Acceso</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Digital</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Redes sociales -->
+            <div class="social-media">
+              <h6 class="mb-3">Síguenos en nuestras redes</h6>
+              <div class="social-links">
+                <a href="#" class="social-link facebook" title="Facebook" aria-label="Facebook">
+                  <i class="bi bi-facebook"></i>
+                </a>
+                <a href="#" class="social-link twitter" title="Twitter" aria-label="Twitter">
+                  <i class="bi bi-twitter-x"></i>
+                </a>
+                <a href="#" class="social-link instagram" title="Instagram" aria-label="Instagram">
+                  <i class="bi bi-instagram"></i>
+                </a>
+                <a href="#" class="social-link youtube" title="YouTube" aria-label="YouTube">
+                  <i class="bi bi-youtube"></i>
+                </a>
+                <a href="#" class="social-link linkedin" title="LinkedIn" aria-label="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-        <p class="mb-3">
-          Tu biblioteca digital completa, disponible en cualquier momento y lugar. Miles de libros al
-          alcance de un clic.
-        </p>
-        <div class="social-media mb-3">
-          <a href="#" class="text-white me-3" title="Facebook"><i class="bi bi-facebook fs-4"></i></a>
-          <a href="#" class="text-white me-3" title="Twitter"><i class="bi bi-twitter-x fs-4"></i></a>
-          <a href="#" class="text-white me-3" title="Instagram"><i class="bi bi-instagram fs-4"></i></a>
-          <a href="#" class="text-white" title="YouTube"><i class="bi bi-youtube fs-4"></i></a>
+
+        <!-- Columna de navegación con ACCORDION -->
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <div class="footer-section footer-accordion">
+            <h6 class="footer-title accordion-trigger" data-target="navigation-links">
+              Navegación
+              <i class="bi bi-chevron-down accordion-icon"></i>
+            </h6>
+            <div class="accordion-content" id="navigation-links">
+              <ul class="footer-links">
+                <li><a th:href="@{/}" class="footer-link">
+                    <i class="bi bi-house-door"></i>Inicio</a></li>
+                <li><a th:href="@{/catalogo}" class="footer-link">
+                    <i class="bi bi-journal-bookmark"></i>Catálogo</a></li>
+                <li><a th:href="@{/suscripciones}" class="footer-link">
+                    <i class="bi bi-stars"></i>Planes Premium</a></li>
+                <li><a th:href="@{/nosotros}" class="footer-link">
+                    <i class="bi bi-people"></i>Nosotros</a></li>
+                <li><a th:href="@{/contacto}" class="footer-link">
+                    <i class="bi bi-chat-dots"></i>Contacto</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <p class="small">© 2025 BiblioVirtual. Todos los derechos reservados.</p>
-      </div>
 
-      <!-- Columna de enlaces rápidos -->
-      <div class="col-lg-2 col-md-6">
-        <h5 class="mb-3 pb-2 border-bottom border-secondary">Enlaces rápidos</h5>
-        <ul class="list-unstyled">
-          <li class="mb-2"><a th:href="@{/index}" class="text-decoration-none text-white"><i
-                class="bi bi-house-door me-2"></i>Inicio</a></li>
-          <li class="mb-2"><a th:href="@{/catalogo}" class="text-decoration-none text-white"><i
-                class="bi bi-journal-bookmark me-2"></i>Catálogo</a></li>
-          <li class="mb-2"><a th:href="@{/suscripciones}" class="text-decoration-none text-white"><i
-                class="bi bi-stars me-2"></i>Planes</a></li>
-          <li class="mb-2"><a th:href="@{/nosotros}" class="text-decoration-none text-white"><i
-                class="bi bi-people me-2"></i>Nosotros</a></li>
-          <li class="mb-2"><a th:href="@{/contacto}" class="text-decoration-none text-white"><i
-                class="bi bi-chat-dots me-2"></i>Contacto</a></li>
-        </ul>
-      </div>
-
-      <!-- Columna de servicios -->
-      <div class="col-lg-2 col-md-6">
-        <h5 class="mb-3 pb-2 border-bottom border-secondary">Servicios</h5>
-        <ul class="list-unstyled">
-          <li class="mb-2"><a th:href="@{/mis-prestamos}" class="text-decoration-none text-white"><i
-                class="bi bi-book me-2"></i>Mis préstamos</a></li>
-          <li class="mb-2"><a th:href="@{/carrito}" class="text-decoration-none text-white"><i
-                class="bi bi-cart me-2"></i>Mi carrito</a></li>
-          <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
-                class="bi bi-bookmark-heart me-2"></i>Favoritos</a></li>
-          <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
-                class="bi bi-headset me-2"></i>Soporte</a></li>
-          <li class="mb-2"><a href="#" class="text-decoration-none text-white"><i
-                class="bi bi-question-circle me-2"></i>Ayuda</a></li>
-        </ul>
-      </div>
-
-      <!-- Columna de contacto -->
-      <div class="col-lg-4 col-md-6">
-        <h5 class="mb-3 pb-2 border-bottom border-secondary">Contacto</h5>
-        <address class="mb-3">
-          <div class="mb-2"><i class="bi bi-geo-alt-fill me-2 text-primary"></i> Av. Universidad 123, Col. Centro
+        <!-- Columna de servicios con ACCORDION -->
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <div class="footer-section footer-accordion">
+            <h6 class="footer-title accordion-trigger" data-target="services-links">
+              Servicios
+              <i class="bi bi-chevron-down accordion-icon"></i>
+            </h6>
+            <div class="accordion-content" id="services-links">
+              <ul class="footer-links">
+                <li><a th:href="@{/mis-prestamos}" class="footer-link">
+                    <i class="bi bi-book"></i>Mis Préstamos</a></li>
+                <li><a th:href="@{/carrito}" class="footer-link">
+                    <i class="bi bi-cart"></i>Mi Carrito</a></li>
+                <li><a href="#" class="footer-link">
+                    <i class="bi bi-bookmark-heart"></i>Favoritos</a></li>
+                <li><a href="#" class="footer-link">
+                    <i class="bi bi-headset"></i>Soporte 24/7</a></li>
+                <li><a href="#" class="footer-link">
+                    <i class="bi bi-question-circle"></i>Centro de Ayuda</a></li>
+              </ul>
+            </div>
           </div>
-          <div class="mb-2"><i class="bi bi-envelope-fill me-2 text-primary"></i> <a
-              href="mailto:info@bibliovirtual.com"
-              class="text-white text-decoration-none">contacto@bibliovirtual.com</a>
-          </div>
-          <div class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i> (123) 456-7890</div>
-          <div><i class="bi bi-clock-fill me-2 text-primary"></i> Lunes a Viernes: 9:00 AM - 6:00 PM</div>
-        </address>
+        </div>
 
-        <!-- Formulario de newsletter -->
-        <div class="newsletter">
-          <h6 class="mb-2">Suscríbete a nuestro newsletter</h6>
-          <div class="input-group mb-2">
-            <input type="email" class="form-control" placeholder="Tu email" aria-label="Email"
-              aria-describedby="subscribe-btn">
-            <button class="btn btn-primary" type="button" id="subscribe-btn">Suscribir</button>
+        <!-- Columna de contacto y newsletter SIN ACCORDION - SIEMPRE ABIERTA -->
+        <div class="col-lg-4 col-md-12">
+          <div class="footer-section footer-always-open">
+            <h6 class="footer-title">
+              Mantente Conectado
+            </h6>
+
+            <!-- Información de contacto -->
+            <div class="contact-info mb-4">
+              <div class="contact-item">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>Av. Universidad 123, Col. Centro<br>Ciudad de México, CDMX</span>
+              </div>
+              <div class="contact-item">
+                <i class="bi bi-envelope-fill"></i>
+                <a href="mailto:contacto@bibliovirtual.com">contacto@bibliovirtual.com</a>
+              </div>
+              <div class="contact-item">
+                <i class="bi bi-telephone-fill"></i>
+                <a href="tel:+521234567890">(123) 456-7890</a>
+              </div>
+              <div class="contact-item">
+                <i class="bi bi-clock-fill"></i>
+                <span>Lunes a Viernes: 9:00 AM - 6:00 PM</span>
+              </div>
+            </div>
+
+            <!-- Newsletter mejorado ARREGLADO -->
+            <div class="newsletter-section">
+              <h6 class="mb-3">📬 Newsletter</h6>
+              <p class="newsletter-description">
+                Recibe las últimas novedades, promociones especiales y recomendaciones personalizadas.
+              </p>
+
+              <form class="newsletter-form" id="newsletterForm">
+                <div class="newsletter-input-container">
+                  <div class="newsletter-email-wrapper">
+                    <div class="input-icon">
+                      <i class="bi bi-envelope"></i>
+                    </div>
+                    <input type="email" class="newsletter-email-input" placeholder="tu-email@ejemplo.com"
+                      aria-label="Email" id="newsletterEmail" required>
+                  </div>
+                  <button class="newsletter-submit-btn" type="submit" aria-label="Suscribirse al newsletter">
+                    <i class="bi bi-send-fill"></i>
+                    <span class="btn-text d-none d-sm-inline">Suscribir</span>
+                  </button>
+                </div>
+
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" id="privacyCheck" required>
+                  <label class="form-check-label small" for="privacyCheck">
+                    Acepto la <a href="#" class="text-primary">política de privacidad</a>
+                  </label>
+                </div>
+              </form>
+
+              <!-- Beneficios del newsletter -->
+              <div class="newsletter-benefits mt-3">
+                <small class="text-muted">
+                  <i class="bi bi-check-circle-fill text-success me-1"></i>Recomendaciones personalizadas<br>
+                  <i class="bi bi-check-circle-fill text-success me-1"></i>Ofertas exclusivas<br>
+                  <i class="bi bi-check-circle-fill text-success me-1"></i>Nuevos lanzamientos
+                </small>
+              </div>
+            </div>
           </div>
-          <small class="text-muted">Recibe las últimas novedades y promociones.</small>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Sección inferior del footer -->
-    <div class="mt-4 pt-4 border-top border-secondary">
+  <!-- Sección inferior del footer -->
+  <div class="footer-bottom">
+    <div class="container">
       <div class="row align-items-center">
         <div class="col-md-6 text-center text-md-start">
-          <p class="small mb-md-0">Desarrollado con <i class="bi bi-heart-fill text-danger"></i> por
-            BiblioVirtual Team</p>
+          <p class="footer-copyright mb-md-0">
+            © 2025 <strong>BiblioVirtual</strong>. Todos los derechos reservados.
+            <br class="d-md-none">
+            Desarrollado con <i class="bi bi-heart-fill text-danger heartbeat"></i> por el equipo BiblioVirtual
+          </p>
         </div>
         <div class="col-md-6">
-          <ul class="list-inline text-center text-md-end mb-0">
-            <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Términos
-                y Condiciones</a></li>
-            <li class="list-inline-item mx-2">|</li>
-            <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Política
-                de Privacidad</a></li>
-            <li class="list-inline-item mx-2">|</li>
-            <li class="list-inline-item"><a href="#" class="text-white small text-decoration-none">Mapa
-                del Sitio</a></li>
+          <ul class="footer-legal">
+            <li><a th:href="@{/terminos-y-condiciones}" class="legal-link">Términos y Condiciones</a></li>
+            <li><a th:href="@{/politica-de-privacidad}" class="legal-link">Política de Privacidad</a></li>
+            <li><a th:href="@{/licencias-de-contenido}" class="legal-link">Licencias</a></li>
+            <li><a th:href="@{/sitemap}" class="legal-link">Mapa del Sitio</a></li>
           </ul>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Botón de scroll to top -->
+  <button class="scroll-to-top" id="scrollToTop" aria-label="Volver arriba">
+    <i class="bi bi-chevron-up"></i>
+  </button>
+
+  <style>
+    .footer-enhanced {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .footer-enhanced::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      z-index: 1;
+    }
+
+    .footer-main {
+      padding: 4rem 0 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .footer-bottom {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1.5rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ACCORDION FUNCTIONALITY - Solo para navegación y servicios */
+    .footer-accordion .accordion-trigger {
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: color 0.3s ease;
+    }
+
+    .footer-accordion .accordion-trigger:hover {
+      color: var(--bs-primary);
+    }
+
+    .footer-accordion .accordion-icon {
+      transition: transform 0.3s ease;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+
+    .footer-accordion .accordion-trigger.active .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .footer-accordion .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .footer-accordion .accordion-content.active {
+      max-height: 500px;
+    }
+
+    /* SECCIÓN SIEMPRE ABIERTA - No accordion */
+    .footer-always-open .footer-title {
+      cursor: default;
+      pointer-events: none;
+      display: block;
+      /* Sin flex para no tener espacio para icono */
+    }
+
+    /* Asegurar que el contenido de always-open siempre sea visible */
+    .footer-always-open .contact-info,
+    .footer-always-open .newsletter-section {
+      max-height: none !important;
+      overflow: visible !important;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Brand section */
+    .footer-brand .brand-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      box-shadow: 0 8px 25px rgba(var(--bs-primary-rgb), 0.3);
+    }
+
+    .footer-brand .brand-icon i {
+      font-size: 1.8rem;
+      color: white;
+    }
+
+    .footer-description {
+      color: #b8b8b8;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    /* Footer stats */
+    .footer-stats {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 1.5rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--bs-primary);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #b8b8b8;
+      margin-top: 0.25rem;
+    }
+
+    /* Social media */
+    .social-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .social-link {
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, currentColor, transparent);
+      opacity: 0.1;
+      transition: opacity 0.3s ease;
+    }
+
+    .social-link:hover::before {
+      opacity: 0.2;
+    }
+
+    .social-link.facebook {
+      background: #1877f2;
+    }
+
+    .social-link.twitter {
+      background: #000000;
+    }
+
+    .social-link.instagram {
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    }
+
+    .social-link.youtube {
+      background: #ff0000;
+    }
+
+    .social-link.linkedin {
+      background: #0077b5;
+    }
+
+    .social-link:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .social-link i {
+      font-size: 1.2rem;
+      z-index: 2;
+      position: relative;
+    }
+
+    /* Footer sections */
+    .footer-section {
+      height: 100%;
+    }
+
+    .footer-title {
+      color: #ffffff;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--bs-primary);
+      display: inline-block;
+      position: relative;
+      width: 100%;
+    }
+
+    .footer-title::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 30px;
+      height: 2px;
+      background: var(--bs-secondary);
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-link {
+      color: #b8b8b8;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-radius: 8px;
+    }
+
+    .footer-link:hover {
+      color: var(--bs-primary);
+      background: rgba(255, 255, 255, 0.05);
+      padding-left: 0.5rem;
+    }
+
+    .footer-link i {
+      margin-right: 0.75rem;
+      width: 20px;
+      font-size: 1rem;
+    }
+
+    /* Contact info */
+    .contact-info {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      color: #b8b8b8;
+    }
+
+    .contact-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .contact-item i {
+      color: var(--bs-primary);
+      margin-right: 0.75rem;
+      margin-top: 0.25rem;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .contact-item a {
+      color: #b8b8b8;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .contact-item a:hover {
+      color: var(--bs-primary);
+    }
+
+    /* NEWSLETTER ARREGLADO - RESPONSIVO */
+    .newsletter-section {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .newsletter-description {
+      color: #b8b8b8;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Container flexible para el newsletter */
+    .newsletter-input-container {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+
+    /* Email input wrapper */
+    .newsletter-email-wrapper {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      border: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+
+    .newsletter-email-wrapper:focus-within {
+      border-color: var(--bs-primary);
+      box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.1);
+    }
+
+    /* Icono del email */
+    .newsletter-email-wrapper .input-icon {
+      padding: 0.75rem;
+      color: var(--bs-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Input del email */
+    .newsletter-email-input {
+      border: none;
+      background: transparent;
+      color: #333;
+      font-size: 0.9rem;
+      padding: 0.75rem 0.75rem 0.75rem 0;
+      flex: 1;
+      outline: none;
+      min-width: 0;
+    }
+
+    .newsletter-email-input::placeholder {
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    /* Botón de submit */
+    .newsletter-submit-btn {
+      background: var(--bs-secondary);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      font-weight: 600;
+      min-width: 50px;
+      flex-shrink: 0;
+    }
+
+    .newsletter-submit-btn:hover {
+      background: var(--bs-warning);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .newsletter-submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .newsletter-benefits {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 0.75rem;
+    }
+
+    /* Footer bottom */
+    .footer-copyright {
+      color: #b8b8b8;
+      font-size: 0.9rem;
+    }
+
+    .footer-legal {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      justify-content: end;
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+    }
+
+    .legal-link {
+      color: #b8b8b8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .legal-link:hover {
+      color: var(--bs-primary);
+    }
+
+    .legal-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--bs-primary);
+      transition: width 0.3s ease;
+    }
+
+    .legal-link:hover::after {
+      width: 100%;
+    }
+
+    /* Scroll to top button */
+    .scroll-to-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .scroll-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .scroll-to-top:hover {
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Heartbeat animation */
+    .heartbeat {
+      animation: heartbeat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    @media (min-width: 769px) {
+      .footer-accordion .accordion-trigger {
+        cursor: default;
+        pointer-events: none;
+      }
+
+      .footer-accordion .accordion-icon {
+        display: none;
+      }
+
+      .footer-accordion .accordion-content {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      .footer-always-open .contact-info,
+      .footer-always-open .newsletter-section {
+        display: block !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .footer-main {
+        padding: 3rem 0 1.5rem;
+      }
+
+      .footer-brand .brand-icon {
+        width: 50px;
+        height: 50px;
+      }
+
+      .footer-brand .brand-icon i {
+        font-size: 1.5rem;
+      }
+
+      .footer-stats {
+        padding: 1rem 0.5rem;
+      }
+
+      .stat-number {
+        font-size: 1.1rem;
+      }
+
+      .social-links {
+        justify-content: center;
+      }
+
+      .footer-legal {
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .footer-legal li::after {
+        content: '•';
+        margin-left: 1rem;
+        color: #666;
+      }
+
+      .footer-legal li:last-child::after {
+        display: none;
+      }
+
+      .scroll-to-top {
+        bottom: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+      }
+
+      /* Accordion activo solo en navegación y servicios */
+      .footer-accordion .accordion-content {
+        margin-top: 1rem;
+      }
+
+      /* Mantente Conectado siempre visible incluso en móvil */
+      .footer-always-open .contact-info,
+      .footer-always-open .newsletter-section {
+        display: block !important;
+        max-height: none !important;
+        overflow: visible !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    }
+
+    /* Móvil L y hacia abajo (425px) */
+    @media (max-width: 425px) {
+      .footer-main {
+        padding: 2rem 0 1rem;
+      }
+
+      /* Newsletter responsivo para móviles */
+      .newsletter-input-container {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .newsletter-email-wrapper {
+        min-width: 100%;
+      }
+
+      .newsletter-submit-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .newsletter-submit-btn .btn-text {
+        display: inline !important;
+      }
+
+      .newsletter-email-input {
+        font-size: 1rem;
+      }
+
+      .newsletter-email-input::placeholder {
+        font-size: 0.9rem;
+      }
+
+      /* Estadísticas más compactas */
+      .footer-stats {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .stat-number {
+        font-size: 1rem;
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+      }
+
+      /* Redes sociales más pequeñas */
+      .social-link {
+        width: 40px;
+        height: 40px;
+      }
+
+      .social-link i {
+        font-size: 1rem;
+      }
+
+      /* Footer legal apilado */
+      .footer-legal {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+      }
+
+      .footer-legal li::after {
+        display: none;
+      }
+    }
+
+    /* Móvil S (375px y menos) */
+    @media (max-width: 375px) {
+      .newsletter-section {
+        padding: 1rem;
+      }
+
+      .newsletter-description {
+        font-size: 0.8rem;
+      }
+
+      .newsletter-email-wrapper .input-icon {
+        padding: 0.6rem;
+      }
+
+      .newsletter-email-input {
+        padding: 0.6rem 0.5rem 0.6rem 0;
+        font-size: 0.9rem;
+      }
+
+      .newsletter-submit-btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+      }
+
+      /* Brand más compacto */
+      .footer-brand .brand-icon {
+        width: 45px;
+        height: 45px;
+      }
+
+      .footer-brand .brand-icon i {
+        font-size: 1.3rem;
+      }
+
+      .footer-description {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Móvil XS (320px) */
+    @media (max-width: 320px) {
+      .footer-main {
+        padding: 1.5rem 0 1rem;
+      }
+
+      .container {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .newsletter-input-container {
+        gap: 0.5rem;
+      }
+
+      .newsletter-email-wrapper {
+        border-radius: 8px;
+      }
+
+      .newsletter-email-wrapper .input-icon {
+        padding: 0.5rem;
+      }
+
+      .newsletter-email-input {
+        padding: 0.5rem 0.4rem 0.5rem 0;
+        font-size: 0.85rem;
+      }
+
+      .newsletter-submit-btn {
+        padding: 0.5rem 0.6rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+      }
+
+      .footer-stats {
+        padding: 0.5rem;
+      }
+
+      .social-link {
+        width: 35px;
+        height: 35px;
+      }
+
+      .social-link i {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Mejoras de accesibilidad */
+    @media (prefers-reduced-motion: reduce) {
+
+      .social-link,
+      .footer-link,
+      .newsletter-submit-btn,
+      .scroll-to-top,
+      .accordion-icon {
+        transition: none;
+      }
+
+      .heartbeat {
+        animation: none;
+      }
+    }
+
+    /* Dark mode improvements */
+    @media (prefers-color-scheme: dark) {
+      .newsletter-email-wrapper {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .newsletter-email-input {
+        color: white;
+      }
+
+      .newsletter-email-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    /* Evitar zoom en iOS */
+    @supports (-webkit-touch-callout: none) {
+      .newsletter-email-input {
+        font-size: 16px;
+      }
+    }
+  </style>
+
+  <!-- JavaScript para funcionalidad del footer -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // ACCORDION FUNCTIONALITY - Solo para navegación y servicios
+      function initAccordion() {
+        const triggers = document.querySelectorAll('.footer-accordion .accordion-trigger');
+
+        triggers.forEach(trigger => {
+          trigger.addEventListener('click', function () {
+            // Solo funcionar en móvil/tablet
+            if (window.innerWidth <= 768) {
+              const targetId = this.getAttribute('data-target');
+              const content = document.getElementById(targetId);
+              const icon = this.querySelector('.accordion-icon');
+
+              // Toggle clase active
+              this.classList.toggle('active');
+              content.classList.toggle('active');
+
+              // Cerrar otros accordions (opcional)
+              triggers.forEach(otherTrigger => {
+                if (otherTrigger !== this) {
+                  const otherTargetId = otherTrigger.getAttribute('data-target');
+                  const otherContent = document.getElementById(otherTargetId);
+                  otherTrigger.classList.remove('active');
+                  otherContent.classList.remove('active');
+                }
+              });
+            }
+          });
+        });
+
+        // Auto-abrir en desktop
+        function handleResize() {
+          if (window.innerWidth > 768) {
+            // En desktop, mostrar todo
+            triggers.forEach(trigger => {
+              const targetId = trigger.getAttribute('data-target');
+              const content = document.getElementById(targetId);
+              trigger.classList.remove('active');
+              content.classList.add('active');
+            });
+          } else {
+            // En móvil/tablet, cerrar todo por defecto (excepto always-open)
+            triggers.forEach(trigger => {
+              const targetId = trigger.getAttribute('data-target');
+              const content = document.getElementById(targetId);
+              trigger.classList.remove('active');
+              content.classList.remove('active');
+            });
+          }
+
+          // Asegurar que "Mantente Conectado" siempre esté visible
+          ensureAlwaysOpenVisible();
+        }
+
+        // Ejecutar al cargar y al redimensionar
+        handleResize();
+        window.addEventListener('resize', handleResize);
+      }
+
+      // Asegurar que la sección "Mantente Conectado" siempre esté visible
+      function ensureAlwaysOpenVisible() {
+        const alwaysOpenSections = document.querySelectorAll('.footer-always-open .contact-info, .footer-always-open .newsletter-section');
+        alwaysOpenSections.forEach(section => {
+          section.style.display = 'block';
+          section.style.maxHeight = 'none';
+          section.style.overflow = 'visible';
+          section.style.opacity = '1';
+          section.style.visibility = 'visible';
+        });
+      }
+
+      // Scroll to top functionality
+      const scrollToTopBtn = document.getElementById('scrollToTop');
+
+      window.addEventListener('scroll', function () {
+        if (window.pageYOffset > 300) {
+          scrollToTopBtn.classList.add('visible');
+        } else {
+          scrollToTopBtn.classList.remove('visible');
+        }
+      });
+
+      scrollToTopBtn.addEventListener('click', function () {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+
+      const newsletterForm = document.getElementById('newsletterForm');
+      const newsletterEmail = document.getElementById('newsletterEmail');
+      const submitBtn = newsletterForm.querySelector('.newsletter-submit-btn');
+
+      newsletterForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const email = newsletterEmail.value.trim();
+        const privacyCheck = document.getElementById('privacyCheck');
+
+        if (!privacyCheck.checked) {
+          showNotification('Debes aceptar la política de privacidad.', 'error');
+          return;
+        }
+
+        if (email && isValidEmail(email)) {
+          const originalHTML = submitBtn.innerHTML;
+          submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> <span class="btn-text d-none d-sm-inline">Enviando...</span>';
+          submitBtn.disabled = true;
+
+          // Simular envío
+          setTimeout(() => {
+            showNotification('¡Gracias! Te has suscrito exitosamente a nuestro newsletter.', 'success');
+            newsletterEmail.value = '';
+            privacyCheck.checked = false;
+
+            // Restaurar botón
+            submitBtn.innerHTML = originalHTML;
+            submitBtn.disabled = false;
+          }, 1500);
+        } else {
+          showNotification('Por favor, ingresa un email válido.', 'error');
+        }
+      });
+
+      // Email validation
+      function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      }
+
+      // Notification system
+      function showNotification(message, type = 'info') {
+        // Remover notificaciones existentes
+        const existingNotifications = document.querySelectorAll('.footer-notification');
+        existingNotifications.forEach(n => n.remove());
+
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed footer-notification`;
+        notification.style.cssText = `
+          top: 20px; 
+          right: 20px; 
+          z-index: 9999; 
+          max-width: 350px; 
+          box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+          border-radius: 12px;
+          border: none;
+        `;
+        notification.innerHTML = `
+          <div class="d-flex align-items-center">
+            <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>
+            <span style="flex: 1;">${message}</span>
+            <button type="button" class="btn-close ms-2" aria-label="Close"></button>
+          </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto remove
+        setTimeout(() => {
+          notification.remove();
+        }, 5000);
+
+        // Manual close
+        notification.querySelector('.btn-close').addEventListener('click', () => {
+          notification.remove();
+        });
+      }
+
+      // Smooth scrolling for footer links
+      document.querySelectorAll('.footer-link[href^="#"]').forEach(link => {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      // Add loading states to social links
+      document.querySelectorAll('.social-link').forEach(link => {
+        link.addEventListener('click', function (e) {
+          if (this.getAttribute('href') === '#') {
+            e.preventDefault();
+            showNotification('Próximamente disponible. ¡Síguenos pronto!', 'info');
+          }
+        });
+      });
+
+      // Inicializar accordion
+      initAccordion();
+
+      // Asegurar que "Mantente Conectado" esté siempre visible
+      ensureAlwaysOpenVisible();
+
+      // Prevenir zoom en iOS para inputs
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        const inputs = document.querySelectorAll('.newsletter-email-input');
+        inputs.forEach(input => {
+          input.addEventListener('focus', function () {
+            this.style.fontSize = '16px';
+          });
+          input.addEventListener('blur', function () {
+            this.style.fontSize = '';
+          });
+        });
+      }
+    });
+  </script>
 </footer>

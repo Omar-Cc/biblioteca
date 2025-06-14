@@ -31,3 +31,141 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### ============ ADICIONES ESPECÍFICAS PARA BIBLIOVIRTUAL ============ ###
+
+### Archivos de Configuración Sensibles ###
+# Archivos de configuración con credenciales
+**/application-*.properties
+**/application-*.yml
+!**/application-example.properties
+# Variables de entorno
+.env
+.env.local
+.env.production
+!.env.ejemplo
+### Base de Datos ###
+# Archivos de base de datos locales
+*.db
+*.sqlite
+*.sqlite3
+# Dumps de base de datos
+*.sql.gz
+*.sql.zip
+database_dump/
+db_backups/
+
+### Archivos Subidos por Usuarios ###
+# Directorio de uploads (imágenes de perfil, documentos)
+uploads/
+!uploads/.gitkeep
+# Archivos temporales de upload
+temp_uploads/
+# Portadas de libros subidas dinámicamente
+**/static/image/portadas/uploaded/
+# PDFs generados dinámicamente
+**/static/pdf/generated/
+# Archivos de perfil de usuarios
+**/static/image/perfiles/
+
+### Logs del Sistema ###
+# Logs de la aplicación
+logs/
+*.log
+*.log.*
+log/
+# Logs específicos de biblioteca
+biblioteca.log*
+audit.log*
+error.log*
+
+### Documentación Generada ###
+# Documentación de API generada
+api-docs/
+swagger-docs/
+# JavaDoc generado
+javadoc/
+
+### Cache y Archivos Temporales ###
+# Cache de Spring Boot
+.spring-boot-devtools.properties
+# Cache de templates
+template-cache/
+# Cache de imágenes procesadas
+image-cache/
+# Archivos temporales de generación de PDF
+temp-pdf/
+*.tmp
+
+### Herramientas de Desarrollo ###
+# Archivos de Maven locales
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.properties
+# Configuraciones locales de desarrollo
+local.properties
+dev.properties
+
+### Datos de Testing ###
+# Datos de prueba que no deben subirse
+test-data/
+mock-data/
+# Base de datos de test
+test.db
+h2-test/
+
+### Certificados y Llaves ###
+# Certificados SSL locales
+*.jks
+*.p12
+*.pem
+*.key
+*.crt
+keystore/
+certificates/
+
+### Archivos del Sistema ###
+# Archivos temporales del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+### Configuraciones de Email ###
+# Configuraciones de proveedores de email
+mail-config-local.properties
+smtp-settings.json
+
+### Reportes y Análisis ###
+# Reportes de cobertura
+coverage/
+jacoco.exec
+# Análisis de código
+sonar/
+checkstyle-result.xml
+spotbugs-result.xml
+
+### Backup y Migración ###
+# Archivos de backup
+backup/
+*.backup
+# Scripts de migración temporales
+migration-temp/
+data-migration/
+
+### Docker (si se usa en el futuro) ###
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+### Archivos Específicos de BiblioVirtual ###
+# Configuración de bibliotecas específicas
+library-config.json
+biblio-settings.properties
+# Datos comerciales sensibles
+pricing-config.json
+payment-keys.properties

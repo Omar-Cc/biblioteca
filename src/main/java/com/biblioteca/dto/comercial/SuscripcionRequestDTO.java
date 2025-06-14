@@ -22,7 +22,7 @@ public class SuscripcionRequestDTO {
     private LocalDate fechaInicio;
     private LocalDate fechaRenovacion;
     private String estado;
+    private String modalidadPago; // "mensual" o "anual"
     
-    @NotNull(message = "El ID del método de pago es obligatorio")
     private Long metodoPagoId;
 }

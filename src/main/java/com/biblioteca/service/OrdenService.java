@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import com.biblioteca.dto.comercial.ItemOrdenRequestDTO;
 import com.biblioteca.dto.comercial.ItemOrdenResponseDTO;
 import com.biblioteca.dto.comercial.OrdenRequestDTO;
 import com.biblioteca.dto.comercial.OrdenResponseDTO;
@@ -16,6 +17,9 @@ public interface OrdenService {
   OrdenResponseDTO crearOrdenDesdeCarrito(Long perfilId);
 
   Optional<OrdenResponseDTO> obtenerOrdenPorId(Long id);
+
+  List<OrdenResponseDTO> obtenerOrdenesPorPerfilConFiltros(Long perfilId, String estado,
+      LocalDate fechaDesde, LocalDate fechaHasta);
 
   List<OrdenResponseDTO> obtenerOrdenesPorPerfil(Long perfilId);
 
@@ -40,6 +44,12 @@ public interface OrdenService {
 
   // Operaciones para ítems de orden
   List<ItemOrdenResponseDTO> obtenerItemsDeOrden(Long ordenId);
+
+  ItemOrdenResponseDTO agregarItemAOrden(Long ordenId, ItemOrdenRequestDTO itemDTO);
+
+  boolean eliminarItemDeOrden(Long ordenId, Long itemOrdenId);
+
+  Optional<ItemOrdenResponseDTO> actualizarCantidadItem(Long ordenId, Long itemOrdenId, int nuevaCantidad);
 
   // Operaciones por fecha
   List<OrdenResponseDTO> obtenerOrdenesPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin);

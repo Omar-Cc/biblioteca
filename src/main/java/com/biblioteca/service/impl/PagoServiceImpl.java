@@ -1,287 +1,389 @@
 package com.biblioteca.service.impl;
 
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.biblioteca.dto.comercial.PagoRequestDTO;
 import com.biblioteca.dto.comercial.PagoResponseDTO;
+import com.biblioteca.enums.EstadoPago;
+import com.biblioteca.exceptions.OperacionNoPermitidaException;
+import com.biblioteca.exceptions.RecursoNoEncontradoException;
 import com.biblioteca.mapper.comercial.PagoMapper;
 import com.biblioteca.models.comercial.MetodoPago;
 import com.biblioteca.models.comercial.Orden;
 import com.biblioteca.models.comercial.Pago;
+import com.biblioteca.models.comercial.Suscripcion;
+import com.biblioteca.repositories.comercial.PagoRepository;
 import com.biblioteca.service.MetodoPagoService;
+import com.biblioteca.service.NotificacionPagoService;
 import com.biblioteca.service.OrdenService;
 import com.biblioteca.service.PagoService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.biblioteca.service.SuscripcionService;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class PagoServiceImpl implements PagoService {
 
-  private final Map<Long, Pago> pagos = new ConcurrentHashMap<>();
-  private final AtomicLong pagoIdCounter = new AtomicLong(0);
+  private final PagoRepository pagoRepository;
   private final PagoMapper pagoMapper;
   private final OrdenService ordenService;
   private final MetodoPagoService metodoPagoService;
-  private final ObjectMapper objectMapper;
-  private final ResourceLoader resourceLoader;
+  private final SuscripcionService suscripcionService;
+  private final NotificacionPagoService notificacionPagoService;
 
-  // Estados posibles de un pago
-  public static final String ESTADO_PENDIENTE = "Pendiente";
-  public static final String ESTADO_PROCESANDO = "Procesando";
-  public static final String ESTADO_COMPLETADO = "Completado";
-  public static final String ESTADO_RECHAZADO = "Rechazado";
-  public static final String ESTADO_REEMBOLSADO = "Reembolsado";
-  public static final String ESTADO_FALLIDO = "Fallido";
-
-  @PostConstruct
-  public void initPagosData() {
-    try {
-      InputStream inputStream = resourceLoader.getResource("classpath:data/pagos-data.json").getInputStream();
-      List<PagoRequestDTO> pagosDTOs = objectMapper.readValue(inputStream,
-          new TypeReference<List<PagoRequestDTO>>() {
-          });
-      pagosDTOs.forEach(this::registrarPago);
-      System.out.println("Datos iniciales de Pagos cargados desde JSON: " + pagos.size() + " pagos.");
-    } catch (Exception e) {
-      System.err.println("Error al cargar datos iniciales de pagos desde JSON: " + e.getMessage());
-      // No iniciamos con datos por defecto ya que dependemos de órdenes existentes
-    }
+  // Constructor con @Lazy para romper la dependencia circular
+  public PagoServiceImpl(
+      PagoRepository pagoRepository,
+      PagoMapper pagoMapper,
+      OrdenService ordenService,
+      MetodoPagoService metodoPagoService,
+      SuscripcionService suscripcionService,
+      @Lazy NotificacionPagoService notificacionPagoService) {
+    this.pagoRepository = pagoRepository;
+    this.pagoMapper = pagoMapper;
+    this.ordenService = ordenService;
+    this.metodoPagoService = metodoPagoService;
+    this.suscripcionService = suscripcionService;
+    this.notificacionPagoService = notificacionPagoService;
   }
 
   @Override
+  @Transactional
   public PagoResponseDTO registrarPago(PagoRequestDTO pagoDTO) {
-    Orden orden = ordenService.obtenerEntidadOrdenPorId(pagoDTO.getOrdenId())
-        .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada con ID: " + pagoDTO.getOrdenId()));
-
-    MetodoPago metodoPago = metodoPagoService.obtenerEntidadMetodoPagoPorId(pagoDTO.getMetodoPagoId())
-        .orElseThrow(
-            () -> new IllegalArgumentException("Método de pago no encontrado con ID: " + pagoDTO.getMetodoPagoId()));
+    log.info("Registrando nuevo pago para orden ID: {}", pagoDTO.getOrdenId());
 
     Pago pago = pagoMapper.toEntity(pagoDTO);
-    pago.setId(pagoIdCounter.incrementAndGet());
-    pago.setOrden(orden);
-    pago.setMetodoPago(metodoPago);
-    pago.setFechaPago(LocalDateTime.now());
 
-    // Si no se especifica el estado, asignar pendiente
-    if (pago.getEstado() == null || pago.getEstado().isEmpty()) {
-      pago.setEstado(ESTADO_PENDIENTE);
+    // Obtener y asignar la orden
+    if (pagoDTO.getOrdenId() != null) {
+      Orden orden = ordenService.obtenerEntidadOrdenPorId(pagoDTO.getOrdenId())
+          .orElseThrow(() -> new RecursoNoEncontradoException("Orden no encontrada con ID: " + pagoDTO.getOrdenId()));
+      pago.setOrden(orden);
     }
 
-    orden.addPago(pago);
+    // Obtener y asignar la suscripción SOLO si se proporciona
+    if (pagoDTO.getSuscripcionId() != null) {
+      // Aquí necesitarías inyectar SuscripcionService y obtener la suscripción
+      Suscripcion suscripcion = suscripcionService.obtenerEntidadSuscripcionPorId(pagoDTO.getSuscripcionId())
+          .orElse(null);
+      pago.setSuscripcion(suscripcion);
+    } else {
+      pago.setSuscripcion(null); // ← Asegurar que sea null para pagos de órdenes
+    }
 
-    pagos.put(pago.getId(), pago);
-    return pagoMapper.toResponseDTO(pago);
+    // Obtener y asignar el método de pago
+    MetodoPago metodoPago = metodoPagoService.obtenerEntidadMetodoPagoPorId(pagoDTO.getMetodoPagoId())
+        .orElseThrow(() -> new RecursoNoEncontradoException(
+            "Método de pago no encontrado con ID: " + pagoDTO.getMetodoPagoId()));
+    pago.setMetodoPago(metodoPago);
+
+    // Establecer el estado inicial
+    if (pagoDTO.getEstado() != null && !pagoDTO.getEstado().isEmpty()) {
+      try {
+        pago.setEstado(EstadoPago.valueOf(pagoDTO.getEstado()));
+      } catch (IllegalArgumentException e) {
+        log.warn("Estado de pago inválido: {}, usando PENDIENTE por defecto", pagoDTO.getEstado());
+        pago.setEstado(EstadoPago.PENDIENTE);
+      }
+    } else {
+      pago.setEstado(EstadoPago.PENDIENTE);
+    }
+
+    // Establecer fecha de creación si no está presente
+    if (pago.getFechaCreacion() == null) {
+      pago.setFechaCreacion(LocalDateTime.now());
+    }
+
+    // Guardar el pago
+    Pago pagoGuardado = pagoRepository.save(pago);
+    log.info("Pago registrado con ID: {}", pagoGuardado.getId());
+
+    return pagoMapper.toResponseDTO(pagoGuardado);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<PagoResponseDTO> obtenerPagoPorId(Long id) {
-    return Optional.ofNullable(pagos.get(id))
+    return pagoRepository.findById(id)
         .map(pagoMapper::toResponseDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<PagoResponseDTO> obtenerPagosPorOrden(Long ordenId) {
-    return pagos.values().stream()
-        .filter(p -> p.getOrden() != null && p.getOrden().getId().equals(ordenId))
+    return pagoRepository.findByOrdenId(ordenId).stream() // Asume que este método existe en el repositorio
         .map(pagoMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<PagoResponseDTO> obtenerTodosLosPagos() {
-    return pagos.values().stream()
+    return pagoRepository.findAll().stream()
         .map(pagoMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional
   public Optional<PagoResponseDTO> actualizarPago(Long id, PagoRequestDTO pagoDTO) {
-    return Optional.ofNullable(pagos.get(id))
+    return pagoRepository.findById(id)
         .map(pago -> {
-          // No permitimos cambiar la orden
-
-          // Actualizar método de pago si se proporciona nuevo
-          if (pagoDTO.getMetodoPagoId() != null &&
-              !pago.getMetodoPago().getId().equals(pagoDTO.getMetodoPagoId())) {
-            MetodoPago metodoPago = metodoPagoService.obtenerEntidadMetodoPagoPorId(pagoDTO.getMetodoPagoId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                    "Método de pago no encontrado con ID: " + pagoDTO.getMetodoPagoId()));
-            pago.setMetodoPago(metodoPago);
-          }
-
-          // Actualizar monto si se proporciona
+          // Actualizar campos básicos
           if (pagoDTO.getMonto() != null) {
             pago.setMonto(pagoDTO.getMonto());
           }
-
-          // Actualizar referencia si se proporciona
-          if (pagoDTO.getReferenciaPago() != null) {
-            pago.setReferenciaPago(pagoDTO.getReferenciaPago());
+          if (pagoDTO.getEstado() != null) {
+            pago.setEstado(EstadoPago.valueOf(pagoDTO.getEstado()));
+          }
+          if (pagoDTO.getReferenciaExterna() != null) {
+            pago.setReferenciaExterna(pagoDTO.getReferenciaExterna());
           }
 
-          // Actualizar estado si se proporciona
-          if (pagoDTO.getEstado() != null && !pagoDTO.getEstado().isEmpty()) {
-            pago.setEstado(pagoDTO.getEstado());
+          // Si el método de pago cambia:
+          if (pagoDTO.getMetodoPagoId() != null &&
+              (pago.getMetodoPago() == null || !pago.getMetodoPago().getId().equals(pagoDTO.getMetodoPagoId()))) {
+            MetodoPago nuevoMetodoPago = metodoPagoService.obtenerEntidadMetodoPagoPorId(pagoDTO.getMetodoPagoId())
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                    "Nuevo método de pago no encontrado con ID: " + pagoDTO.getMetodoPagoId()));
+            pago.setMetodoPago(nuevoMetodoPago);
           }
 
-          return pagoMapper.toResponseDTO(pago);
+          Pago pagoActualizado = pagoRepository.save(pago);
+          return pagoMapper.toResponseDTO(pagoActualizado);
         });
   }
 
   @Override
+  @Transactional
   public boolean eliminarPago(Long id) {
-    Pago pago = pagos.remove(id);
-    if (pago != null && pago.getOrden() != null) {
-      pago.getOrden().removePago(pago);
+    if (pagoRepository.existsById(id)) {
+      // Considerar lógica de negocio: ¿Se pueden eliminar pagos completados?
+      // ¿Qué pasa con la orden asociada?
+      // Por ahora, simplemente eliminamos el pago.
+      pagoRepository.deleteById(id);
       return true;
     }
     return false;
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Pago> obtenerEntidadPagoPorId(Long id) {
-    return Optional.ofNullable(pagos.get(id));
+    return pagoRepository.findWithAllRelationsById(id);
   }
 
   @Override
-  public List<PagoResponseDTO> obtenerPagosPorEstado(String estado) {
-    return pagos.values().stream()
-        .filter(p -> estado.equals(p.getEstado()))
+  @Transactional(readOnly = true)
+  public List<PagoResponseDTO> obtenerPagosPorEstado(EstadoPago estado) {
+    return pagoRepository.findByEstado(estado).stream()
         .map(pagoMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<PagoResponseDTO> obtenerPagosPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin) {
     LocalDateTime inicio = fechaInicio.atStartOfDay();
-    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay();
-
-    return pagos.values().stream()
-        .filter(p -> !p.getFechaPago().isBefore(inicio) && p.getFechaPago().isBefore(fin))
+    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1); // Para incluir todo el día de fechaFin
+    return pagoRepository.findByFechaPagoBetween(inicio, fin).stream() // Asume que este método existe
         .map(pagoMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<PagoResponseDTO> obtenerPagosPorMetodoPago(Long metodoPagoId) {
-    return pagos.values().stream()
-        .filter(p -> p.getMetodoPago() != null && p.getMetodoPago().getId().equals(metodoPagoId))
+    return pagoRepository.findByMetodoPagoId(metodoPagoId).stream() // Asume que este método existe
         .map(pagoMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
-  @Override
-  public PagoResponseDTO procesarPago(Long id) {
-    Pago pago = obtenerEntidadPagoPorId(id)
-        .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado con ID: " + id));
+  private Pago cambiarEstadoPago(Long id, EstadoPago nuevoEstado, String referenciaExternaSiAprobado,
+      String motivoSiRechazado) {
+    Pago pago = pagoRepository.findById(id)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado con ID: " + id));
 
-    if (!ESTADO_PENDIENTE.equals(pago.getEstado())) {
-      throw new IllegalStateException("Solo se pueden procesar pagos en estado pendiente");
+    // Lógica de transición de estados (simplificada)
+    // TODO: Implementar una máquina de estados más robusta si es necesario
+    if (EstadoPago.EXITOSO.equals(pago.getEstado()) && !EstadoPago.REEMBOLSADO.equals(nuevoEstado)) {
+      throw new OperacionNoPermitidaException(
+          "El pago ya está completado y no puede cambiar a " + nuevoEstado + " (excepto Reembolsado).");
+    }
+    if (EstadoPago.FALLIDO.equals(pago.getEstado()) && !EstadoPago.PENDIENTE.equals(nuevoEstado)) {
+      throw new OperacionNoPermitidaException(
+          "El pago ya está rechazado y solo puede volver a Pendiente para reintentar.");
     }
 
-    pago.setEstado(ESTADO_PROCESANDO);
-    return pagoMapper.toResponseDTO(pago);
-  }
-
-  @Override
-  public PagoResponseDTO aprobarPago(Long id, String referenciaPago) {
-    Pago pago = obtenerEntidadPagoPorId(id)
-        .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado con ID: " + id));
-
-    if (!ESTADO_PROCESANDO.equals(pago.getEstado()) && !ESTADO_PENDIENTE.equals(pago.getEstado())) {
-      throw new IllegalStateException("Solo se pueden aprobar pagos en estado pendiente o procesando");
+    pago.setEstado(nuevoEstado);
+    if (EstadoPago.EXITOSO.equals(nuevoEstado) && referenciaExternaSiAprobado != null) {
+      pago.setReferenciaExterna(referenciaExternaSiAprobado);
+      pago.setFechaProcesamiento(LocalDateTime.now());
+      // Actualizar estado de la orden si el pago se completa
+      if (pago.getOrden() != null) {
+        ordenService.completarOrden(pago.getOrden().getId());
+      }
     }
-
-    pago.setEstado(ESTADO_COMPLETADO);
-    if (referenciaPago != null && !referenciaPago.isEmpty()) {
-      pago.setReferenciaPago(referenciaPago);
-    }
-
-    // Si el pago es para una orden, podemos actualizar su estado
-    if (pago.getOrden() != null) {
-      try {
-        // Si el pago completa el total de la orden, marcarla como completada
-        Orden orden = pago.getOrden();
-        Integer totalPagado = orden.getPagos().stream()
-            .filter(p -> ESTADO_COMPLETADO.equals(p.getEstado()))
-            .mapToInt(p -> p.getMonto() != null ? p.getMonto() : 0)
-            .sum();
-
-        if (totalPagado >= orden.getTotalOrden()) {
-          ordenService.completarOrden(orden.getId());
-        }
-      } catch (Exception e) {
-        // Capturar cualquier error pero no fallar la aprobación del pago
-        System.err.println("Error al actualizar estado de la orden: " + e.getMessage());
+    if (EstadoPago.FALLIDO.equals(nuevoEstado) && motivoSiRechazado != null) {
+      pago.setMotivoRechazo(motivoSiRechazado);
+      pago.setFechaProcesamiento(LocalDateTime.now());
+      // Actualizar estado de la orden si el pago es rechazado
+      if (pago.getOrden() != null) {
+        // ordenService.marcarOrdenComoFallida(pago.getOrden().getId());
       }
     }
 
-    return pagoMapper.toResponseDTO(pago);
+    return pagoRepository.save(pago);
   }
 
   @Override
-  public PagoResponseDTO rechazarPago(Long id, String motivo) {
-    Pago pago = obtenerEntidadPagoPorId(id)
-        .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado con ID: " + id));
+  @Transactional
+  public PagoResponseDTO procesarPago(Long id) {
+    Pago pago = cambiarEstadoPago(id, EstadoPago.PENDIENTE, null, null);
 
-    if (ESTADO_COMPLETADO.equals(pago.getEstado()) || ESTADO_REEMBOLSADO.equals(pago.getEstado())) {
-      throw new IllegalStateException("No se pueden rechazar pagos completados o reembolsados");
+    try {
+      notificacionPagoService.enviarNotificacionPagoEnProceso(pago);
+    } catch (Exception e) {
+      log.warn("Error enviando notificación de pago en proceso para pago {}: {}", id, e.getMessage());
     }
 
-    pago.setEstado(ESTADO_RECHAZADO);
-    // Almacenar el motivo o en un registro de eventos
+    return pagoMapper.toResponseDTO(pago);
+  }
+
+  @Override
+  @Transactional
+  public PagoResponseDTO aprobarPago(Long id, String referenciaPago) {
+    Pago pago = cambiarEstadoPago(id, EstadoPago.EXITOSO, referenciaPago, null);
+
+    try {
+      notificacionPagoService.enviarNotificacionPagoExitoso(pago);
+    } catch (Exception e) {
+      log.warn("Error enviando notificación de pago exitoso para pago {}: {}", id, e.getMessage());
+    }
 
     return pagoMapper.toResponseDTO(pago);
   }
 
   @Override
+  @Transactional
+  public PagoResponseDTO rechazarPago(Long id, String motivo) {
+    Pago pago = cambiarEstadoPago(id, EstadoPago.FALLIDO, null, motivo);
+    try {
+      notificacionPagoService.enviarNotificacionPagoFallido(pago);
+    } catch (Exception e) {
+      log.warn("Error enviando notificación de pago fallido para pago {}: {}", id, e.getMessage());
+    }
+    return pagoMapper.toResponseDTO(pago);
+  }
+
+  @Override
+  @Transactional
   public PagoResponseDTO verificarEstadoConPasarela(Long id) {
-    Pago pago = obtenerEntidadPagoPorId(id)
-        .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado con ID: " + id));
-
-    System.out.println("Verificando estado del pago " + id + " con pasarela de pago externa");
-
+    // Esta lógica dependerá de la integración con la pasarela de pago.
+    // Por ahora, simulamos obteniendo el pago y devolviéndolo.
+    Pago pago = pagoRepository.findById(id)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado con ID: " + id));
+    // Aquí iría la llamada a la pasarela y la actualización del estado del pago.
+    // Ejemplo:
+    // String estadoPasarela =
+    // pasarelaService.consultarEstado(pago.getReferenciaExterna());
+    // if ("APROBADO".equals(estadoPasarela) &&
+    // !EstadoPago.EXITOSO.equals(pago.getEstado())) {
+    // return aprobarPago(id, pago.getReferenciaExterna());
+    // } else if (("RECHAZADO".equals(estadoPasarela) ||
+    // "FALLIDO".equals(estadoPasarela)) &&
+    // !EstadoPago.FALLIDO.equals(pago.getEstado())) {
+    // return rechazarPago(id, "Rechazado por pasarela");
+    // }
     return pagoMapper.toResponseDTO(pago);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public double calcularTotalPagosPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin) {
     LocalDateTime inicio = fechaInicio.atStartOfDay();
-    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay();
-
-    return pagos.values().stream()
-        .filter(p -> !p.getFechaPago().isBefore(inicio) && p.getFechaPago().isBefore(fin))
-        .filter(p -> ESTADO_COMPLETADO.equals(p.getEstado()))
-        .mapToDouble(p -> p.getMonto() != null ? p.getMonto() / 100.0 : 0)
+    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1);
+    List<Pago> pagosEnRango = pagoRepository.findByFechaPagoBetweenAndEstado(inicio, fin, EstadoPago.EXITOSO);
+    return pagosEnRango.stream()
+        .mapToDouble(p -> p.getMonto() / 100.0) // Asumiendo que monto está en centavos
         .sum();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public double calcularTotalPagosPorMetodoPago(Long metodoPagoId, LocalDate fechaInicio, LocalDate fechaFin) {
     LocalDateTime inicio = fechaInicio.atStartOfDay();
-    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay();
-
-    return pagos.values().stream()
-        .filter(p -> p.getMetodoPago() != null && p.getMetodoPago().getId().equals(metodoPagoId))
-        .filter(p -> !p.getFechaPago().isBefore(inicio) && p.getFechaPago().isBefore(fin))
-        .filter(p -> ESTADO_COMPLETADO.equals(p.getEstado()))
-        .mapToDouble(p -> p.getMonto() != null ? p.getMonto() / 100.0 : 0)
+    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1);
+    List<Pago> pagosFiltrados = pagoRepository.findByMetodoPagoIdAndFechaPagoBetweenAndEstado(metodoPagoId, inicio, fin,
+        EstadoPago.EXITOSO);
+    return pagosFiltrados.stream()
+        .mapToDouble(p -> p.getMonto() / 100.0) // Asumiendo que monto está en centavos
         .sum();
+  }
+
+  // ⭐ NUEVOS MÉTODOS PARA SUSCRIPCIONES
+
+  @Override
+  @Transactional
+  public PagoResponseDTO procesarPagoSuscripcion(Long suscripcionId, Long metodoPagoId, Double monto, String periodo) {
+    // Crear pago para suscripción
+    PagoRequestDTO pagoRequest = PagoRequestDTO.builder()
+        .suscripcionId(suscripcionId)
+        .metodoPagoId(metodoPagoId)
+        .monto((int) (monto * 100)) // Convertir a centavos
+        .periodo(periodo)
+        .esSimulado(true) // Por ahora simulado
+        .simularFallo(false)
+        .build();
+
+    PagoResponseDTO pago = registrarPago(pagoRequest);
+    return procesarPago(pago.getId());
+  }
+
+  @Override
+  @Transactional
+  public PagoResponseDTO simularRenovacionAutomatica(Long suscripcionId) {
+    // Aquí deberías obtener la suscripción para calcular el monto
+    // Por simplicidad, asumo un monto fijo para el ejemplo
+    return procesarPagoSuscripcion(suscripcionId, 1L, 29.99, "Renovación Automática");
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<PagoResponseDTO> obtenerPagosPorSuscripcion(Long suscripcionId) {
+    return pagoRepository.findBySuscripcionId(suscripcionId)
+        .stream()
+        .map(pagoMapper::toResponseDTO)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<PagoResponseDTO> obtenerPagosUnificadosPorUsuario(Long usuarioId) {
+    // Combinar pagos de órdenes (a través de perfil) y suscripciones
+    List<PagoResponseDTO> pagosSuscripciones = pagoRepository.findBySuscripcionUsuarioId(usuarioId)
+        .stream()
+        .map(pagoMapper::toResponseDTO)
+        .collect(Collectors.toList());
+
+    // Aquí podrías agregar pagos de órdenes si es necesario
+    // List<PagoResponseDTO> pagosOrdenes = ...
+
+    return pagosSuscripciones.stream()
+        .sorted((p1, p2) -> {
+          LocalDateTime fecha1 = p1.getFechaPago() != null ? p1.getFechaPago() : p1.getFechaCreacion();
+          LocalDateTime fecha2 = p2.getFechaPago() != null ? p2.getFechaPago() : p2.getFechaCreacion();
+          return fecha2.compareTo(fecha1); // Más recientes primero
+        })
+        .collect(Collectors.toList());
   }
 }

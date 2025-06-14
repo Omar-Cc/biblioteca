@@ -11,24 +11,36 @@ public interface PlanBeneficioService {
 	// Operaciones CRUD básicas
 	PlanBeneficioResponseDTO asociarBeneficioAPlan(PlanBeneficioRequestDTO planBeneficioDTO);
 
-	Optional<PlanBeneficioResponseDTO> obtenerAsociacionPorIds(Long planId, Long beneficioId);
+	// Obtener por el ID propio de PlanBeneficio
+	Optional<PlanBeneficioResponseDTO> obtenerAsociacionPorId(Long id);
 
-	List<PlanBeneficioResponseDTO> obtenerBeneficiosPorPlan(Long planId);
+	// Obtener por la combinación de Plan ID y Beneficio ID
+	Optional<PlanBeneficioResponseDTO> obtenerAsociacionPorPlanIdYBeneficioId(Long planId, Long beneficioId);
 
-	List<PlanBeneficioResponseDTO> obtenerPlanesPorBeneficio(Long beneficioId);
+	List<PlanBeneficioResponseDTO> obtenerBeneficiosPorPlanId(Long planId);
 
-	Optional<PlanBeneficioResponseDTO> actualizarAsociacion(Long planId, Long beneficioId,
-			PlanBeneficioRequestDTO planBeneficioDTO);
+	List<PlanBeneficioResponseDTO> obtenerPlanesPorBeneficioId(Long beneficioId);
 
-	boolean eliminarAsociacion(Long planId, Long beneficioId);
+	// Actualizar usando el ID propio de PlanBeneficio
+	Optional<PlanBeneficioResponseDTO> actualizarAsociacion(Long id, PlanBeneficioRequestDTO planBeneficioDTO);
+
+	// Eliminar usando el ID propio de PlanBeneficio
+	boolean eliminarAsociacion(Long id);
+
+	// Eliminar usando la combinación de Plan ID y Beneficio ID
+	boolean eliminarAsociacionPorPlanIdYBeneficioId(Long planId, Long beneficioId);
 
 	// Para uso interno principalmente
-	Optional<PlanBeneficio> obtenerEntidadAsociacionPorIds(Long planId, Long beneficioId);
+	Optional<PlanBeneficio> obtenerEntidadAsociacionPorId(Long id);
+
+	Optional<PlanBeneficio> obtenerEntidadAsociacionPorPlanIdYBeneficioId(Long planId, Long beneficioId);
 
 	// Operaciones específicas
-	boolean activarAsociacion(Long planId, Long beneficioId);
+	// Estas operaciones pueden usar el ID de PlanBeneficio o la combinación planId,
+	// beneficioId
+	boolean activarAsociacion(Long id); // O activarAsociacion(Long planId, Long beneficioId)
 
-	boolean desactivarAsociacion(Long planId, Long beneficioId);
+	boolean desactivarAsociacion(Long id); // O desactivarAsociacion(Long planId, Long beneficioId)
 
 	// Operaciones en lote
 	List<PlanBeneficioResponseDTO> asociarVariosBeneficiosAPlan(Long planId,

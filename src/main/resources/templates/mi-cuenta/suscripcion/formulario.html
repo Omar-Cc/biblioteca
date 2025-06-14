@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        'Nueva Suscripción',
+        ~{::pageSpecificCss},
+        ~{::pageSpecificScripts},
+        'suscripcion',
+        ~{::pageContent}
+      )}">
+
+<head>
+	<th:block th:fragment="pageSpecificCss">
+		<style>
+			.plan-card {
+				transition: all 0.3s ease;
+				cursor: pointer;
+				border: 2px solid transparent;
+			}
+
+			.plan-card:hover {
+				transform: translateY(-5px);
+				box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+			}
+
+			.plan-card.selected {
+				border-color: #007bff;
+				background-color: rgba(0, 123, 255, 0.05);
+			}
+
+			.plan-features {
+				list-style: none;
+				padding: 0;
+			}
+
+			.plan-features li {
+				padding: 0.5rem 0;
+				border-bottom: 1px solid #eee;
+			}
+
+			.plan-features li:last-child {
+				border-bottom: none;
+			}
+
+			.payment-method-card {
+				transition: all 0.3s ease;
+				cursor: pointer;
+				border: 2px solid transparent;
+			}
+
+			.payment-method-card:hover {
+				border-color: #007bff;
+			}
+
+			.payment-method-card.selected {
+				border-color: #007bff;
+				background-color: rgba(0, 123, 255, 0.05);
+			}
+
+			.step-indicator {
+				display: flex;
+				justify-content: center;
+				margin-bottom: 2rem;
+			}
+
+			.step {
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 0 1rem;
+				position: relative;
+			}
+
+			.step.active {
+				background-color: #007bff;
+				color: white;
+			}
+
+			.step.completed {
+				background-color: #28a745;
+				color: white;
+			}
+
+			.step.pending {
+				background-color: #e9ecef;
+				color: #6c757d;
+			}
+
+			.step:not(:last-child)::after {
+				content: '';
+				position: absolute;
+				top: 50%;
+				left: 100%;
+				width: 2rem;
+				height: 2px;
+				background-color: #e9ecef;
+				transform: translateY(-50%);
+			}
+
+			.step.completed:not(:last-child)::after {
+				background-color: #28a745;
+			}
+		</style>
+	</th:block>
+</head>
+
+<body>
+	<div th:fragment="pageContent">
+		<!-- Header -->
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h2 class="mb-0">
+				<i class="fas fa-plus-circle me-2"></i>
+				Nueva Suscripción
+			</h2>
+		</div>
+
+		<!-- Indicador de pasos -->
+		<div class="step-indicator">
+			<div class="step active">
+				<i class="fas fa-list-alt"></i>
+			</div>
+			<div class="step pending">
+				<i class="fas fa-credit-card"></i>
+			</div>
+			<div class="step pending">
+				<i class="fas fa-check"></i>
+			</div>
+		</div>
+
+		<div class="card shadow">
+			<div class="card-header bg-primary text-white">
+				<h3 class="mb-0">
+					<i class="fas fa-star me-2"></i>
+					Elige tu Plan de Suscripción
+				</h3>
+			</div>
+			<div class="card-body">
+				<form th:action="@{/mi-cuenta/suscripcion/crear}" method="post" id="suscripcionForm">
+					<!-- Selección de Plan -->
+					<div class="row" th:if="${planes}">
+						<div class="col-md-6 mb-4" th:each="plan : ${planes}">
+							<div class="card plan-card h-100" data-plan-id="${plan.id}">
+								<!-- th:classappend="${plan.destacado} ? 'bg-warning text-dark' : 'bg-light'" -->
+								<div class="card-header text-center">
+									<h5 th:text="${plan.nombre}" class="mb-0"></h5>
+									<!-- <span th:if="${plan.destacado}" class="badge bg-danger">Más Popular</span> -->
+								</div>
+								<div class="card-body text-center">
+									<div class="mb-3">
+										<h2 class="text-primary">
+											S/. <span th:text="${#numbers.formatDecimal(plan.precioMensual/100, 1, 2)}">0.00</span>
+											<small class="text-muted">/mes</small>
+										</h2>
+									</div>
+									<p th:text="${plan.descripcion}" class="text-muted"></p>
+
+									<!-- <ul class="plan-features">
+												<li th:each="beneficio : ${plan.beneficios}">
+													<i class="fas fa-check text-success me-2"></i>
+													<span th:text="${beneficio.nombre}"></span>
+													<small th:if="${beneficio.descripcion}" class="text-muted d-block"
+														th:text="${beneficio.descripcion}"></small>
+												</li>
+											</ul> -->
+								</div>
+								<div class="card-footer text-center">
+									<button type="button" class="btn btn-primary btn-select-plan w-100">
+										Seleccionar Plan
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Plan seleccionado (oculto) -->
+					<input type="hidden" name="planId" id="selectedPlanId" required>
+
+					<!-- Resumen del plan seleccionado -->
+					<div id="planSummary" style="display: none;" class="alert alert-info">
+						<h5>Plan Seleccionado:</h5>
+						<div id="planSummaryContent"></div>
+					</div>
+
+					<!-- Métodos de Pago -->
+					<div id="paymentSection" style="display: none;">
+						<h4 class="mb-3">
+							<i class="fas fa-credit-card me-2"></i>
+							Método de Pago
+						</h4>
+
+						<div class="row">
+							<div class="col-md-6 mb-3">
+								<div class="payment-method-card card h-100" data-method="tarjeta">
+									<div class="card-body text-center">
+										<i class="fas fa-credit-card fa-3x text-primary mb-3"></i>
+										<h5>Tarjeta de Crédito/Débito</h5>
+										<p class="text-muted">Visa, MasterCard, American Express</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6 mb-3">
+								<div class="payment-method-card card h-100" data-method="paypal">
+									<div class="card-body text-center">
+										<i class="fab fa-paypal fa-3x text-primary mb-3"></i>
+										<h5>PayPal</h5>
+										<p class="text-muted">Pago seguro con tu cuenta PayPal</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<input type="hidden" name="metodoPago" id="selectedPaymentMethod" required>
+
+						<!-- Formulario de tarjeta -->
+						<div id="cardForm" style="display: none;" class="mt-4">
+							<div class="card">
+								<div class="card-header">
+									<h6 class="mb-0">Datos de la Tarjeta</h6>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-6 mb-3">
+											<label for="numeroTarjeta" class="form-label">Número de Tarjeta</label>
+											<input type="text" class="form-control" id="numeroTarjeta" name="numeroTarjeta"
+												placeholder="1234 5678 9012 3456" maxlength="19">
+										</div>
+										<div class="col-md-6 mb-3">
+											<label for="nombreTitular" class="form-label">Nombre del Titular</label>
+											<input type="text" class="form-control" id="nombreTitular" name="nombreTitular"
+												placeholder="Como aparece en la tarjeta">
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4 mb-3">
+											<label for="mesVencimiento" class="form-label">Mes</label>
+											<select class="form-select" id="mesVencimiento" name="mesVencimiento">
+												<option value="">Mes</option>
+												<option th:each="i : ${#numbers.sequence(1, 12)}" th:value="${i}"
+													th:text="${#strings.toString(i).length() == 1 ? '0' + i : i}">
+												</option>
+											</select>
+										</div>
+										<div class="col-md-4 mb-3">
+											<label for="anioVencimiento" class="form-label">Año</label>
+											<select class="form-select" id="anioVencimiento" name="anioVencimiento">
+												<option value="">Año</option>
+												<option th:each="i : ${#numbers.sequence(2024, 2034)}" th:value="${i}" th:text="${i}">
+												</option>
+											</select>
+										</div>
+										<div class="col-md-4 mb-3">
+											<label for="cvv" class="form-label">CVV</label>
+											<input type="text" class="form-control" id="cvv" name="cvv" placeholder="123" maxlength="4">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Información de PayPal -->
+						<div id="paypalInfo" style="display: none;" class="mt-4">
+							<div class="alert alert-info">
+								<i class="fab fa-paypal me-2"></i>
+								Serás redirigido a PayPal para completar el pago de forma segura.
+							</div>
+						</div>
+					</div>
+
+					<!-- Términos y condiciones -->
+					<div id="termsSection" style="display: none;" class="mt-4">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="aceptarTerminos" name="aceptarTerminos" required>
+							<label class="form-check-label" for="aceptarTerminos">
+								Acepto los <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">términos y
+									condiciones</a>
+								y la <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">política de privacidad</a>
+							</label>
+						</div>
+						<div class="form-check mt-2">
+							<input class="form-check-input" type="checkbox" id="renovacionAutomatica" name="renovacionAutomatica"
+								checked>
+							<label class="form-check-label" for="renovacionAutomatica">
+								Activar renovación automática
+								<small class="text-muted d-block">Puedes cancelar en cualquier momento</small>
+							</label>
+						</div>
+					</div>
+
+					<!-- Botones de acción -->
+					<div class="d-flex justify-content-between mt-4">
+						<a th:href="@{/planes}" class="btn btn-secondary">
+							<i class="fas fa-arrow-left me-2"></i>Volver
+						</a>
+						<button type="submit" id="submitBtn" class="btn btn-success btn-lg" disabled>
+							<i class="fas fa-lock me-2"></i>
+							Procesar Suscripción
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+
+		<!-- Modal de Términos y Condiciones -->
+		<div class="modal fade" id="termsModal" tabindex="-1">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Términos y Condiciones</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<h6>1. Suscripción y Pagos</h6>
+						<p>Al suscribirte, aceptas el pago recurrente mensual según el plan seleccionado.</p>
+
+						<h6>2. Acceso al Contenido</h6>
+						<p>El acceso al contenido está limitado a la duración de tu suscripción activa.</p>
+
+						<h6>3. Cancelación</h6>
+						<p>Puedes cancelar tu suscripción en cualquier momento desde tu cuenta.</p>
+
+						<h6>4. Política de Reembolso</h6>
+						<p>Los reembolsos se procesan según nuestra política de 30 días.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal de Política de Privacidad -->
+		<div class="modal fade" id="privacyModal" tabindex="-1">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Política de Privacidad</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<h6>Recopilación de Datos</h6>
+						<p>Recopilamos información necesaria para procesar tu suscripción y mejorar nuestros servicios.</p>
+
+						<h6>Uso de la Información</h6>
+						<p>Tu información se utiliza únicamente para gestionar tu cuenta y suscripción.</p>
+
+						<h6>Seguridad</h6>
+						<p>Implementamos medidas de seguridad para proteger tu información personal y de pago.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<th:block th:fragment="pageSpecificScripts">
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const planCards = document.querySelectorAll('.plan-card');
+				const paymentCards = document.querySelectorAll('.payment-method-card');
+				const paymentSection = document.getElementById('paymentSection');
+				const termsSection = document.getElementById('termsSection');
+				const planSummary = document.getElementById('planSummary');
+				const submitBtn = document.getElementById('submitBtn');
+				const cardForm = document.getElementById('cardForm');
+				const paypalInfo = document.getElementById('paypalInfo');
+				const numeroTarjetaInput = document.getElementById('numeroTarjeta');
+
+				let selectedPlan = null;
+				let selectedPaymentMethod = null;
+
+				// Selección de plan
+				planCards.forEach(card => {
+					card.addEventListener('click', function () {
+						planCards.forEach(c => c.classList.remove('selected'));
+						this.classList.add('selected');
+
+						selectedPlan = this.dataset.planId;
+						document.getElementById('selectedPlanId').value = selectedPlan;
+
+						// Mostrar resumen del plan
+						const planName = this.querySelector('h5').textContent;
+						const planPrice = this.querySelector('h2 span').textContent;
+						planSummary.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${planName}</strong>
+                                <div class="text-muted">S/. ${planPrice}/mes</div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="changePlan()">
+                                Cambiar
+                            </button>
+                        </div>
+                    `;
+						planSummary.style.display = 'block';
+						paymentSection.style.display = 'block';
+
+						updateSteps();
+						checkFormCompletion();
+					});
+				});
+
+				// Selección de método de pago
+				paymentCards.forEach(card => {
+					card.addEventListener('click', function () {
+						paymentCards.forEach(c => c.classList.remove('selected'));
+						this.classList.add('selected');
+
+						selectedPaymentMethod = this.dataset.method;
+						document.getElementById('selectedPaymentMethod').value = selectedPaymentMethod;
+
+						// Mostrar formulario correspondiente
+						if (selectedPaymentMethod === 'tarjeta') {
+							cardForm.style.display = 'block';
+							paypalInfo.style.display = 'none';
+						} else {
+							cardForm.style.display = 'none';
+							paypalInfo.style.display = 'block';
+						}
+
+						termsSection.style.display = 'block';
+						checkFormCompletion();
+					});
+				});
+
+				// Formatear número de tarjeta
+				if (numeroTarjetaInput) {
+					numeroTarjetaInput.addEventListener('input', function () {
+						let value = this.value.replace(/\s/g, '').replace(/\D/g, '');
+						value = value.substring(0, 16);
+						value = value.replace(/(.{4})/g, '$1 ').trim();
+						this.value = value;
+					});
+				}
+
+				// Validar CVV
+				const cvvInput = document.getElementById('cvv');
+				if (cvvInput) {
+					cvvInput.addEventListener('input', function () {
+						this.value = this.value.replace(/\D/g, '').substring(0, 4);
+					});
+				}
+
+				// Verificar completitud del formulario
+				function checkFormCompletion() {
+					const termsAccepted = document.getElementById('aceptarTerminos')?.checked;
+					let paymentComplete = false;
+
+					if (selectedPaymentMethod === 'tarjeta') {
+						const numero = document.getElementById('numeroTarjeta')?.value;
+						const nombre = document.getElementById('nombreTitular')?.value;
+						const mes = document.getElementById('mesVencimiento')?.value;
+						const anio = document.getElementById('anioVencimiento')?.value;
+						const cvv = document.getElementById('cvv')?.value;
+
+						paymentComplete = numero && nombre && mes && anio && cvv &&
+							numero.replace(/\s/g, '').length >= 13 &&
+							cvv.length >= 3;
+					} else if (selectedPaymentMethod === 'paypal') {
+						paymentComplete = true;
+					}
+
+					submitBtn.disabled = !(selectedPlan && selectedPaymentMethod && paymentComplete && termsAccepted);
+				}
+
+				// Event listeners para validación
+				document.getElementById('aceptarTerminos')?.addEventListener('change', checkFormCompletion);
+				document.querySelectorAll('#cardForm input, #cardForm select').forEach(input => {
+					input.addEventListener('input', checkFormCompletion);
+					input.addEventListener('change', checkFormCompletion);
+				});
+
+				function updateSteps() {
+					const steps = document.querySelectorAll('.step');
+					steps[0].classList.remove('active');
+					steps[0].classList.add('completed');
+					steps[1].classList.add('active');
+				}
+
+				// Función global para cambiar plan
+				window.changePlan = function () {
+					planCards.forEach(c => c.classList.remove('selected'));
+					planSummary.style.display = 'none';
+					paymentSection.style.display = 'none';
+					termsSection.style.display = 'none';
+					selectedPlan = null;
+					selectedPaymentMethod = null;
+					document.getElementById('selectedPlanId').value = '';
+					document.getElementById('selectedPaymentMethod').value = '';
+					submitBtn.disabled = true;
+
+					const steps = document.querySelectorAll('.step'); steps[0].classList.remove('completed');
+					steps[0].classList.add('active');
+					steps[1].classList.remove('active');
+					steps[1].classList.add('pending');
+				};
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

@@ -5,11 +5,15 @@ import java.util.Optional;
 
 import com.biblioteca.dto.comercial.SuscripcionRequestDTO;
 import com.biblioteca.dto.comercial.SuscripcionResponseDTO;
+import com.biblioteca.models.acceso.Usuario;
+import com.biblioteca.models.comercial.Plan;
 import com.biblioteca.models.comercial.Suscripcion;
 
 public interface SuscripcionService {
   // Operaciones CRUD básicas
   SuscripcionResponseDTO crearSuscripcion(SuscripcionRequestDTO suscripcionDTO);
+
+  void crearSuscripcionBasicaGratuita(Usuario usuario, Plan planBasico);
 
   Optional<SuscripcionResponseDTO> obtenerSuscripcionPorId(Long id);
 
@@ -30,6 +34,8 @@ public interface SuscripcionService {
   SuscripcionResponseDTO renovarSuscripcion(Long id);
 
   SuscripcionResponseDTO cambiarPlan(Long id, Long nuevoPlanId);
+
+  SuscripcionResponseDTO cambiarPlan(Long id, Long nuevoPlanId, String modalidadPago);
 
   boolean cancelarSuscripcion(Long id);
 

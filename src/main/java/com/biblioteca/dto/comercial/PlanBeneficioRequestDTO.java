@@ -18,5 +18,5 @@ public class PlanBeneficioRequestDTO {
     private Long beneficioId;
     
     private String valor;
-    private boolean activo;
+    private Boolean activo;
 }

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Política de Privacidad - Biblioteca Virtual',
+          pageAdditionalCss=~{::privacidadCss},
+          pageContent=~{::privacidadContent},
+          pageAdditionalScripts=~{::privacidadScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="privacidadCss">
+    <style>
+      .privacy-hero {
+        background: linear-gradient(135deg, rgba(45, 110, 126, 0.9), rgba(91, 125, 135, 0.8)),
+          url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 6rem 0 4rem 0;
+      }
+
+      .privacy-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .privacy-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      .data-type {
+        background: rgba(45, 110, 126, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border-left: 4px solid var(--bs-primary);
+      }
+
+      .rights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
+
+      .right-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .right-card:hover {
+        background: rgba(45, 110, 126, 0.05);
+        transform: translateY(-3px);
+      }
+
+      .right-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--bs-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+      }
+
+      .privacy-toc {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        position: sticky;
+        top: 100px;
+      }
+
+      .privacy-toc a {
+        display: block;
+        padding: 0.75rem 0;
+        color: var(--bs-primary);
+        text-decoration: none;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+      }
+
+      .privacy-toc a:hover {
+        color: var(--bs-primary-darker);
+        padding-left: 15px;
+      }
+
+      .privacy-toc a:last-child {
+        border-bottom: none;
+      }
+
+      .contact-privacy {
+        background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+        color: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 2rem;
+      }
+
+      .gdpr-badge {
+        background: var(--bs-success);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin: 0.5rem;
+      }
+
+      @media (max-width: 991px) {
+        .privacy-toc {
+          position: static;
+          margin-bottom: 2rem;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <th:block th:fragment="privacidadContent">
+    <!-- Hero Section -->
+    <section class="privacy-hero">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <h1 class="display-4 fw-bold mb-4">Política de Privacidad</h1>
+            <p class="lead mb-4">
+              Protegemos su privacidad y datos personales con los más altos estándares de seguridad
+            </p>
+            <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap">
+              <span class="gdpr-badge">GDPR Compliant</span>
+              <span class="gdpr-badge">LGPD Compatible</span>
+              <span class="gdpr-badge">Última actualización: Nov 2023</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container py-5">
+      <div class="row">
+        <!-- Índice -->
+        <div class="col-lg-4">
+          <div class="privacy-toc">
+            <h5 class="fw-bold mb-3">Contenidos</h5>
+            <a href="#introduccion">1. Introducción</a>
+            <a href="#responsable">2. Responsable del Tratamiento</a>
+            <a href="#recopilamos">3. Información que Recopilamos</a>
+            <a href="#como-usamos">4. Cómo Usamos su Información</a>
+            <a href="#compartimos">5. Compartir Información</a>
+            <a href="#seguridad">6. Seguridad de Datos</a>
+            <a href="#derechos">7. Sus Derechos</a>
+            <a href="#cookies">8. Cookies y Tecnologías</a>
+            <a href="#menores">9. Privacidad de Menores</a>
+            <a href="#cambios">10. Cambios en la Política</a>
+            <a href="#contacto-privacy">11. Contacto</a>
+          </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="col-lg-8">
+          <!-- 1. Introducción -->
+          <div class="privacy-card" id="introduccion">
+            <h3 class="text-primary fw-bold mb-3">1. Introducción</h3>
+            <p class="lead">
+              En BiblioVirtual, valoramos y respetamos su privacidad. Esta Política de Privacidad
+              explica cómo recopilamos, utilizamos, protegemos y compartimos su información personal
+              cuando utiliza nuestros servicios.
+            </p>
+            <p>
+              Nos comprometemos a cumplir con las leyes de protección de datos aplicables,
+              incluyendo el RGPD europeo y la Ley de Protección de Datos Personales del Perú.
+            </p>
+          </div>
+
+          <!-- 2. Responsable del Tratamiento -->
+          <div class="privacy-card" id="responsable">
+            <h3 class="text-primary fw-bold mb-3">2. Responsable del Tratamiento de Datos</h3>
+            <div class="data-type">
+              <h5>BiblioVirtual S.A.C.</h5>
+              <p class="mb-2"><strong>Dirección:</strong> Av. Tecnológica 123, Lima, Perú 15001</p>
+              <p class="mb-2"><strong>Email:</strong> privacidad@bibliovirtual.com</p>
+              <p class="mb-2"><strong>Teléfono:</strong> +51 1 456 7890</p>
+              <p class="mb-0"><strong>Representante de Protección de Datos:</strong> Ana García - dpo@bibliovirtual.com
+              </p>
+            </div>
+          </div>
+
+          <!-- 3. Información que Recopilamos -->
+          <div class="privacy-card" id="recopilamos">
+            <h3 class="text-primary fw-bold mb-3">3. Información que Recopilamos</h3>
+
+            <div class="data-type">
+              <h5><i class="bi bi-person me-2"></i>Información Personal</h5>
+              <ul class="mb-0">
+                <li>Nombre completo y fecha de nacimiento</li>
+                <li>Dirección de correo electrónico</li>
+                <li>Número de teléfono (opcional)</li>
+                <li>Información de facturación y dirección</li>
+                <li>Preferencias de lectura e idioma</li>
+              </ul>
+            </div>
+
+            <div class="data-type">
+              <h5><i class="bi bi-book me-2"></i>Información de Uso</h5>
+              <ul class="mb-0">
+                <li>Historial de lectura y favoritos</li>
+                <li>Tiempo de lectura y progreso en libros</li>
+                <li>Búsquedas realizadas</li>
+                <li>Reseñas y valoraciones</li>
+                <li>Configuraciones de la aplicación</li>
+              </ul>
+            </div>
+
+            <div class="data-type">
+              <h5><i class="bi bi-laptop me-2"></i>Información Técnica</h5>
+              <ul class="mb-0">
+                <li>Dirección IP y ubicación aproximada</li>
+                <li>Tipo de dispositivo y sistema operativo</li>
+                <li>Navegador web utilizado</li>
+                <li>Logs de actividad del sistema</li>
+                <li>Cookies y tecnologías similares</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 4. Cómo Usamos su Información -->
+          <div class="privacy-card" id="como-usamos">
+            <h3 class="text-primary fw-bold mb-3">4. Cómo Usamos su Información</h3>
+            <p>Utilizamos su información personal para:</p>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-check-circle text-success me-3 mt-1"></i>
+                  <div>
+                    <strong>Prestación del Servicio</strong>
+                    <p class="text-muted small mb-0">Proporcionar acceso a nuestro catálogo y funciones de la plataforma
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-check-circle text-success me-3 mt-1"></i>
+                  <div>
+                    <strong>Personalización</strong>
+                    <p class="text-muted small mb-0">Recomendar contenido basado en sus preferencias</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-check-circle text-success me-3 mt-1"></i>
+                  <div>
+                    <strong>Comunicación</strong>
+                    <p class="text-muted small mb-0">Enviar notificaciones importantes y actualizaciones</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-check-circle text-success me-3 mt-1"></i>
+                  <div>
+                    <strong>Mejora del Servicio</strong>
+                    <p class="text-muted small mb-0">Analizar el uso para mejorar nuestros servicios</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Compartir Información -->
+          <div class="privacy-card" id="compartimos">
+            <h3 class="text-primary fw-bold mb-3">5. Cuándo Compartimos su Información</h3>
+            <p>Solo compartimos su información en circunstancias específicas:</p>
+
+            <div class="data-type">
+              <h5>Proveedores de Servicios</h5>
+              <p>Compartimos datos con proveedores que nos ayudan a operar la plataforma (procesamiento de pagos,
+                hosting, análisis) bajo estrictos acuerdos de confidencialidad.</p>
+            </div>
+
+            <div class="data-type">
+              <h5>Requerimientos Legales</h5>
+              <p>Podemos divulgar información cuando lo requiera la ley, una orden judicial o para proteger nuestros
+                derechos legales.</p>
+            </div>
+
+            <div class="data-type">
+              <h5>Con su Consentimiento</h5>
+              <p>Compartimos información adicional solo cuando usted lo autorice expresamente.</p>
+            </div>
+          </div>
+
+          <!-- 6. Seguridad -->
+          <div class="privacy-card" id="seguridad">
+            <h3 class="text-primary fw-bold mb-3">6. Seguridad de sus Datos</h3>
+            <p>Implementamos múltiples capas de seguridad para proteger su información:</p>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="text-center">
+                  <i class="bi bi-shield-check text-primary fs-2 mb-2"></i>
+                  <h6>Encriptación SSL/TLS</h6>
+                  <p class="text-muted small">Todas las comunicaciones están encriptadas</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="text-center">
+                  <i class="bi bi-server text-primary fs-2 mb-2"></i>
+                  <h6>Servidores Seguros</h6>
+                  <p class="text-muted small">Infraestructura protegida con firewalls</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="text-center">
+                  <i class="bi bi-key text-primary fs-2 mb-2"></i>
+                  <h6>Acceso Controlado</h6>
+                  <p class="text-muted small">Solo personal autorizado accede a los datos</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="text-center">
+                  <i class="bi bi-arrow-clockwise text-primary fs-2 mb-2"></i>
+                  <h6>Backups Regulares</h6>
+                  <p class="text-muted small">Copias de seguridad automáticas</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Sus Derechos -->
+          <div class="privacy-card" id="derechos">
+            <h3 class="text-primary fw-bold mb-3">7. Sus Derechos de Privacidad</h3>
+            <p>Usted tiene los siguientes derechos sobre sus datos personales:</p>
+
+            <div class="rights-grid">
+              <div class="right-card">
+                <div class="right-icon">
+                  <i class="bi bi-eye"></i>
+                </div>
+                <h6 class="fw-bold">Acceso</h6>
+                <p class="text-muted small mb-0">Solicitar una copia de sus datos personales</p>
+              </div>
+
+              <div class="right-card">
+                <div class="right-icon">
+                  <i class="bi bi-pencil"></i>
+                </div>
+                <h6 class="fw-bold">Rectificación</h6>
+                <p class="text-muted small mb-0">Corregir información inexacta o incompleta</p>
+              </div>
+
+              <div class="right-card">
+                <div class="right-icon">
+                  <i class="bi bi-trash"></i>
+                </div>
+                <h6 class="fw-bold">Eliminación</h6>
+                <p class="text-muted small mb-0">Solicitar la eliminación de sus datos</p>
+              </div>
+
+              <div class="right-card">
+                <div class="right-icon">
+                  <i class="bi bi-pause-circle"></i>
+                </div>
+                <h6 class="fw-bold">Limitación</h6>
+                <p class="text-muted small mb-0">Restringir el procesamiento de sus datos</p>
+              </div>
+
+              <div class="right-card">
+                <div class="right-icon">
+                  <i class="bi bi-arrow-right-circle"></i>
+                </div>
+                <h6 class="fw-bold">Portabilidad</h6>
+                <p class="text-muted small mb-0">Transferir sus datos a otro servicio</p>
+              </div>
+
+              <div class="right-card">
+                <div class="right-icon">
+                  <i class="bi bi-x-circle"></i>
+                </div>
+                <h6 class="fw-bold">Oposición</h6>
+                <p class="text-muted small mb-0">Oponerse al procesamiento de sus datos</p>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <a href="mailto:privacidad@bibliovirtual.com" class="btn btn-primary">
+                <i class="bi bi-envelope me-2"></i>Ejercer mis Derechos
+              </a>
+            </div>
+          </div>
+
+          <!-- 8. Cookies -->
+          <div class="privacy-card" id="cookies">
+            <h3 class="text-primary fw-bold mb-3">8. Cookies y Tecnologías Similares</h3>
+            <p>Utilizamos cookies para mejorar su experiencia:</p>
+
+            <div class="data-type">
+              <h5>Cookies Esenciales</h5>
+              <p>Necesarias para el funcionamiento básico de la plataforma (sesión, seguridad).</p>
+            </div>
+
+            <div class="data-type">
+              <h5>Cookies de Rendimiento</h5>
+              <p>Nos ayudan a entender cómo utiliza nuestro sitio para mejorarlo.</p>
+            </div>
+
+            <div class="data-type">
+              <h5>Cookies de Personalización</h5>
+              <p>Permiten recordar sus preferencias y personalizar su experiencia.</p>
+            </div>
+
+            <p class="text-muted">
+              Puede gestionar las cookies desde la configuración de su navegador o desde
+              nuestro panel de preferencias de cookies.
+            </p>
+          </div>
+
+          <!-- 9. Menores -->
+          <div class="privacy-card" id="menores">
+            <h3 class="text-primary fw-bold mb-3">9. Privacidad de Menores de Edad</h3>
+            <p>
+              BiblioVirtual está comprometido con la protección de la privacidad de los menores.
+              Los usuarios menores de 14 años requieren consentimiento parental para crear una cuenta.
+            </p>
+            <div class="data-type">
+              <h5>Protecciones Especiales</h5>
+              <ul class="mb-0">
+                <li>Recopilación mínima de datos para menores</li>
+                <li>Configuraciones de privacidad más restrictivas</li>
+                <li>Sin publicidad dirigida a menores</li>
+                <li>Supervisión parental disponible</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 10. Cambios -->
+          <div class="privacy-card" id="cambios">
+            <h3 class="text-primary fw-bold mb-3">10. Cambios en esta Política</h3>
+            <p>
+              Podemos actualizar esta Política de Privacidad ocasionalmente. Los cambios
+              significativos se notificarán con al menos 30 días de anticipación a través
+              de correo electrónico o notificaciones en la plataforma.
+            </p>
+            <p class="text-muted">
+              Le recomendamos revisar esta política periódicamente para mantenerse informado
+              sobre cómo protegemos su información.
+            </p>
+          </div>
+
+          <!-- 11. Contacto -->
+          <div class="contact-privacy" id="contacto-privacy">
+            <h3 class="fw-bold mb-3">¿Preguntas sobre Privacidad?</h3>
+            <p class="mb-4">
+              Si tiene preguntas sobre esta Política de Privacidad o sobre cómo manejamos
+              sus datos personales, no dude en contactarnos.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <a href="mailto:privacidad@bibliovirtual.com" class="btn btn-light btn-lg w-100">
+                  <i class="bi bi-envelope me-2"></i>privacidad@bibliovirtual.com
+                </a>
+              </div>
+              <div class="col-md-6">
+                <a th:href="@{/contacto}" class="btn btn-outline-light btn-lg w-100">
+                  <i class="bi bi-chat-dots me-2"></i>Formulario de Contacto
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="privacidadScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Smooth scroll para enlaces internos
+        document.querySelectorAll('.privacy-toc a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          });
+        });
+
+        // Highlight de sección activa
+        const sections = document.querySelectorAll('.privacy-card');
+        const tocLinks = document.querySelectorAll('.privacy-toc a');
+
+        function highlightActiveSection() {
+          let current = '';
+          sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 200) {
+              current = section.getAttribute('id');
+            }
+          });
+
+          tocLinks.forEach(link => {
+            link.style.fontWeight = 'normal';
+            if (link.getAttribute('href') === '#' + current) {
+              link.style.fontWeight = 'bold';
+            }
+          });
+        }
+
+        window.addEventListener('scroll', highlightActiveSection);
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

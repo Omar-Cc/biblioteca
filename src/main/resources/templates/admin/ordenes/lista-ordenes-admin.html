@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Gestión de Órdenes',
+          pageAdditionalCss=~{::ordenesCss},
+          pageContent=~{::ordenesContent},
+          pageAdditionalScripts=~{::ordenesScripts}
+      )}">
+
+<head>
+	<th:block th:fragment="ordenesCss">
+		<style>
+			.orden-card {
+				transition: all 0.3s ease;
+				border: 1px solid rgba(0, 0, 0, 0.125);
+			}
+
+			.orden-card:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+			}
+
+			.estado-badge {
+				font-size: 0.75rem;
+				padding: 0.375rem 0.75rem;
+				border-radius: 1rem;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			.estado-pendiente {
+				background: linear-gradient(135deg, #fbbf24, #f59e0b);
+				color: white;
+			}
+
+			.estado-procesando {
+				background: linear-gradient(135deg, #3b82f6, #2563eb);
+				color: white;
+			}
+
+			.estado-completada {
+				background: linear-gradient(135deg, #10b981, #059669);
+				color: white;
+			}
+
+			.estado-cancelada {
+				background: linear-gradient(135deg, #ef4444, #dc2626);
+				color: white;
+			}
+
+			.estado-fallida {
+				background: linear-gradient(135deg, #6b7280, #4b5563);
+				color: white;
+			}
+
+			.stats-card {
+				background: linear-gradient(135deg, #ffffff, #f8fafc);
+				border: 1px solid rgba(148, 163, 184, 0.2);
+				border-radius: 1rem;
+				transition: all 0.3s ease;
+			}
+
+			.stats-card:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+			}
+
+			.stats-icon {
+				width: 3rem;
+				height: 3rem;
+				border-radius: 1rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 1.25rem;
+				color: white;
+			}
+
+			.precio-formato {
+				font-family: 'JetBrains Mono', monospace;
+				font-weight: 600;
+			}
+
+			.table-hover tbody tr:hover {
+				background-color: rgba(45, 110, 126, 0.05);
+			}
+
+			.action-btn {
+				width: 2.25rem;
+				height: 2.25rem;
+				border-radius: 0.5rem;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.2s ease;
+			}
+
+			.action-btn:hover {
+				transform: scale(1.05);
+			}
+
+			.filtros-card {
+				background: rgba(45, 110, 126, 0.05);
+				border: 1px solid rgba(45, 110, 126, 0.1);
+				border-radius: 1rem;
+			}
+
+			.saldo-positivo {
+				color: #059669;
+				font-weight: 600;
+			}
+
+			.saldo-pendiente {
+				color: #dc2626;
+				font-weight: 600;
+			}
+
+			.saldo-cero {
+				color: #6b7280;
+				font-weight: 500;
+			}
+		</style>
+	</th:block>
+</head>
+
+<body>
+	<div th:fragment="ordenesContent" class="container-fluid py-4">
+
+		<!-- Header con título y acciones -->
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<div>
+				<h1 class="h3 mb-0">Gestión de Órdenes</h1>
+				<p class="text-muted mb-0">Administrar todas las órdenes del sistema</p>
+			</div>
+			<div class="d-flex gap-2">
+				<button class="btn btn-outline-primary" onclick="exportarOrdenes()">
+					<i class="bi bi-download me-2"></i>Exportar
+				</button>
+				<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filtrosModal">
+					<i class="bi bi-funnel me-2"></i>Filtros
+				</button>
+			</div>
+		</div>
+
+		<!-- Alertas -->
+		<div th:replace="~{fragmentos/componentes/alerts :: alerts}"></div>
+
+		<!-- Estadísticas rápidas -->
+		<div class="row mb-4">
+			<div class="col-md-3 mb-3">
+				<div class="stats-card p-3">
+					<div class="d-flex align-items-center">
+						<div class="stats-icon me-3" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+							<i class="bi bi-cart-check"></i>
+						</div>
+						<div>
+							<h6 class="mb-1 text-muted">Total Órdenes</h6>
+							<h4 class="mb-0" th:text="${#lists.size(ordenes)}">0</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 mb-3">
+				<div class="stats-card p-3">
+					<div class="d-flex align-items-center">
+						<div class="stats-icon me-3" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">
+							<i class="bi bi-clock"></i>
+						</div>
+						<div>
+							<h6 class="mb-1 text-muted">Pendientes</h6>
+							<h4 class="mb-0" id="pendientesCount">0</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 mb-3">
+				<div class="stats-card p-3">
+					<div class="d-flex align-items-center">
+						<div class="stats-icon me-3" style="background: linear-gradient(135deg, #10b981, #059669);">
+							<i class="bi bi-check-circle"></i>
+						</div>
+						<div>
+							<h6 class="mb-1 text-muted">Completadas</h6>
+							<h4 class="mb-0" id="completadasCount">0</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 mb-3">
+				<div class="stats-card p-3">
+					<div class="d-flex align-items-center">
+						<div class="stats-icon me-3" style="background: linear-gradient(135deg, #2d6e7e, #1e5f6f);">
+							<i class="bi bi-currency-dollar"></i>
+						</div>
+						<div>
+							<h6 class="mb-1 text-muted">Ingresos Totales</h6>
+							<h4 class="mb-0 precio-formato" id="ingresosTotal">$0.00</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Tabla de órdenes -->
+		<div class="card">
+			<div class="card-header bg-white border-bottom">
+				<div class="row align-items-center">
+					<div class="col">
+						<h5 class="mb-0">Lista de Órdenes</h5>
+					</div>
+					<div class="col-auto">
+						<div class="input-group input-group-sm" style="width: 250px;">
+							<span class="input-group-text"><i class="bi bi-search"></i></span>
+							<input type="text" class="form-control" placeholder="Buscar órdenes..." id="searchInput">
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card-body p-3">
+				<div class="table-responsive">
+					<table class="table table-hover mb-0 datatable">
+						<thead class="table-light">
+							<tr>
+								<th style="width: 80px;">ID</th>
+								<th>Cliente</th>
+								<th>Fecha</th>
+								<th>Items</th>
+								<th>Total</th>
+								<th>Pagado</th>
+								<th>Saldo</th>
+								<th>Estado</th>
+								<th style="width: 120px;">Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="orden : ${ordenes}">
+								<td>
+									<span class="badge bg-light text-dark">#<span th:text="${orden.id}">1</span></span>
+								</td>
+								<td>
+									<div class="d-flex align-items-center">
+										<div class="avatar-sm me-2">
+											<div class="avatar-title rounded-circle bg-primary text-white"
+												style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
+												<span
+													th:text="${orden.perfilNombre != null ? orden.perfilNombre.substring(0,1).toUpperCase() : 'U'}">U</span>
+											</div>
+										</div>
+										<div>
+											<h6 class="mb-0" th:text="${orden.perfilNombre ?: 'Usuario desconocido'}">Cliente</h6>
+											<small class="text-muted">ID: <span th:text="${orden.perfilId}">0</span></small>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div>
+										<span th:text="${#temporals.format(orden.fechaCreacion, 'dd/MM/yyyy')}">01/01/2024</span>
+										<br>
+										<small class="text-muted" th:text="${#temporals.format(orden.fechaCreacion, 'HH:mm')}">00:00</small>
+									</div>
+								</td>
+								<td>
+									<span class="badge bg-info">
+										<span th:text="${orden.cantidadItems ?: 0}">0</span> items
+									</span>
+								</td>
+								<td>
+									<span class="precio-formato fw-bold">
+										S/. <span th:text="${#numbers.formatDecimal((orden.totalOrden ?: 0) / 100.0, 1, 2)}">0.00</span>
+									</span>
+									<br>
+									<small class="text-muted">
+										Subtotal: S/. <span
+											th:text="${#numbers.formatDecimal((orden.subtotal ?: 0) / 100.0, 1, 2)}">0.00</span>
+									</small>
+								</td>
+								<td>
+									<span class="precio-formato text-success">
+										S/. <span th:text="${#numbers.formatDecimal((orden.totalPagado ?: 0) / 100.0, 1, 2)}">0.00</span>
+									</span>
+								</td>
+								<td>
+									<span th:class="${(orden.saldoPendiente ?: 0) > 0 ? 'precio-formato saldo-pendiente' : 
+                                   (orden.saldoPendiente ?: 0) < 0 ? 'precio-formato saldo-positivo' : 
+                                   'precio-formato saldo-cero'}">
+										S/. <span
+											th:text="${#numbers.formatDecimal(T(java.lang.Math).abs((orden.saldoPendiente ?: 0) / 100.0), 1, 2)}">0.00</span>
+									</span>
+								</td>
+								<td>
+									<span th:class="'estado-badge estado-' + ${#strings.toLowerCase(orden.estadoOrden ?: 'pendiente')}"
+										th:text="${orden.estadoOrden ?: 'Pendiente'}">
+										Pendiente
+									</span>
+								</td>
+								<td>
+									<div class="d-flex gap-1">
+										<a th:href="@{/admin/ordenes/{id}(id=${orden.id})}"
+											class="btn btn-sm btn-outline-primary action-btn" data-bs-toggle="tooltip" title="Ver detalles">
+											<i class="bi bi-eye"></i>
+										</a>
+										<div class="dropdown">
+											<button class="btn btn-sm btn-outline-secondary action-btn dropdown-toggle" type="button"
+												data-bs-toggle="dropdown">
+												<i class="bi bi-three-dots"></i>
+											</button>
+											<ul class="dropdown-menu dropdown-menu-end">
+												<li>
+													<h6 class="dropdown-header">Cambiar Estado</h6>
+												</li>
+												<li th:if="${orden.estadoOrden == 'Pendiente'}">
+													<button class="dropdown-item"
+														th:onclick="'cambiarEstado(' + ${orden.id} + ', \'Procesando\')'">
+														<i class="bi bi-arrow-right text-primary me-2"></i>Procesar
+													</button>
+												</li>
+												<li th:if="${orden.estadoOrden == 'Procesando' or orden.estadoOrden == 'Procesada'}">
+													<button class="dropdown-item"
+														th:onclick="'cambiarEstado(' + ${orden.id} + ', \'Completada\')'">
+														<i class="bi bi-check-circle text-success me-2"></i>Completar
+													</button>
+												</li>
+												<li th:if="${orden.estadoOrden != 'Cancelada' and orden.estadoOrden != 'Completada'}">
+													<button class="dropdown-item text-danger" th:onclick="'cancelarOrden(' + ${orden.id} + ')'">
+														<i class="bi bi-x-circle me-2"></i>Cancelar
+													</button>
+												</li>
+												<li>
+													<hr class="dropdown-divider">
+												</li>
+												<li>
+													<a class="dropdown-item" th:href="@{/admin/ordenes/{id}(id=${orden.id})}">
+														<i class="bi bi-receipt me-2"></i>Ver Factura
+													</a>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal para cancelar orden -->
+		<div class="modal fade" id="cancelarOrdenModal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Cancelar Orden</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<form id="cancelarOrdenForm" method="post">
+						<div class="modal-body">
+							<div class="mb-3">
+								<label for="motivoCancelacion" class="form-label required-field">Motivo de cancelación</label>
+								<textarea class="form-control" id="motivoCancelacion" name="motivo" rows="3"
+									placeholder="Ingrese el motivo de la cancelación..." required></textarea>
+							</div>
+							<div class="alert alert-warning">
+								<i class="bi bi-exclamation-triangle me-2"></i>
+								<strong>Atención:</strong> Esta acción no se puede deshacer. La orden será marcada como cancelada.
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+							<button type="submit" class="btn btn-danger">
+								<i class="bi bi-x-circle me-2"></i>Cancelar Orden
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal de filtros -->
+		<div class="modal fade" id="filtrosModal" tabindex="-1">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Filtros Avanzados</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<form id="filtrosForm">
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Estado</label>
+									<select class="form-select" name="estado">
+										<option value="">Todos los estados</option>
+										<option value="Pendiente">Pendiente</option>
+										<option value="Procesando">Procesando</option>
+										<option value="Completada">Completada</option>
+										<option value="Cancelada">Cancelada</option>
+										<option value="Fallida">Fallida</option>
+									</select>
+								</div>
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Rango de fechas</label>
+									<input type="date" class="form-control mb-2" name="fechaInicio" placeholder="Fecha inicio">
+									<input type="date" class="form-control" name="fechaFin" placeholder="Fecha fin">
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Monto mínimo</label>
+									<input type="number" class="form-control" name="montoMin" step="0.01" placeholder="0.00">
+								</div>
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Monto máximo</label>
+									<input type="number" class="form-control" name="montoMax" step="0.01" placeholder="1000.00">
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+						<button type="button" class="btn btn-outline-primary" onclick="limpiarFiltros()">Limpiar</button>
+						<button type="button" class="btn btn-primary" onclick="aplicarFiltros()">Aplicar Filtros</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<th:block th:fragment="ordenesScripts">
+		<script th:inline="javascript">
+			// Variables de datos desde el servidor
+			var ordenesData = /*[[${ordenes}]]*/[];
+
+			// Función para cambiar estado de orden
+			function cambiarEstado(ordenId, nuevoEstado) {
+				if (confirm(`¿Está seguro de cambiar el estado a "${nuevoEstado}"?`)) {
+					const form = document.createElement('form');
+					form.method = 'POST';
+					form.action = `/admin/ordenes/${ordenId}/cambiar-estado`;
+
+					const estadoInput = document.createElement('input');
+					estadoInput.type = 'hidden';
+					estadoInput.name = 'nuevoEstado';
+					estadoInput.value = nuevoEstado;
+
+					// Agregar token CSRF si es necesario
+					const csrfToken = document.querySelector('meta[name="_csrf"]');
+					if (csrfToken) {
+						const csrfInput = document.createElement('input');
+						csrfInput.type = 'hidden';
+						csrfInput.name = '_csrf';
+						csrfInput.value = csrfToken.getAttribute('content');
+						form.appendChild(csrfInput);
+					}
+
+					form.appendChild(estadoInput);
+					document.body.appendChild(form);
+					form.submit();
+				}
+			}
+
+			// Función para cancelar orden
+			function cancelarOrden(ordenId) {
+				const modal = new bootstrap.Modal(document.getElementById('cancelarOrdenModal'));
+				const form = document.getElementById('cancelarOrdenForm');
+				form.action = `/admin/ordenes/${ordenId}/cambiar-estado`;
+
+				// Agregar campo hidden para el nuevo estado
+				let estadoInput = form.querySelector('input[name="nuevoEstado"]');
+				if (!estadoInput) {
+					estadoInput = document.createElement('input');
+					estadoInput.type = 'hidden';
+					estadoInput.name = 'nuevoEstado';
+					estadoInput.value = 'Cancelada';
+					form.appendChild(estadoInput);
+				}
+
+				modal.show();
+			}
+
+			// Función para exportar órdenes
+			function exportarOrdenes() {
+				window.location.href = '/admin/ordenes/exportar';
+			}
+
+			// Función para aplicar filtros
+			function aplicarFiltros() {
+				const form = document.getElementById('filtrosForm');
+				const formData = new FormData(form);
+				const params = new URLSearchParams();
+
+				for (let [key, value] of formData.entries()) {
+					if (value) {
+						params.append(key, value);
+					}
+				}
+
+				window.location.href = `/admin/ordenes?${params.toString()}`;
+			}
+
+			// Función para limpiar filtros
+			function limpiarFiltros() {
+				document.getElementById('filtrosForm').reset();
+				window.location.href = '/admin/ordenes';
+			}
+
+			// Función para calcular estadísticas
+			function calcularEstadisticas() {
+				if (ordenesData && ordenesData.length > 0) {
+					let pendientes = 0;
+					let completadas = 0;
+					let ingresos = 0;
+
+					ordenesData.forEach(orden => {
+						if (orden.estadoOrden === 'Pendiente') {
+							pendientes++;
+						} else if (orden.estadoOrden === 'Completada') {
+							completadas++;
+							ingresos += (orden.totalOrden || 0);
+						}
+					});
+
+					document.getElementById('pendientesCount').textContent = pendientes;
+					document.getElementById('completadasCount').textContent = completadas;
+					document.getElementById('ingresosTotal').textContent = `$${(ingresos / 100).toFixed(2)}`;
+				}
+			}
+		</script>
+
+		<script>
+			// Inicializar tooltips y otras funcionalidades
+			document.addEventListener('DOMContentLoaded', function () {
+				// Calcular estadísticas
+				calcularEstadisticas();
+
+				// Inicializar tooltips
+				var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+				var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+					return new bootstrap.Tooltip(tooltipTriggerEl);
+				});
+
+				// Búsqueda en tiempo real
+				const searchInput = document.getElementById('searchInput');
+				if (searchInput) {
+					searchInput.addEventListener('input', function () {
+						const searchTerm = this.value.toLowerCase();
+						const tableRows = document.querySelectorAll('.datatable tbody tr');
+
+						tableRows.forEach(row => {
+							const text = row.textContent.toLowerCase();
+							row.style.display = text.includes(searchTerm) ? '' : 'none';
+						});
+					});
+				}
+
+				// Auto-ocultar alertas
+				setTimeout(function () {
+					const alerts = document.querySelectorAll('.alert');
+					alerts.forEach(alert => {
+						alert.style.transition = 'opacity 0.5s';
+						alert.style.opacity = '0';
+						setTimeout(() => alert.remove(), 500);
+					});
+				}, 5000);
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

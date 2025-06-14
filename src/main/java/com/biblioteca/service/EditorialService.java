@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.biblioteca.dto.EditorialRequestDTO;
 import com.biblioteca.dto.EditorialResponseDTO;
-import com.biblioteca.models.Editorial;
+import com.biblioteca.models.contenido.Editorial;
 
 public interface EditorialService {
   EditorialResponseDTO crearEditorial(EditorialRequestDTO editorialRequestDTO);

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Recibo de Pago</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      font-size: 12px;
+      background-color: #f5f5f0;
+      color: #333333;
+      line-height: 1.5;
+    }
+
+    .receipt-container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #2d6e7e, #1d4b55);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .header .subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 15px;
+    }
+
+    .receipt-number {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: inline-block;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .section {
+      margin-bottom: 25px;
+      background-color: #fafafa;
+      border-radius: 8px;
+      padding: 20px;
+      border-left: 4px solid #2d6e7e;
+    }
+
+    .section-title {
+      color: #2d6e7e;
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 15px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid rgba(45, 110, 126, 0.1);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .info-item {
+      background-color: white;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #5b7d87;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      color: #333333;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-exitoso {
+      background-color: rgba(42, 98, 70, 0.15);
+      color: #2a6246;
+      border: 1px solid rgba(42, 98, 70, 0.3);
+    }
+
+    .status-pendiente {
+      background-color: rgba(221, 164, 72, 0.15);
+      color: #dda448;
+      border: 1px solid rgba(221, 164, 72, 0.3);
+    }
+
+    .status-rechazado {
+      background-color: rgba(192, 107, 62, 0.15);
+      color: #c06b3e;
+      border: 1px solid rgba(192, 107, 62, 0.3);
+    }
+
+    .total-section {
+      background: linear-gradient(135deg, #d9a566, #b38444);
+      color: #333333;
+      padding: 25px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .total-amount {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 10px 0;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .total-label {
+      font-size: 14px;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .subscription-details {
+      border-left-color: #2a6246;
+    }
+
+    .order-details {
+      border-left-color: #5b7d87;
+    }
+
+    .footer {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #6c757d;
+      font-size: 10px;
+      border-top: 1px solid #dee2e6;
+    }
+
+    .rejection-notice {
+      background-color: rgba(192, 107, 62, 0.1);
+      border: 2px solid #c06b3e;
+      color: #c06b3e;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    .highlight-value {
+      color: #2d6e7e;
+      font-weight: 600;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .total-amount {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="receipt-container">
+    <div class="header">
+      <div class="header-content">
+        <h1>RECIBO DE PAGO</h1>
+        <p class="subtitle">Sistema de Biblioteca Virtual</p>
+        <div class="receipt-number">
+          Recibo N°: <span th:text="${numeroRecibo ?: 'N/A'}">REC-001</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Información del Pago -->
+      <div class="section">
+        <h3 class="section-title">Información del Pago</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">ID de Pago</div>
+            <div class="info-value highlight-value" th:text="${pago?.id ?: 'N/A'}">001</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Estado</div>
+            <div class="info-value">
+              <span class="status-badge" th:classappend="${pago?.estado?.name() == 'EXITOSO' ? 'status-exitoso' : 
+                                   (pago?.estado?.name() == 'PENDIENTE' ? 'status-pendiente' : 'status-rechazado')}"
+                th:text="${pago?.estado?.name() ?: 'N/A'}">EXITOSO</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Fecha de Pago</div>
+            <div class="info-value"
+              th:text="${pago?.fechaPago != null ? #temporals.format(pago.fechaPago, 'dd/MM/yyyy HH:mm') : 'Pendiente'}">
+              12/06/2025 15:30
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Fecha de Creación</div>
+            <div class="info-value"
+              th:text="${pago?.fechaCreacion != null ? #temporals.format(pago.fechaCreacion, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+              12/06/2025 15:00
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Método de Pago</div>
+            <div class="info-value" th:text="${pago?.metodoPago?.nombre ?: 'N/A'}">Tarjeta de Crédito</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Referencia</div>
+            <div class="info-value" th:text="${pago?.referenciaPago ?: 'Sin referencia'}">REF123456</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del Cliente -->
+      <div class="section">
+        <h3 class="section-title">Información del Cliente</h3>
+
+        <!-- Si es pago de suscripción -->
+        <div th:if="${pago?.suscripcion != null}">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Usuario</div>
+              <div class="info-value" th:text="${pago.suscripcion.usuario?.username ?: 'N/A'}">usuario@email.com</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Email</div>
+              <div class="info-value" th:text="${pago.suscripcion.usuario?.email ?: 'N/A'}">usuario@email.com</div>
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+              <div class="info-label">Nombre Completo</div>
+              <div class="info-value">
+                <th:block th:if="${pago.suscripcion?.usuario?.lector != null}">
+                  <span th:text="${pago.suscripcion.usuario.lector.nombreCompleto}"></span>
+                </th:block>
+                <th:block th:if="${pago.suscripcion?.usuario?.lector == null}">
+                  <span>N/A</span>
+                </th:block>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Si es pago de orden -->
+        <div th:if="${pago?.orden != null}">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Perfil</div>
+              <div class="info-value" th:text="${pago.orden.perfil?.nombreVisible ?: 'N/A'}">Perfil Usuario</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Email</div>
+              <div class="info-value" th:text="${pago.orden.perfil?.usuario?.email ?: 'N/A'}">usuario@email.com</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Si no hay información específica -->
+        <div th:if="${pago?.suscripcion == null and pago?.orden == null}">
+          <div class="info-item">
+            <div class="info-label">Cliente</div>
+            <div class="info-value">Información no disponible</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de Suscripción -->
+      <div class="section subscription-details" th:if="${pago?.suscripcion != null}">
+        <h3 class="section-title">Detalles de la Suscripción</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Plan</div>
+            <div class="info-value highlight-value" th:text="${pago.suscripcion.plan?.nombre ?: 'N/A'}">Plan Premium
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Modalidad</div>
+            <div class="info-value" th:text="${pago.suscripcion.modalidadPago ?: 'N/A'}">Mensual</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Fecha de Inicio</div>
+            <div class="info-value"
+              th:text="${pago.suscripcion.fechaInicio != null ? #temporals.format(pago.suscripcion.fechaInicio, 'dd/MM/yyyy') : 'N/A'}">
+              01/06/2025
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Fecha de Renovación</div>
+            <div class="info-value"
+              th:text="${pago.suscripcion.fechaRenovacion != null ? #temporals.format(pago.suscripcion.fechaRenovacion, 'dd/MM/yyyy') : 'N/A'}">
+              01/07/2025
+            </div>
+          </div>
+          <div class="info-item" style="grid-column: 1 / -1;">
+            <div class="info-label">Descripción</div>
+            <div class="info-value" th:text="${pago.suscripcion.plan?.descripcionCorta ?: 'N/A'}">Acceso completo a la
+              biblioteca</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de Orden -->
+      <div class="section order-details" th:if="${pago?.orden != null}">
+        <h3 class="section-title">Detalles de la Orden</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">ID de Orden</div>
+            <div class="info-value highlight-value" th:text="${pago.orden.id ?: 'N/A'}">#001</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Estado</div>
+            <div class="info-value" th:text="${pago.orden.estado?.name() ?: 'N/A'}">COMPLETADA</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Total de Items</div>
+            <div class="info-value" th:text="${pago.orden.items?.size() ?: '0'}">3</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total del Pago -->
+      <div class="total-section">
+        <div class="total-label">Monto Total Pagado</div>
+        <div class="total-amount"
+          th:text="${pago?.monto != null ? 'S/. ' + #numbers.formatDecimal(pago.monto / 100.0, 1, 2) : 'S/. 0.00'}">
+          S/. 19.99
+        </div>
+        <div th:if="${pago?.moneda != null}" style="font-size: 12px; opacity: 0.8;">
+          Moneda: <span th:text="${pago.moneda}">PEN</span>
+        </div>
+      </div>
+
+      <!-- Motivo de rechazo si aplica -->
+      <div th:if="${pago?.motivoRechazo != null}" class="rejection-notice">
+        <strong>⚠️ Motivo de rechazo:</strong> <span th:text="${pago.motivoRechazo}">Motivo</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        <strong>Recibo generado el:</strong>
+        <span th:text="${fechaGeneracion != null ? #temporals.format(fechaGeneracion, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+          12/06/2025 15:30
+        </span>
+      </p>
+      <p>Este documento es válido como comprobante de pago oficial</p>
+      <p style="margin-top: 10px; font-size: 9px;">
+        Sistema de Biblioteca Virtual - Documento generado automáticamente
+      </p>
+    </div>
+  </div>
+</body>
+
+</html>

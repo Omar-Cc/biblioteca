@@ -75,6 +75,6 @@ public class ContenidoRequestDTO {
   private String calidadMultimedia;
   private String requisitosReproduccion;
 
-  private Long serieId;
+  private SerieResponseDTO serie;
   private Integer ordenEnSerie;
 }

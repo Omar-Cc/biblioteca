@@ -1,182 +1,232 @@
 package com.biblioteca.service.impl;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.biblioteca.dto.comercial.PlanBeneficioRequestDTO;
 import com.biblioteca.dto.comercial.PlanBeneficioResponseDTO;
+import com.biblioteca.exceptions.RecursoNoEncontradoException;
 import com.biblioteca.mapper.comercial.PlanBeneficioMapper;
 import com.biblioteca.models.comercial.Beneficio;
 import com.biblioteca.models.comercial.Plan;
 import com.biblioteca.models.comercial.PlanBeneficio;
+import com.biblioteca.repositories.comercial.PlanBeneficioRepository;
 import com.biblioteca.service.BeneficioService;
 import com.biblioteca.service.PlanBeneficioService;
 import com.biblioteca.service.PlanService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PlanBeneficioServiceImpl implements PlanBeneficioService {
 
-  private final Map<String, PlanBeneficio> planBeneficios = new ConcurrentHashMap<>();
+  private final PlanBeneficioRepository planBeneficioRepository;
   private final PlanBeneficioMapper planBeneficioMapper;
   private final PlanService planService;
   private final BeneficioService beneficioService;
-  private final ObjectMapper objectMapper;
-  private final ResourceLoader resourceLoader;
-
-  // Método para generar clave compuesta
-  private String generarClave(Long planId, Long beneficioId) {
-    return planId + ":" + beneficioId;
-  }
-
-  @PostConstruct
-  public void initPlanBeneficiosData() {
-    try {
-      InputStream inputStream = resourceLoader.getResource("classpath:data/plan-beneficios-data.json").getInputStream();
-      List<PlanBeneficioRequestDTO> planBeneficiosDTOs = objectMapper.readValue(inputStream,
-          new TypeReference<List<PlanBeneficioRequestDTO>>() {
-          });
-      planBeneficiosDTOs.forEach(this::asociarBeneficioAPlan);
-      System.out.println(
-          "Datos iniciales de Plan-Beneficios cargados desde JSON: " + planBeneficios.size() + " asociaciones.");
-    } catch (Exception e) {
-      System.err.println("Error al cargar datos iniciales de plan-beneficios desde JSON: " + e.getMessage());
-      // No iniciamos con datos por defecto ya que dependemos de planes y beneficios
-      // existentes
-    }
-  }
 
   @Override
+  @Transactional
   public PlanBeneficioResponseDTO asociarBeneficioAPlan(PlanBeneficioRequestDTO planBeneficioDTO) {
-    // Obtener Plan y Beneficio
     Plan plan = planService.obtenerEntidadPlanPorId(planBeneficioDTO.getPlanId())
-        .orElseThrow(() -> new IllegalArgumentException("Plan no encontrado con ID: " + planBeneficioDTO.getPlanId()));
+        .orElseThrow(
+            () -> new RecursoNoEncontradoException("Plan no encontrado con ID: " + planBeneficioDTO.getPlanId()));
 
     Beneficio beneficio = beneficioService.obtenerEntidadBeneficioPorId(planBeneficioDTO.getBeneficioId())
         .orElseThrow(
-            () -> new IllegalArgumentException("Beneficio no encontrado con ID: " + planBeneficioDTO.getBeneficioId()));
+            () -> new RecursoNoEncontradoException(
+                "Beneficio no encontrado con ID: " + planBeneficioDTO.getBeneficioId()));
+
+    // Verificar si la asociación ya existe usando el método del repositorio
+    if (planBeneficioRepository.existsByPlan_IdAndBeneficio_Id(plan.getId(), beneficio.getId())) {
+      throw new IllegalArgumentException(
+          "La asociación entre el plan ID " + plan.getId() + " y el beneficio ID " + beneficio.getId() + " ya existe.");
+    }
 
     PlanBeneficio planBeneficio = planBeneficioMapper.toEntity(planBeneficioDTO);
     planBeneficio.setPlan(plan);
     planBeneficio.setBeneficio(beneficio);
+    // El ID de PlanBeneficio será generado por la BD
 
-    // Mantener la relación bidireccional
+    // Mantener la relación bidireccional en la entidad Plan
     plan.addPlanBeneficio(planBeneficio);
+    // No es necesario guardar 'plan' explícitamente aquí si la relación es
+    // gestionada por JPA
+    // y 'PlanBeneficio' es la entidad dueña o hay cascada.
+    // El guardado de 'planBeneficio' persistirá la relación.
 
-    String clave = generarClave(plan.getId(), beneficio.getId());
-    planBeneficios.put(clave, planBeneficio);
-
-    return planBeneficioMapper.toResponseDTO(planBeneficio);
+    PlanBeneficio planBeneficioGuardado = planBeneficioRepository.save(planBeneficio);
+    return planBeneficioMapper.toResponseDTO(planBeneficioGuardado);
   }
 
   @Override
-  public Optional<PlanBeneficioResponseDTO> obtenerAsociacionPorIds(Long planId, Long beneficioId) {
-    return Optional.ofNullable(planBeneficios.get(generarClave(planId, beneficioId)))
+  @Transactional(readOnly = true)
+  public Optional<PlanBeneficioResponseDTO> obtenerAsociacionPorId(Long id) {
+    return planBeneficioRepository.findById(id)
         .map(planBeneficioMapper::toResponseDTO);
   }
 
   @Override
-  public List<PlanBeneficioResponseDTO> obtenerBeneficiosPorPlan(Long planId) {
-    return planBeneficios.values().stream()
-        .filter(pb -> pb.getPlan().getId().equals(planId))
+  @Transactional(readOnly = true)
+  public Optional<PlanBeneficioResponseDTO> obtenerAsociacionPorPlanIdYBeneficioId(Long planId, Long beneficioId) {
+    return planBeneficioRepository.findByPlan_IdAndBeneficio_Id(planId, beneficioId)
+        .map(planBeneficioMapper::toResponseDTO);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<PlanBeneficioResponseDTO> obtenerBeneficiosPorPlanId(Long planId) {
+    return planBeneficioRepository.findByPlan_Id(planId).stream()
         .map(planBeneficioMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
-  public List<PlanBeneficioResponseDTO> obtenerPlanesPorBeneficio(Long beneficioId) {
-    return planBeneficios.values().stream()
-        .filter(pb -> pb.getBeneficio().getId().equals(beneficioId))
+  @Transactional(readOnly = true)
+  public List<PlanBeneficioResponseDTO> obtenerPlanesPorBeneficioId(Long beneficioId) {
+    return planBeneficioRepository.findByBeneficio_Id(beneficioId).stream()
         .map(planBeneficioMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
-  public Optional<PlanBeneficioResponseDTO> actualizarAsociacion(Long planId, Long beneficioId,
-      PlanBeneficioRequestDTO planBeneficioDTO) {
-    String clave = generarClave(planId, beneficioId);
-    return Optional.ofNullable(planBeneficios.get(clave))
-        .map(planBeneficio -> {
-          planBeneficio.setValor(planBeneficioDTO.getValor());
-          planBeneficio.setActivo(planBeneficioDTO.isActivo());
-          return planBeneficioMapper.toResponseDTO(planBeneficio);
+  @Transactional
+  public Optional<PlanBeneficioResponseDTO> actualizarAsociacion(Long id, PlanBeneficioRequestDTO planBeneficioDTO) {
+    return planBeneficioRepository.findById(id) // Actualizar usando el ID de PlanBeneficio
+        .map(planBeneficioExistente -> {
+          // No se permite cambiar Plan o Beneficio, solo 'valor' y 'activo'
+          planBeneficioExistente.setValor(planBeneficioDTO.getValor());
+          if (planBeneficioDTO.getActivo() != null) {
+            planBeneficioExistente.setActivo(planBeneficioDTO.getActivo());
+          }
+          // Los IDs de plan y beneficio en el DTO se ignoran para la actualización de una
+          // asociación existente.
+          // Si se quisiera cambiar el plan o beneficio, se debería eliminar la asociación
+          // y crear una nueva.
+          PlanBeneficio actualizado = planBeneficioRepository.save(planBeneficioExistente);
+          return planBeneficioMapper.toResponseDTO(actualizado);
         });
   }
 
   @Override
-  public boolean eliminarAsociacion(Long planId, Long beneficioId) {
-    String clave = generarClave(planId, beneficioId);
-    PlanBeneficio planBeneficio = planBeneficios.get(clave);
-
-    if (planBeneficio != null) {
-      // Eliminar la relación bidireccional
-      planBeneficio.getPlan().removePlanBeneficio(planBeneficio);
-      planBeneficios.remove(clave);
+  @Transactional
+  public boolean eliminarAsociacion(Long id) { // Eliminar por el ID de PlanBeneficio
+    Optional<PlanBeneficio> pbOpt = planBeneficioRepository.findById(id);
+    if (pbOpt.isPresent()) {
+      PlanBeneficio pb = pbOpt.get();
+      // Mantener la coherencia de la relación bidireccional en Plan
+      if (pb.getPlan() != null) {
+        pb.getPlan().removePlanBeneficio(pb);
+        // planService.actualizarPlan(pb.getPlan()); // Si es necesario guardar el Plan
+        // explícitamente
+      }
+      planBeneficioRepository.deleteById(id);
       return true;
     }
     return false;
   }
 
   @Override
-  public Optional<PlanBeneficio> obtenerEntidadAsociacionPorIds(Long planId, Long beneficioId) {
-    return Optional.ofNullable(planBeneficios.get(generarClave(planId, beneficioId)));
+  @Transactional
+  public boolean eliminarAsociacionPorPlanIdYBeneficioId(Long planId, Long beneficioId) {
+    Optional<PlanBeneficio> pbOpt = planBeneficioRepository.findByPlan_IdAndBeneficio_Id(planId, beneficioId);
+    if (pbOpt.isPresent()) {
+      PlanBeneficio pb = pbOpt.get();
+      if (pb.getPlan() != null) {
+        pb.getPlan().removePlanBeneficio(pb);
+      }
+      planBeneficioRepository.delete(pb); // Eliminar la entidad encontrada
+      return true;
+    }
+    return false;
   }
 
   @Override
-  public boolean activarAsociacion(Long planId, Long beneficioId) {
-    return obtenerEntidadAsociacionPorIds(planId, beneficioId)
+  @Transactional(readOnly = true)
+  public Optional<PlanBeneficio> obtenerEntidadAsociacionPorId(Long id) {
+    return planBeneficioRepository.findById(id);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<PlanBeneficio> obtenerEntidadAsociacionPorPlanIdYBeneficioId(Long planId, Long beneficioId) {
+    return planBeneficioRepository.findByPlan_IdAndBeneficio_Id(planId, beneficioId);
+  }
+
+  @Override
+  @Transactional
+  public boolean activarAsociacion(Long id) { // Operar sobre el ID de PlanBeneficio
+    return planBeneficioRepository.findById(id)
         .map(planBeneficio -> {
           planBeneficio.setActivo(true);
+          planBeneficioRepository.save(planBeneficio);
           return true;
         })
         .orElse(false);
   }
 
   @Override
-  public boolean desactivarAsociacion(Long planId, Long beneficioId) {
-    return obtenerEntidadAsociacionPorIds(planId, beneficioId)
+  @Transactional
+  public boolean desactivarAsociacion(Long id) { // Operar sobre el ID de PlanBeneficio
+    return planBeneficioRepository.findById(id)
         .map(planBeneficio -> {
           planBeneficio.setActivo(false);
+          planBeneficioRepository.save(planBeneficio);
           return true;
         })
         .orElse(false);
   }
 
   @Override
+  @Transactional
   public List<PlanBeneficioResponseDTO> asociarVariosBeneficiosAPlan(Long planId,
       List<PlanBeneficioRequestDTO> beneficiosDTO) {
+    Plan plan = planService.obtenerEntidadPlanPorId(planId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Plan no encontrado con ID: " + planId));
+
     List<PlanBeneficioResponseDTO> resultados = new ArrayList<>();
-
-    // Verificar que el plan existe
-    planService.obtenerEntidadPlanPorId(planId)
-        .orElseThrow(() -> new IllegalArgumentException("Plan no encontrado con ID: " + planId));
-
-    // Asociar cada beneficio
     for (PlanBeneficioRequestDTO dto : beneficiosDTO) {
-      dto.setPlanId(planId);
+      dto.setPlanId(planId); // Asegurar que el DTO use el planId correcto
       try {
-        PlanBeneficioResponseDTO resultado = asociarBeneficioAPlan(dto);
-        resultados.add(resultado);
-      } catch (Exception e) {
-        // Registrar error y continuar con el siguiente
+        // Verificar si el beneficio existe
+        beneficioService.obtenerEntidadBeneficioPorId(dto.getBeneficioId())
+            .orElseThrow(
+                () -> new RecursoNoEncontradoException("Beneficio no encontrado con ID: " + dto.getBeneficioId()));
+
+        // Verificar si la asociación ya existe
+        if (planBeneficioRepository.existsByPlan_IdAndBeneficio_Id(planId, dto.getBeneficioId())) {
+          System.err.println("La asociación para el plan ID " + planId + " y beneficio ID " + dto.getBeneficioId()
+              + " ya existe. Omitiendo.");
+          // Opcionalmente, podrías cargarla y devolverla si ese es el comportamiento
+          // deseado
+          // obtenerAsociacionPorPlanIdYBeneficioId(planId,
+          // dto.getBeneficioId()).ifPresent(resultados::add);
+          continue;
+        }
+
+        PlanBeneficio planBeneficio = planBeneficioMapper.toEntity(dto);
+        planBeneficio.setPlan(plan);
+        planBeneficio.setBeneficio(beneficioService.obtenerEntidadBeneficioPorId(dto.getBeneficioId()).get()); // Ya
+                                                                                                               // verificado
+
+        plan.addPlanBeneficio(planBeneficio); // Mantener relación bidireccional
+
+        PlanBeneficio guardado = planBeneficioRepository.save(planBeneficio);
+        resultados.add(planBeneficioMapper.toResponseDTO(guardado));
+
+      } catch (IllegalArgumentException | RecursoNoEncontradoException e) {
         System.err.println(
-            "Error al asociar beneficio " + dto.getBeneficioId() + " al plan " + planId + ": " + e.getMessage());
+            "Error al asociar beneficio ID " + dto.getBeneficioId() + " al plan ID " + planId + ": " + e.getMessage());
       }
     }
-
+    // planService.actualizarPlan(plan); // Si es necesario guardar el Plan
+    // explícitamente después de añadir todas las asociaciones
     return resultados;
   }
 }

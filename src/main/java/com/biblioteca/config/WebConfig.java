@@ -35,6 +35,21 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(localeChangeInterceptor());
 
         registry.addInterceptor(perfilInterceptor)
-                .excludePathPatterns("/favicon.ico", "/**/*.css", "/**/*.js", "/**/*.png");
+                .excludePathPatterns(
+                        "/favicon.ico",
+                        "/**/*.css",
+                        "/**/*.js",
+                        "/**/*.png",
+                        "/**/*.jpg",
+                        "/**/*.gif",
+                        "/.well-known/**",
+                        "/login",
+                        "/login/**",
+                        "/logout",
+                        "/logout/**",
+                        "/registro",
+                        "/registro/**",
+                        "/error",
+                        "/error/**");
     }
 }

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Mis Facturas | Biblioteca Virtual',
+        paramCss=~{mi-cuenta/facturas/lista-mis-facturas :: pageSpecificCss},
+        paramScripts=~{mi-cuenta/facturas/lista-mis-facturas :: pageSpecificScripts},
+        activeMenu='facturas', 
+        pageSpecificContent=~{mi-cuenta/facturas/lista-mis-facturas :: pageContent}
+      )}">
+
+<head>
+  <th:block th:fragment="pageSpecificCss">
+    <style>
+      /* ========================================
+         VARIABLES Y CONFIGURACIÓN INICIAL
+         ======================================== */
+      :root {
+        --factura-primary: #2d6e7e;
+        --factura-secondary: #3a8a9b;
+        --factura-accent: #f8f4ef;
+        --factura-success: #28a745;
+        --factura-warning: #ffc107;
+        --factura-danger: #dc3545;
+        --factura-light: #f8f9fa;
+        --factura-shadow: 0 8px 25px rgba(45, 110, 126, 0.15);
+        --factura-border-radius: 12px;
+        --factura-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* ========================================
+         HEADER DE PÁGINA
+         ======================================== */
+      .page-header-facturas {
+        background: linear-gradient(135deg, var(--factura-primary), var(--factura-secondary));
+        border-radius: var(--factura-border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page-header-facturas::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+      }
+
+      .page-header-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      /* ========================================
+         CONTENEDOR DE FACTURAS
+         ======================================== */
+      .facturas-container {
+        display: grid;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .factura-card {
+        background: white;
+        border-radius: var(--factura-border-radius);
+        box-shadow: var(--factura-shadow);
+        padding: 1.5rem;
+        transition: var(--factura-transition);
+        overflow: hidden;
+      }
+
+      .factura-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(45, 110, 126, 0.25);
+      }
+
+      .factura-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--factura-light);
+      }
+
+      .factura-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--factura-primary);
+        margin: 0;
+      }
+
+      .factura-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .detail-item {
+        padding: 0.75rem;
+        background: var(--factura-light);
+        border-radius: 8px;
+        border-left: 4px solid var(--factura-primary);
+      }
+
+      .detail-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+      }
+
+      .detail-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--factura-primary);
+      }
+
+      .factura-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .btn-factura {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--factura-transition);
+        border: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+      }
+
+      .btn-primary-factura {
+        background: var(--factura-primary);
+        color: white;
+      }
+
+      .btn-primary-factura:hover {
+        background: var(--factura-secondary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(45, 110, 126, 0.4);
+      }
+
+      .btn-success-factura {
+        background: var(--factura-success);
+        color: white;
+      }
+
+      .btn-success-factura:hover {
+        background: #218838;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+      }
+
+      .btn-outline-factura {
+        background: transparent;
+        color: var(--factura-primary);
+        border: 2px solid var(--factura-primary);
+      }
+
+      .btn-outline-factura:hover {
+        background: var(--factura-primary);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .status-emitida {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--factura-success);
+        border: 2px solid rgba(40, 167, 69, 0.3);
+      }
+
+      .status-anulada {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--factura-danger);
+        border: 2px solid rgba(220, 53, 69, 0.3);
+      }
+
+      .no-facturas {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: var(--factura-border-radius);
+        box-shadow: var(--factura-shadow);
+      }
+
+      .no-facturas i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+      }
+
+      /* ========================================
+         RESPONSIVE
+         ======================================== */
+      @media (max-width: 768px) {
+        .page-title {
+          font-size: 1.5rem;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .factura-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .factura-actions {
+          justify-content: flex-start;
+          width: 100%;
+        }
+
+        .btn-factura {
+          flex: 1;
+          justify-content: center;
+        }
+
+        .factura-details {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ========================================
+         ANIMACIONES
+         ======================================== */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .factura-card {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .factura-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+
+      .factura-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .factura-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="pageContent">
+    <!-- Header de la página -->
+    <div class="page-header-facturas">
+      <div class="page-header-content">
+        <h1 class="page-title">
+          <i class="fas fa-file-invoice-dollar"></i>
+          Mis Facturas
+        </h1>
+        <p class="page-subtitle">Gestiona y descarga tus facturas de compras</p>
+      </div>
+    </div>
+
+    <!-- Mensajes de alerta -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle"></i>
+      <span th:text="${success}">Mensaje de éxito</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-circle"></i>
+      <span th:text="${error}">Mensaje de error</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Contenedor de facturas -->
+    <div th:if="${facturas != null and !facturas.empty}" class="facturas-container">
+      <div th:each="factura : ${facturas}" class="factura-card">
+        <!-- Header de la factura -->
+        <div class="factura-header">
+          <h3 class="factura-title" th:text="'Factura ' + ${factura.numeroFactura}">
+            Factura F001-00000001
+          </h3>
+          <span class="status-badge"
+            th:classappend="${factura.estado == 'EMITIDA'} ? 'status-emitida' : 'status-anulada'"
+            th:text="${factura.estado}">
+            <i class="fas fa-check-circle" th:if="${factura.estado == 'EMITIDA'}"></i>
+            <i class="fas fa-times-circle" th:unless="${factura.estado == 'EMITIDA'}"></i>
+            EMITIDA
+          </span>
+        </div>
+
+        <!-- Detalles de la factura -->
+        <div class="factura-details">
+          <div class="detail-item">
+            <div class="detail-label">Fecha de Emisión</div>
+            <div class="detail-value" th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}">
+              01/01/2025
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Cliente</div>
+            <div class="detail-value" th:text="${factura.clienteNombre ?: 'Cliente'}">
+              Nombre del Cliente
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Total</div>
+            <div class="detail-value" th:text="'S/. ' + ${#numbers.formatDecimal((factura.total ?: 0) / 100.0, 1, 2)}">
+              S/. 25.00
+            </div>
+          </div>
+
+          <div class="detail-item" th:if="${factura.fechaOrden != null}">
+            <div class="detail-label">Fecha de Orden</div>
+            <div class="detail-value" th:text="${#temporals.format(factura.fechaOrden, 'dd/MM/yyyy')}">
+              01/01/2025
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones de la factura -->
+        <div class="factura-actions">
+          <!-- Ver detalle -->
+          <a th:href="@{/mi-cuenta/facturas/{id}(id=${factura.id})}" class="btn-factura btn-outline-factura">
+            <i class="fas fa-eye"></i> Ver Detalle
+          </a>
+
+          <!-- Descargar PDF -->
+          <a th:href="@{/mi-cuenta/facturas/{id}/descargar(id=${factura.id})}" class="btn-factura btn-primary-factura">
+            <i class="fas fa-download"></i> Descargar PDF
+          </a>
+
+          <!-- Enviar por email -->
+          <form th:action="@{/mi-cuenta/facturas/{id}/enviar-email(id=${factura.id})}" method="post"
+            style="display: inline-block;" class="form-email-factura">
+            <button type="submit" class="btn-factura btn-success-factura" title="Enviar por email">
+              <i class="fas fa-envelope"></i> Enviar Email
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando no hay facturas -->
+    <div th:unless="${facturas != null and !facturas.empty}" class="no-facturas">
+      <i class="fas fa-file-invoice"></i>
+      <h3>No tienes facturas</h3>
+      <p class="text-muted">Cuando realices compras, tus facturas aparecerán aquí.</p>
+      <a th:href="@{/contenidos}" class="btn-factura btn-primary-factura mt-3">
+        <i class="fas fa-shopping-cart"></i> Explorar Contenidos
+      </a>
+    </div>
+  </div>
+
+  <th:block th:fragment="pageSpecificScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Manejar envío de email con confirmación
+        const formulariosEmail = document.querySelectorAll('.form-email-factura');
+
+        formulariosEmail.forEach(form => {
+          form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const boton = form.querySelector('button[type="submit"]');
+            const textoOriginal = boton.innerHTML;
+
+            // Confirmar acción
+            if (confirm('¿Está seguro que desea enviar esta factura por email?')) {
+              // Mostrar loading
+              boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+              boton.disabled = true;
+
+              // Enviar formulario
+              form.submit();
+            }
+          });
+        });
+
+        // Auto-ocultar mensajes de éxito/error después de 5 segundos
+        const alertas = document.querySelectorAll('.alert');
+        alertas.forEach(alerta => {
+          setTimeout(() => {
+            alerta.style.opacity = '0';
+            setTimeout(() => {
+              alerta.remove();
+            }, 300);
+          }, 5000);
+        });
+
+        // Agregar indicador de carga para descarga de factura
+        const botonesDescarga = document.querySelectorAll('a[href*="descargar"]');
+        botonesDescarga.forEach(btn => {
+          btn.addEventListener('click', function () {
+            const icon = this.querySelector('i');
+            const originalClass = icon.className;
+
+            icon.className = 'fas fa-spinner fa-spin';
+            this.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+              icon.className = originalClass;
+              this.style.pointerEvents = 'auto';
+            }, 3000);
+          });
+        });
+
+        console.log('Lista de facturas cargada correctamente');
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

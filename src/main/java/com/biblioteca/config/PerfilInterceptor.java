@@ -13,69 +13,72 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Component
 public class PerfilInterceptor implements HandlerInterceptor {
 
-  // Rutas que no necesitan verificación de perfil
+  // Rutas específicas excluidas SOLO para la gestión de perfiles
   private static final List<String> EXCLUDED_PATHS = Arrays.asList(
-      "/login", "/logout", "/registro",
-      "/css/", "/js/", "/images/", "/webjars/",
-      "/error", "/403", "/404", "/500",
-      "/mi-cuenta/perfiles/seleccionar", "/mi-cuenta/perfiles/nuevo", "/mi-cuenta/perfiles/crear");
+      "/mi-cuenta/perfiles/seleccionar",
+      "/mi-cuenta/perfiles/nuevo",
+      "/mi-cuenta/perfiles/crear");
 
-  // Patrones para rutas excluidas usando expresiones regulares
-  private static final List<Pattern> EXCLUDED_PATTERNS = Arrays.asList(
-    // Coincide con /mi-cuenta/perfiles/1/activar, /mi-cuenta/perfiles/2/activar, etc.
-      Pattern.compile("/mi-cuenta/perfiles/\\d+/activar"), 
-      Pattern.compile("/.well-known/.*"), // Excluir todas las rutas de Chrome DevTools
-      Pattern.compile("/favicon\\.ico") // Excluir favicon
-  );
+  // Rutas técnicas que siempre deben ser excluidas
+  private static final List<String> TECHNICAL_EXCLUDED_PATHS = Arrays.asList(
+      "/css/", "/js/", "/images/", "/webjars/", "/favicon.ico");
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     String requestPath = request.getRequestURI();
 
-    // DEBUG: imprime la ruta para verificar
-    log.debug("Path: {}", requestPath);
+    log.debug("Interceptando ruta: {}", requestPath);
 
-    // Verificar rutas excluidas específicas
-    for (String path : EXCLUDED_PATHS) {
-      if (requestPath.startsWith(path)) {
-        log.debug("Ruta excluida por coincidencia exacta: {}", path);
+    // Excluir recursos estáticos siempre
+    for (String technicalPath : TECHNICAL_EXCLUDED_PATHS) {
+      if (requestPath.startsWith(technicalPath)) {
+        log.debug("Recurso estático excluido: {}", requestPath);
         return true;
       }
     }
 
-    // Verificar patrones excluidos (comodines)
-    for (Pattern pattern : EXCLUDED_PATTERNS) {
-      if (pattern.matcher(requestPath).matches()) {
-        log.debug("Ruta excluida por patrón regex: {}", pattern.pattern());
+    // Verificar si el usuario está autenticado
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+      log.debug("Usuario no autenticado, permitiendo acceso: {}", requestPath);
+      return true; // Usuario no autenticado, permitir acceso
+    }
+
+    log.debug("Usuario autenticado: {}, interceptando ruta: {}", auth.getName(), requestPath);
+
+    // Verificar rutas específicamente excluidas (gestión de perfiles)
+    for (String excludedPath : EXCLUDED_PATHS) {
+      if (requestPath.startsWith(excludedPath)) {
+        log.debug("Ruta excluida para gestión de perfiles: {}", excludedPath);
         return true;
       }
     }
+
+    // Excluir específicamente las rutas de activación de perfil
+    if (requestPath.matches("^/mi-cuenta/perfiles/\\d+/activar$")) {
+      log.debug("Ruta de activación de perfil excluida: {}", requestPath);
+      return true;
+    }
+
+    // Para usuarios autenticados, TODAS las demás rutas requieren perfil activo
+    log.debug("Usuario autenticado accediendo a ruta que requiere perfil: {}", requestPath);
 
     // Verificar parámetro perfilActivado
     String perfilActivado = request.getParameter("perfilActivado");
-    log.debug("Parámetro perfilActivado: {}", perfilActivado);
-
-    if ("true".equals(perfilActivado) && requestPath.equals("/")) {
+    if ("true".equals(perfilActivado)) {
       log.debug("Permitiendo acceso con perfilActivado=true");
       return true;
     }
 
-    // Verificar si el usuario está autenticado mediante Spring Security
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
-      return true;
-    }
-
-    // Verificar si hay un perfil activo
+    // Verificar sesión y perfil activo
     HttpSession session = request.getSession(false);
     if (session == null) {
-      log.warn("Sesión no encontrada, redirigiendo a login");
+      log.warn("Sesión no encontrada para usuario autenticado, redirigiendo a login");
       response.sendRedirect(request.getContextPath() + "/login");
       return false;
     }
@@ -87,13 +90,37 @@ public class PerfilInterceptor implements HandlerInterceptor {
       return true;
     }
 
-    if (session.getAttribute("perfilActivoId") == null) {
-      log.warn("Perfil no encontrado en sesión");
-      log.warn("Perfil no encontrado en la sesión, redirigiendo a selección de perfil");
+    // Verificar si hay un perfil activo
+    Object perfilActivoId = session.getAttribute("perfilActivoId");
+    if (perfilActivoId == null) {
+      log.warn("Perfil no encontrado, redirigiendo a selección de perfil desde: {}", requestPath);
+      
+      // IMPORTANTE: Solo guardar la URL actual si no hay una ya guardada
+      // para no sobrescribir la URL original que viene del login
+      if (!isAuthOrProfileRelatedUrl(requestPath) && 
+          session.getAttribute("URL_AFTER_PROFILE_SELECTION") == null) {
+        String currentUrl = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+        if (queryString != null && !queryString.isEmpty()) {
+          currentUrl += "?" + queryString;
+        }
+        session.setAttribute("URL_AFTER_PROFILE_SELECTION", currentUrl);
+        log.info("Guardando URL para después de selección de perfil: {}", currentUrl);
+      }
+      
       response.sendRedirect(request.getContextPath() + "/mi-cuenta/perfiles/seleccionar");
       return false;
     }
 
+    log.debug("Perfil activo encontrado (ID: {}), permitiendo acceso a: {}", perfilActivoId, requestPath);
     return true;
+  }
+
+  private boolean isAuthOrProfileRelatedUrl(String path) {
+    return path.equals("/") || 
+           path.equals("/login") || 
+           path.equals("/registro") || 
+           path.startsWith("/mi-cuenta/perfiles/") ||
+           path.equals("/logout");
   }
 }

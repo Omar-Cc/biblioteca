@@ -1,13 +1,16 @@
 package com.biblioteca.controller.admin;
 
 import com.biblioteca.dto.UsuarioAdminDTO;
-import com.biblioteca.models.Usuario;
+import com.biblioteca.models.acceso.Usuario;
 import com.biblioteca.service.LectorService;
 import com.biblioteca.service.RolService;
 import com.biblioteca.service.UsuarioService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.security.Principal;
+import java.util.Set;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,7 +32,7 @@ public class AdminUsuarioController {
   @GetMapping
   public String listarUsuarios(Model model) {
     try {
-      model.addAttribute("usuarios", usuarioService.listarTodosLosUsuarios());
+      model.addAttribute("usuarios", usuarioService.listarTodosLosUsuariosAdmin());
       model.addAttribute("activeTab", "usuarios");
       return "admin/lista-usuarios";
     } catch (Exception e) {
@@ -82,20 +85,27 @@ public class AdminUsuarioController {
   }
 
   @GetMapping("/detalle/{id}")
-  public String mostrarDetalleUsuario(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+  public String mostrarDetalleUsuario(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes,
+      Principal principal) {
     try {
-      Usuario usuario = usuarioService.listarTodosLosUsuarios().stream()
+      // REUTILIZAR: buscarPorId() existente
+      Usuario usuarioCompleto = usuarioService.buscarPorId(id)
+          .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+      // REUTILIZAR: listarTodosLosUsuariosAdmin() existente para obtener DTO
+      UsuarioAdminDTO usuario = usuarioService.listarTodosLosUsuariosAdmin().stream()
           .filter(u -> u.getId().equals(id))
           .findFirst()
           .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
       model.addAttribute("usuario", usuario);
-      model.addAttribute("roles", usuario.getRoles());
+      model.addAttribute("perfiles", usuarioCompleto.getPerfiles());
+      model.addAttribute("rolesDisponibles", rolService.obtenerTodosLosRoles());
+      model.addAttribute("esPropioUsuario", usuario.getUsername().equals(principal.getName()));
 
       // Verificar si el usuario tiene perfil de lector
       String username = usuario.getUsername();
       if (lectorService.tienePerfilLector(username)) {
-        // Obtener datos de lector y añadirlos al modelo
         lectorService.obtenerPerfilLectorPorUsername(username)
             .ifPresent(lectorDTO -> {
               model.addAttribute("lector", lectorDTO);
@@ -108,8 +118,71 @@ public class AdminUsuarioController {
       model.addAttribute("activeTab", "usuarios");
       return "admin/detalle-usuario";
     } catch (Exception e) {
-      redirectAttributes.addFlashAttribute("errorMessage", "Error al mostrar detalles: " + e.getMessage());
+      redirectAttributes.addFlashAttribute("errorMessage", "Error: " + e.getMessage());
       return "redirect:/admin/usuarios";
     }
+  }
+
+  @GetMapping("/editar/{id}")
+  public String mostrarFormularioEditarUsuario(@PathVariable Long id, Model model,
+      RedirectAttributes redirectAttributes) {
+    try {
+      UsuarioAdminDTO usuario = usuarioService.listarTodosLosUsuariosAdmin().stream()
+          .filter(u -> u.getId().equals(id))
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+      model.addAttribute("usuarioAdminDTO", usuario);
+      model.addAttribute("roles", rolService.obtenerTodosLosRoles());
+      model.addAttribute("activeTab", "usuarios");
+      model.addAttribute("esEdicion", true);
+      return "admin/crear-usuario"; // Reutilizar el mismo formulario
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar usuario: " + e.getMessage());
+      return "redirect:/admin/usuarios";
+    }
+  }
+
+  @PostMapping("/editar/{id}")
+  public String procesarEditarUsuario(
+      @PathVariable Long id,
+      @Valid @ModelAttribute("usuarioAdminDTO") UsuarioAdminDTO usuarioDTO,
+      BindingResult result,
+      RedirectAttributes redirectAttributes,
+      Model model) {
+
+    if (result.hasErrors()) {
+      model.addAttribute("roles", rolService.obtenerTodosLosRoles());
+      model.addAttribute("esEdicion", true);
+      return "admin/crear-usuario";
+    }
+
+    try {
+      usuarioDTO.setId(id);
+      // USAR NUEVO: actualizarUsuarioAdmin()
+      usuarioService.actualizarUsuarioAdmin(usuarioDTO);
+      redirectAttributes.addFlashAttribute("successMessage", "Usuario actualizado exitosamente");
+      return "redirect:/admin/usuarios/detalle/" + id;
+    } catch (Exception e) {
+      model.addAttribute("errorMessage", e.getMessage());
+      model.addAttribute("roles", rolService.obtenerTodosLosRoles());
+      model.addAttribute("esEdicion", true);
+      return "admin/crear-usuario";
+    }
+  }
+
+  @PostMapping("/actualizar-roles/{id}")
+  public String actualizarRoles(
+      @PathVariable Long id,
+      @RequestParam("roles") String[] roles,
+      RedirectAttributes redirectAttributes) {
+    try {
+      // USAR NUEVO: actualizarRolesUsuario()
+      usuarioService.actualizarRolesUsuario(id, Set.of(roles));
+      redirectAttributes.addFlashAttribute("successMessage", "Roles actualizados correctamente");
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMessage", "Error: " + e.getMessage());
+    }
+    return "redirect:/admin/usuarios/detalle/" + id;
   }
 }

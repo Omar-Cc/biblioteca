@@ -7,96 +7,951 @@
       )}">
 
 <head>
-  <!-- Fragmento para CSS específico -->
   <th:block th:fragment="planDetalleCss">
     <style>
+      /* Variables CSS personalizadas */
+      :root {
+        --plan-basic-color: #6c757d;
+        --plan-lector-color: #2d6e7e;
+        --plan-premium-color: #6f42c1;
+        --plan-familiar-color: #e63946;
+        --gradient-basic: linear-gradient(135deg, #6c757d, #495057);
+        --gradient-lector: linear-gradient(135deg, var(--bs-primary), #2d6e7e);
+        --gradient-premium: linear-gradient(135deg, #6f42c1, #9d4edd);
+        --gradient-familiar: linear-gradient(135deg, #e63946, #f77f00);
+        --shadow-light: 0 8px 25px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+        --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Header del plan con colores dinámicos */
       .plan-header {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
         background-size: cover;
         background-position: center;
+        background-attachment: fixed;
         color: white;
-        padding: 5rem 0;
+        padding: 6rem 0 4rem 0;
+        position: relative;
+        overflow: hidden;
       }
 
-      .feature-icon {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      /* Clases específicas para cada tipo de plan */
+      .plan-header.plan-basic {
+        background: var(--gradient-basic),
+          url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+      }
+
+      .plan-header.plan-lector {
+        background: var(--gradient-lector),
+          url('https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+      }
+
+      .plan-header.plan-premium {
+        background: var(--gradient-premium),
+          url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+      }
+
+      .plan-header.plan-familiar {
+        background: var(--gradient-familiar),
+          url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+      }
+
+      .plan-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.05) 50%, transparent 70%);
+        animation: shimmer 4s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .plan-header-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .plan-badge-header {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .plan-title {
+        font-size: 4rem;
+        font-weight: 900;
         margin-bottom: 1.5rem;
-        font-size: 1.75rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        line-height: 1.1;
       }
 
-      .benefit-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-        border: none;
-        height: 100%;
+      .plan-subtitle {
+        font-size: 1.5rem;
+        font-weight: 300;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+        line-height: 1.4;
       }
 
-      .benefit-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+      .plan-price-hero {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: inline-block;
       }
 
-      .price-tag {
-        font-size: 2.5rem;
-        font-weight: 700;
+      .price-amount {
+        font-size: 3.5rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 0.5rem;
       }
 
       .price-period {
-        font-size: 1rem;
-        color: #6c757d;
+        font-size: 1.2rem;
+        opacity: 0.9;
       }
 
-      .testimonial-avatar {
-        width: 70px;
-        height: 70px;
-        object-fit: cover;
+      /* Breadcrumb personalizado */
+      .custom-breadcrumb {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        margin: -2rem auto 3rem auto;
+        max-width: 600px;
+        box-shadow: var(--shadow-light);
+        position: relative;
+        z-index: 3;
+      }
+
+      .enhanced-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: var(--shadow-card);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+      }
+
+      .enhanced-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+      }
+
+      /* Card headers con colores dinámicos */
+      .card-header-custom {
+        color: white;
+        padding: 2rem;
+        border: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-header-custom.plan-basic {
+        background: var(--gradient-basic);
+      }
+
+      .card-header-custom.plan-lector {
+        background: var(--gradient-lector);
+      }
+
+      .card-header-custom.plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .card-header-custom.plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      .card-header-custom::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(30px, -30px);
+      }
+
+      .card-header-custom h2 {
+        position: relative;
+        z-index: 2;
+        margin: 0;
+        font-weight: 800;
+      }
+
+      .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .benefit-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .benefit-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      /* Beneficios con colores específicos por plan */
+      .benefit-card.plan-basic::before {
+        background: var(--gradient-basic);
+      }
+
+      .benefit-card.plan-lector::before {
+        background: var(--gradient-lector);
+      }
+
+      .benefit-card.plan-premium::before {
+        background: var(--gradient-premium);
+      }
+
+      .benefit-card.plan-familiar::before {
+        background: var(--gradient-familiar);
+      }
+
+      .benefit-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(45, 110, 126, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .benefit-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      /* Iconos de beneficios con colores dinámicos */
+      .benefit-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+        font-size: 2rem;
+        transition: all 0.3s ease;
+      }
+
+      .benefit-icon.plan-basic {
+        background: var(--gradient-basic);
+      }
+
+      .benefit-icon.plan-lector {
+        background: var(--gradient-lector);
+      }
+
+      .benefit-icon.plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .benefit-icon.plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      .benefit-card:hover .benefit-icon {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      .benefit-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+
+      .benefit-description {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .benefit-value {
+        color: var(--bs-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+      }
+
+      /* Benefit values con colores específicos */
+      .benefit-value.plan-basic {
+        background: rgba(108, 117, 125, 0.1);
+        color: var(--plan-basic-color);
+      }
+
+      .benefit-value.plan-lector {
+        background: rgba(45, 110, 126, 0.1);
+        color: var(--plan-lector-color);
+      }
+
+      .benefit-value.plan-premium {
+        background: rgba(111, 66, 193, 0.1);
+        color: var(--plan-premium-color);
+      }
+
+      .benefit-value.plan-familiar {
+        background: rgba(230, 57, 70, 0.1);
+        color: var(--plan-familiar-color);
+      }
+
+      .sticky-sidebar {
+        position: sticky;
+        top: 100px;
+        z-index: 100;
+      }
+
+      .price-card {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border: none;
+        border-radius: 25px;
+        box-shadow: var(--shadow-light);
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .price-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+      }
+
+      /* Price header con colores dinámicos */
+      .price-header {
+        color: white;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .price-header.plan-basic {
+        background: var(--gradient-basic);
+      }
+
+      .price-header.plan-lector {
+        background: var(--gradient-lector);
+      }
+
+      .price-header.plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .price-header.plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      .price-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 10s linear infinite;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .price-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .price-display {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+      }
+
+      .price-period-sidebar {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      /* Botones CTA con colores dinámicos */
+      .cta-button {
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-button.plan-basic {
+        background: var(--gradient-basic);
+      }
+
+      .cta-button.plan-lector {
+        background: var(--gradient-lector);
+      }
+
+      .cta-button.plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .cta-button.plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      .cta-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      .cta-button:hover::before {
+        left: 100%;
+      }
+
+      .cta-button:hover {
+        transform: translateY(-2px);
+        color: white;
+      }
+
+      .cta-button.plan-basic:hover {
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+      }
+
+      .cta-button.plan-lector:hover {
+        box-shadow: 0 8px 25px rgba(45, 110, 126, 0.3);
+      }
+
+      .cta-button.plan-premium:hover {
+        box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3);
+      }
+
+      .cta-button.plan-familiar:hover {
+        box-shadow: 0 8px 25px rgba(230, 57, 70, 0.3);
+      }
+
+      .timeline-container {
+        position: relative;
+        padding-left: 2rem;
+      }
+
+      .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 25px;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        border-radius: 2px;
+      }
+
+      /* Timeline con colores específicos */
+      .timeline-container.plan-basic::before {
+        background: linear-gradient(to bottom, var(--plan-basic-color), rgba(108, 117, 125, 0.3));
+      }
+
+      .timeline-container.plan-lector::before {
+        background: linear-gradient(to bottom, var(--plan-lector-color), rgba(45, 110, 126, 0.3));
+      }
+
+      .timeline-container.plan-premium::before {
+        background: linear-gradient(to bottom, var(--plan-premium-color), rgba(111, 66, 193, 0.3));
+      }
+
+      .timeline-container.plan-familiar::before {
+        background: linear-gradient(to bottom, var(--plan-familiar-color), rgba(230, 57, 70, 0.3));
       }
 
       .timeline-step {
-        display: flex;
-        align-items: flex-start;
+        position: relative;
+        margin-bottom: 3rem;
+        padding-left: 4rem;
+      }
+
+      .timeline-step:last-child {
+        margin-bottom: 0;
       }
 
       .timeline-icon {
+        position: absolute;
+        left: -2rem;
+        top: 0;
         width: 50px;
         height: 50px;
-        background-color: var(--bs-primary);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-size: 1.5rem;
-        flex-shrink: 0;
-        margin-right: 1.5rem;
+        font-weight: bold;
+        border: 4px solid white;
+      }
+
+      /* Timeline icons con colores específicos */
+      .timeline-icon.plan-basic {
+        background: var(--gradient-basic);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+      }
+
+      .timeline-icon.plan-lector {
+        background: var(--gradient-lector);
+        box-shadow: 0 4px 15px rgba(45, 110, 126, 0.3);
+      }
+
+      .timeline-icon.plan-premium {
+        background: var(--gradient-premium);
+        box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+      }
+
+      .timeline-icon.plan-familiar {
+        background: var(--gradient-familiar);
+        box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
       }
 
       .timeline-content {
-        flex-grow: 1;
-        padding-bottom: 2rem;
-        position: relative;
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: var(--shadow-card);
+        transition: all 0.3s ease;
       }
 
-      .timeline-content:after {
+      .timeline-content:hover {
+        transform: translateX(10px);
+        box-shadow: var(--shadow-hover);
+      }
+
+      .timeline-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+
+      .timeline-description {
+        color: #666;
+        line-height: 1.6;
+      }
+
+      .faq-accordion .accordion-item {
+        border: none;
+        margin-bottom: 1rem;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--shadow-card);
+      }
+
+      .faq-accordion .accordion-button {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border: none;
+        padding: 1.5rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #333;
+        border-radius: 15px !important;
+      }
+
+      .faq-accordion .accordion-button:not(.collapsed) {
+        color: white;
+        box-shadow: none;
+      }
+
+      /* FAQ buttons con colores específicos */
+      .faq-accordion .accordion-button:not(.collapsed).plan-basic {
+        background: var(--gradient-basic);
+      }
+
+      .faq-accordion .accordion-button:not(.collapsed).plan-lector {
+        background: var(--gradient-lector);
+      }
+
+      .faq-accordion .accordion-button:not(.collapsed).plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .faq-accordion .accordion-button:not(.collapsed).plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      .faq-accordion .accordion-button:focus {
+        box-shadow: none;
+        border: none;
+      }
+
+      .faq-accordion .accordion-body {
+        padding: 1.5rem 2rem;
+        background: white;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .testimonial-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-card);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .testimonial-card::before {
+        content: '"';
+        position: absolute;
+        top: 1rem;
+        left: 2rem;
+        font-size: 4rem;
+        color: rgba(45, 110, 126, 0.1);
+        font-family: serif;
+        line-height: 1;
+      }
+
+      .testimonial-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+      }
+
+      .testimonial-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto 1.5rem auto;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .testimonial-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #555;
+        margin-bottom: 1.5rem;
+        font-style: italic;
+        position: relative;
+        z-index: 2;
+      }
+
+      .testimonial-author {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+
+      .testimonial-role {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .testimonial-stars {
+        color: #ffc107;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+      }
+
+      /* CTA final con colores dinámicos */
+      .cta-final {
+        color: white;
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-final.plan-basic {
+        background: var(--gradient-basic);
+      }
+
+      .cta-final.plan-lector {
+        background: var(--gradient-lector);
+      }
+
+      .cta-final.plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .cta-final.plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      .cta-final::before {
         content: '';
         position: absolute;
-        left: -36px;
-        top: 50px;
+        top: 0;
+        left: 0;
+        right: 0;
         bottom: 0;
-        width: 3px;
-        background-color: #e9ecef;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
       }
 
-      .timeline-step:last-child .timeline-content {
-        padding-bottom: 0;
+      .cta-content {
+        position: relative;
+        z-index: 2;
       }
 
-      .timeline-step:last-child .timeline-content:after {
-        display: none;
+      /* Features específicas del plan */
+      .plan-features {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 20px;
+        padding: 3rem;
+        margin: 2rem 0;
+      }
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-item:last-child {
+        border-bottom: none;
+      }
+
+      .feature-icon-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+
+      /* Feature icons con colores específicos */
+      .feature-icon-small.plan-basic {
+        background: var(--gradient-basic);
+      }
+
+      .feature-icon-small.plan-lector {
+        background: var(--gradient-lector);
+      }
+
+      .feature-icon-small.plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .feature-icon-small.plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      .feature-content {
+        flex-grow: 1;
+      }
+
+      .feature-name {
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        color: #333;
+      }
+
+      .feature-desc {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0;
+      }
+
+      .feature-value-badge {
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      /* Feature badges con colores específicos */
+      .feature-value-badge.plan-basic {
+        background: var(--gradient-basic);
+      }
+
+      .feature-value-badge.plan-lector {
+        background: var(--gradient-lector);
+      }
+
+      .feature-value-badge.plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .feature-value-badge.plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .plan-title {
+          font-size: 2.5rem;
+        }
+
+        .plan-subtitle {
+          font-size: 1.2rem;
+        }
+
+        .price-amount {
+          font-size: 2.5rem;
+        }
+
+        .benefits-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .timeline-container {
+          padding-left: 1rem;
+        }
+
+        .timeline-step {
+          padding-left: 3rem;
+        }
+
+        .timeline-icon {
+          left: -1.5rem;
+          width: 40px;
+          height: 40px;
+        }
+
+        .plan-features {
+          padding: 2rem 1.5rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .plan-header {
+          padding: 4rem 0 3rem 0;
+        }
+
+        .custom-breadcrumb {
+          margin: -1.5rem 1rem 2rem 1rem;
+          padding: 1rem 1.5rem;
+        }
+
+        .enhanced-card {
+          margin-bottom: 2rem;
+        }
+
+        .testimonial-card {
+          padding: 2rem 1.5rem;
+        }
+      }
+
+      /* Animaciones */
+      .animate-fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+      }
+
+      .animate-fade-in-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .animate-fade-in-left {
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: all 0.6s ease;
+      }
+
+      .animate-fade-in-left.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .animate-fade-in-right {
+        opacity: 0;
+        transform: translateX(30px);
+        transition: all 0.6s ease;
+      }
+
+      .animate-fade-in-right.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .btn-group .btn {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-group .btn:not(.btn-light) {
+        opacity: 0.7;
+      }
+
+      .btn-group .btn:hover {
+        opacity: 1;
+        transform: translateY(-1px);
+      }
+
+      .price-transition {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .badge.bg-success {
+        animation: pulse-success 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse-success {
+
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+        }
+
+        50% {
+          box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+        }
       }
     </style>
   </th:block>
@@ -105,400 +960,746 @@
 <body>
   <!-- Contenido principal -->
   <th:block th:fragment="planDetalleContent">
-    <!-- Header del Plan -->
-    <section class="plan-header">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-8 text-center">
-            <h1 class="display-4 fw-bold mb-4" th:text="${plan?.nombre ?: 'Detalle del Plan'}">Nombre del Plan</h1>
-            <p class="lead fs-4 mb-0" th:text="${plan?.descripcion ?: 'Descripción del plan'}">Descripción completa del
-              plan</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Detalles del Plan -->
-    <section class="container py-5">
-      <div class="row">
-        <div class="col-lg-8">
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-              <h2 class="card-title fw-bold mb-4">Características del Plan</h2>
-
-              <div th:if="${plan != null}">
-                <div class="mb-4">
-                  <h5 class="mb-3">Descripción</h5>
-                  <p th:text="${plan.descripcion}">Descripción completa del plan...</p>
-                </div>
-
-                <!-- SECCIÓN DE CARACTERÍSTICAS COMENTADA/ELIMINADA -->
-
-                <div class="mb-4">
-                  <h5 class="mb-3">Características incluidas</h5>
-
-                  <!-- Cuando hay beneficios, mostrarlos en dos columnas -->
-                  <div class="row" th:if="${beneficiosAsociados != null && !beneficiosAsociados.isEmpty()}">
-                    <div class="col-md-6">
-                      <ul class="list-group list-group-flush">
-                        <li class="list-group-item border-0 ps-0" th:each="beneficio, iterStat : ${beneficiosAsociados}"
-                          th:if="${iterStat.index % 2 == 0}">
-                          <i class="bi bi-check-circle-fill text-success me-2"></i>
-                          <span th:text="${beneficio.beneficio.nombre}">Característica</span>
-                          <p class="text-muted mb-0" th:text="${beneficio.beneficio.descripcion}">Descripción de la
-                            característica...</p>
-                          <p class="text-muted mb-0" th:if="${beneficio.valor}">
-                            <label th:text="${'(' + beneficio.valor + ')'}" class="small">Valor del beneficio</label>
-                          </p>
-                        </li>
-                      </ul>
-                    </div>
-                    <div class="col-md-6">
-                      <ul class="list-group list-group-flush">
-                        <li class="list-group-item border-0 ps-0" th:each="beneficio, iterStat : ${beneficiosAsociados}"
-                          th:if="${iterStat.index % 2 == 1}">
-                          <i class="bi bi-check-circle-fill text-success me-2"></i>
-                          <span th:text="${beneficio.beneficio.nombre}">Característica</span>
-                          <p class="text-muted mb-0" th:text="${beneficio.beneficio.descripcion}">Descripción de la
-                            característica...</p>
-                          <p class="text-muted mb-0" th:if="${beneficio.valor}">
-                            <label th:text="${'(' + beneficio.valor + ')'}" class="small">Valor del beneficio</label>
-                          </p>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <!-- Mensaje cuando no hay beneficios -->
-                  <div class="text-muted" th:unless="${beneficiosAsociados != null && !beneficiosAsociados.isEmpty()}">
-                    No hay características disponibles
-                  </div>
-                </div>
-              </div>
-
-              <!-- Contenido estático para mostrar si el plan no está disponible -->
-              <div th:if="${plan == null}">
-                <div class="alert alert-warning">
-                  <h5 class="alert-heading">Información no disponible</h5>
-                  <p>Los detalles de este plan no están disponibles en este momento.</p>
-                </div>
-
-                <div class="mb-4">
-                  <h5 class="mb-3">Características generales</h5>
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item border-0 ps-0">
-                      <i class="bi bi-check-circle-fill text-success me-2"></i>
-                      <span>Acceso a cientos de libros digitales</span>
-                    </li>
-                    <li class="list-group-item border-0 ps-0">
-                      <i class="bi bi-check-circle-fill text-success me-2"></i>
-                      <span>Préstamos de libros según plan</span>
-                    </li>
-                    <li class="list-group-item border-0 ps-0">
-                      <i class="bi bi-check-circle-fill text-success me-2"></i>
-                      <span>Lectura en múltiples dispositivos</span>
-                    </li>
-                    <li class="list-group-item border-0 ps-0">
-                      <i class="bi bi-check-circle-fill text-success me-2"></i>
-                      <span>Soporte técnico</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+    <th:block th:with="tipoPlan = ${#strings.toLowerCase(#strings.replace(plan?.nombre ?: 'lector', ' ', '-'))}">
+      <!-- Header del Plan -->
+      <section class="plan-header" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">
+        <div class="container">
+          <div class="plan-header-content text-center">
+            <!-- Badge del tipo de plan -->
+            <div class="plan-badge-header animate-fade-in-up">
+              <i class="bi bi-star-fill me-2"></i>
+              <span th:text="${plan?.nombre ?: 'Plan Premium'}">Plan Premium</span>
             </div>
-          </div>
 
-          <!-- Proceso de suscripción -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-              <h2 class="card-title fw-bold mb-4">Cómo suscribirse</h2>
+            <!-- Título del plan -->
+            <h1 class="plan-title animate-fade-in-up" th:text="${plan?.nombre ?: 'Detalle del Plan'}">
+              Plan Premium
+            </h1>
 
-              <div class="timeline-steps">
-                <div class="timeline-step">
-                  <div class="timeline-icon">
-                    <i class="bi bi-1-circle"></i>
+            <!-- Descripción del plan -->
+            <p class="plan-subtitle animate-fade-in-up"
+              th:text="${plan?.descripcion ?: 'Descripción completa del plan'}">
+              Acceso ilimitado a todo nuestro catálogo, funciones exclusivas y la mejor experiencia de biblioteca
+              digital que podemos ofrecer.
+            </p>
+
+            <!-- Precio destacado -->
+            <div class="plan-price-hero animate-fade-in-up">
+              <div class="price-content">
+                <!-- Mostrar precio según modalidad -->
+                <div th:if="${!esModalidadAnual}">
+                  <div class="price-amount"
+                    th:text="${plan?.precioMensual == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(plan?.precioMensual/100, 1, 2)}">
+                    S/ 14.99
                   </div>
-                  <div class="timeline-content">
-                    <h5 class="fw-bold">Selecciona tu plan</h5>
-                    <p>Elige el plan que mejor se adapte a tus necesidades de lectura entre nuestras opciones
-                      disponibles.</p>
-                  </div>
+                  <div class="price-period" th:if="${plan?.precioMensual > 0}">por mes</div>
                 </div>
 
-                <div class="timeline-step">
-                  <div class="timeline-icon">
-                    <i class="bi bi-2-circle"></i>
+                <div th:if="${esModalidadAnual}">
+                  <div class="price-amount"
+                    th:text="${plan?.precioAnual == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(plan?.precioAnual/100, 1, 2)}">
+                    S/ 149.90
                   </div>
-                  <div class="timeline-content">
-                    <h5 class="fw-bold">Crea tu cuenta</h5>
-                    <p>Si aún no tienes una cuenta, regístrate con tu correo electrónico y crea una contraseña segura.
-                    </p>
-                  </div>
+                  <div class="price-period" th:if="${plan?.precioAnual > 0}">por año</div>
                 </div>
 
-                <div class="timeline-step">
-                  <div class="timeline-icon">
-                    <i class="bi bi-3-circle"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <h5 class="fw-bold">Configura tu método de pago</h5>
-                    <p>Ingresa los datos de tu tarjeta de crédito/débito o selecciona PayPal para realizar el pago.</p>
-                  </div>
+                <!-- Mostrar información de la otra modalidad -->
+                <div th:if="${!esModalidadAnual && plan?.precioAnual != null && plan?.precioAnual > 0}" class="mt-2">
+                  <small class="opacity-75">
+                    o S/ <span th:text="${#numbers.formatDecimal(plan?.precioAnual/100, 1, 2)}">149.90</span>/año
+                    <span class="badge bg-success ms-2">Ahorra 20%</span>
+                  </small>
                 </div>
 
-                <div class="timeline-step">
-                  <div class="timeline-icon">
-                    <i class="bi bi-4-circle"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <h5 class="fw-bold">¡Comienza a leer!</h5>
-                    <p>Una vez completado el pago, tendrás acceso inmediato a todo el catálogo incluido en tu plan.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FAQ específicas del plan -->
-          <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-              <h2 class="card-title fw-bold mb-4">Preguntas frecuentes</h2>
-
-              <div class="accordion" id="accordionPlanFAQ">
-                <div class="accordion-item mb-3 border-0 shadow-sm">
-                  <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                      data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                      ¿Puedo cambiar de plan después de suscribirme?
-                    </button>
-                  </h2>
-                  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
-                    data-bs-parent="#accordionPlanFAQ">
-                    <div class="accordion-body">
-                      Sí, puedes cambiar tu plan en cualquier momento. El cambio se hará efectivo al inicio del
-                      siguiente ciclo de facturación.
-                    </div>
-                  </div>
-                </div>
-
-                <div class="accordion-item mb-3 border-0 shadow-sm">
-                  <h2 class="accordion-header" id="headingTwo">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                      data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                      ¿Qué sucede si cancelo mi suscripción?
-                    </button>
-                  </h2>
-                  <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
-                    data-bs-parent="#accordionPlanFAQ">
-                    <div class="accordion-body">
-                      Si cancelas tu suscripción, podrás seguir disfrutando de los beneficios del plan hasta el final
-                      del periodo pagado. Después de esa fecha, ya no tendrás acceso al contenido premium.
-                    </div>
-                  </div>
-                </div>
-
-                <div class="accordion-item mb-3 border-0 shadow-sm">
-                  <h2 class="accordion-header" id="headingThree">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                      data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                      ¿Hay algún compromiso de permanencia?
-                    </button>
-                  </h2>
-                  <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
-                    data-bs-parent="#accordionPlanFAQ">
-                    <div class="accordion-body">
-                      No, no existe ningún compromiso de permanencia. Puedes cancelar tu suscripción en cualquier
-                      momento sin penalizaciones.
-                    </div>
-                  </div>
+                <div th:if="${esModalidadAnual && plan?.precioMensual != null && plan?.precioMensual > 0}" class="mt-2">
+                  <small class="opacity-75">
+                    o S/ <span th:text="${#numbers.formatDecimal(plan?.precioMensual/100, 1, 2)}">14.99</span>/mes
+                    <a th:href="@{/planes/{id}(id=${plan?.id}, modalidad='mensual')}" class="text-white ms-2">
+                      <small>Cambiar a mensual</small>
+                    </a>
+                  </small>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Sidebar con precio y botón de acción -->
-        <div class="col-lg-4 mt-4 mt-lg-0">
-          <div class="card border-0 shadow-sm sticky-lg-top" style="top: 100px; z-index: 100;">
-            <div class="card-body p-4 text-center">
-              <h3 class="card-title mb-4" th:text="${plan?.nombre ?: 'Plan'}">Nombre del Plan</h3>
-
-              <div class="mb-4">
-                <span class="price-tag"
-                  th:text="${plan != null ? 'S/ ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 2, 'POINT') : '$XX.XX'}">$XX.XX</span>
-                <span class="price-period" th:text="${plan != null ? '/' + plan.periodoFacturacion : '/periodo'}">/
-                  periodo</span>
+      <!-- Detalles del Plan -->
+      <section class="container py-5">
+        <div class="row">
+          <!-- Contenido Principal -->
+          <div class="col-lg-8">
+            <!-- Características del Plan -->
+            <div class="enhanced-card mb-5 animate-fade-in-left">
+              <div class="card-header-custom" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">
+                <h2>
+                  <i class="bi bi-list-check me-3"></i>
+                  Características del Plan
+                </h2>
               </div>
 
-              <p class="card-text mb-4" th:text="${plan?.descripcionCorta ?: 'Descripción breve del plan'}">
-                Descripción breve del plan...
+              <div class="card-body p-4">
+
+                <!-- Información básica del plan -->
+                <div th:if="${plan != null}">
+                  <div class="mb-4">
+                    <h5 class="mb-3">Descripción</h5>
+                    <p th:text="${plan.descripcion}">Descripción completa del plan...</p>
+                  </div>
+
+                  <!-- SECCIÓN DE CARACTERÍSTICAS COMENTADA/ELIMINADA -->
+
+                  <div class="mb-4">
+                    <h5 class="mb-3">Características incluidas</h5>
+
+                    <!-- Cuando hay beneficios, mostrarlos en dos columnas -->
+                    <div class="row" th:if="${beneficiosAsociados != null && !beneficiosAsociados.isEmpty()}">
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item border-0 ps-0"
+                            th:each="beneficio, iterStat : ${beneficiosAsociados}" th:if="${iterStat.index % 2 == 0}">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span th:text="${beneficio.beneficio.nombre}">Característica</span>
+                            <p class="text-muted mb-0" th:text="${beneficio.beneficio.descripcion}">Descripción de la
+                              característica...</p>
+                            <p class="text-muted mb-0" th:if="${beneficio.valor}">
+                              <label th:text="${'(' + beneficio.valor + ')'}" class="small">Valor del
+                                beneficio</label>
+                            </p>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item border-0 ps-0"
+                            th:each="beneficio, iterStat : ${beneficiosAsociados}" th:if="${iterStat.index % 2 == 1}">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span th:text="${beneficio.beneficio.nombre}">Característica</span>
+                            <p class="text-muted mb-0" th:text="${beneficio.beneficio.descripcion}">Descripción de la
+                              característica...</p>
+                            <p class="text-muted mb-0" th:if="${beneficio.valor}">
+                              <label th:text="${'(' + beneficio.valor + ')'}" class="small">Valor del
+                                beneficio</label>
+                            </p>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <!-- Mensaje cuando no hay beneficios -->
+                    <div class="text-muted"
+                      th:unless="${beneficiosAsociados != null && !beneficiosAsociados.isEmpty()}">
+                      No hay características disponibles
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contenido estático para mostrar si el plan no está disponible -->
+                <div th:if="${plan == null}">
+                  <div class="alert alert-warning">
+                    <h5 class="alert-heading">Información no disponible</h5>
+                    <p>Los detalles de este plan no están disponibles en este momento.</p>
+                  </div>
+
+                  <div class="mb-4">
+                    <h5 class="mb-3">Características generales</h5>
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item border-0 ps-0">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <span>Acceso a cientos de libros digitales</span>
+                      </li>
+                      <li class="list-group-item border-0 ps-0">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <span>Préstamos de libros según plan</span>
+                      </li>
+                      <li class="list-group-item border-0 ps-0">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <span>Lectura en múltiples dispositivos</span>
+                      </li>
+                      <li class="list-group-item border-0 ps-0">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <span>Soporte técnico</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Proceso de Suscripción -->
+            <div class="enhanced-card mb-5 animate-fade-in-left">
+              <div class="card-header-custom" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">
+                <h2>
+                  <i class="bi bi-arrow-right-circle me-3"></i>
+                  Cómo Suscribirse
+                </h2>
+              </div>
+              <div class="card-body p-4">
+                <div class="timeline-container" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">
+
+                  <div class="timeline-step">
+                    <div class="timeline-icon" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">1</div>
+                    <div class="timeline-content">
+                      <h4 class="timeline-title">Elige tu Plan</h4>
+                      <p class="timeline-description">
+                        Selecciona el plan que mejor se adapte a tus necesidades de lectura.
+                        Puedes comparar todos nuestros planes en cualquier momento.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="timeline-step">
+                    <div class="timeline-icon" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : 
+                                       tipoPlan.contains('premium') ? 'premium' : 
+                                       tipoPlan.contains('familiar') ? 'familiar' : 'lector'}">2</div>
+                    <div class="timeline-content">
+                      <h4 class="timeline-title">Crea tu Cuenta</h4>
+                      <p class="timeline-description">
+                        Regístrate con tu email y crea una contraseña segura.
+                        El proceso es rápido y seguro, solo toma unos minutos.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="timeline-step">
+                    <div class="timeline-icon" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">3</div>
+                    <div class="timeline-content">
+                      <h4 class="timeline-title">Configura el Pago</h4>
+                      <p class="timeline-description">
+                        Añade tu método de pago preferido. Aceptamos todas las tarjetas principales
+                        y tu información está completamente segura.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="timeline-step">
+                    <div class="timeline-icon" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">
+                      <i class="bi bi-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                      <h4 class="timeline-title">¡Comienza a Leer!</h4>
+                      <p class="timeline-description">
+                        Accede inmediatamente a toda tu biblioteca digital y comienza
+                        a disfrutar de miles de títulos disponibles.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ específicas del plan -->
+            <div class="enhanced-card animate-fade-in-left">
+              <div class="card-header-custom" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">
+                <h2>
+                  <i class="bi bi-question-circle me-3"></i>
+                  Preguntas Frecuentes
+                </h2>
+              </div>
+              <div class="card-body p-4">
+                <div class="accordion faq-accordion" id="accordionPlanFAQ">
+
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeading1">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+                        <i class="bi bi-gift me-3 text-primary"></i>
+                        ¿Cómo funciona el período de prueba?
+                      </button>
+                    </h2>
+                    <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1"
+                      data-bs-parent="#accordionPlanFAQ">
+                      <div class="accordion-body">
+                        <span th:if="${plan?.diasPrueba > 0}">
+                          Tendrás <strong th:text="${plan.diasPrueba}">14</strong> días para probar todas las funciones
+                          de este plan sin ningún costo. Puedes cancelar en cualquier momento durante la prueba
+                          sin penalizaciones.
+                        </span>
+                        <span th:unless="${plan?.diasPrueba > 0}">
+                          Este plan no incluye período de prueba, pero puedes cancelar tu suscripción
+                          en cualquier momento sin penalizaciones.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeading2">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                        <i class="bi bi-arrow-repeat me-3 text-success"></i>
+                        ¿Puedo cambiar de plan más tarde?
+                      </button>
+                    </h2>
+                    <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2"
+                      data-bs-parent="#accordionPlanFAQ">
+                      <div class="accordion-body">
+                        Sí, puedes actualizar o cambiar tu plan en cualquier momento desde tu cuenta.
+                        Si actualizas, el cambio es inmediato. Si cambias a un plan inferior,
+                        el cambio se aplicará en tu próximo período de facturación.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeading3">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                        <i class="bi bi-shield-check me-3 text-warning"></i>
+                        ¿Cómo cancelo mi suscripción?
+                      </button>
+                    </h2>
+                    <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3"
+                      data-bs-parent="#accordionPlanFAQ">
+                      <div class="accordion-body">
+                        Puedes cancelar tu suscripción en cualquier momento desde la configuración
+                        de tu cuenta. La cancelación es efectiva al final de tu período de facturación actual,
+                        por lo que seguirás teniendo acceso hasta esa fecha.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeading4">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                        <i class="bi bi-credit-card me-3 text-info"></i>
+                        ¿Qué métodos de pago aceptan?
+                      </button>
+                    </h2>
+                    <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4"
+                      data-bs-parent="#accordionPlanFAQ">
+                      <div class="accordion-body">
+                        Aceptamos todas las tarjetas de crédito principales (Visa, MasterCard, American Express),
+                        tarjetas de débito y métodos de pago digitales como PayPal.
+                        Todos los pagos se procesan de forma segura.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar con precio y botón de acción -->
+          <div class="col-lg-4 mt-5 mt-lg-0">
+            <div class="sticky-sidebar">
+              <div class="price-card animate-fade-in-right">
+
+                <!-- Header del precio con color dinámico -->
+                <div class="price-header" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">
+                  <div class="price-content">
+                    <h3 class="mb-3" th:text="${plan?.nombre ?: 'Plan'}">Plan Premium</h3>
+
+                    <!-- Mostrar precio según modalidad -->
+                    <div th:if="${!esModalidadAnual}">
+                      <div class="price-display"
+                        th:text="${plan?.precioMensual == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(plan?.precioMensual/100, 1, 2)}">
+                        S/ 14.99
+                      </div>
+                      <div class="price-period-sidebar" th:if="${plan?.precioMensual > 0}">por mes</div>
+                    </div>
+
+                    <div th:if="${esModalidadAnual}">
+                      <div class="price-display"
+                        th:text="${plan?.precioAnual == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(plan?.precioAnual/100, 1, 2)}">
+                        S/ 149.90
+                      </div>
+                      <div class="price-period-sidebar" th:if="${plan?.precioAnual > 0}">por año</div>
+                    </div>
+
+                    <!-- Toggle para cambiar modalidad -->
+                    <div class="mt-3">
+                      <div class="btn-group w-100" role="group">
+                        <a th:href="@{/planes/{id}(id=${plan?.id}, modalidad='mensual')}" class="btn btn-sm"
+                          th:classappend="${!esModalidadAnual ? 'btn-light' : 'btn-outline-light'}">
+                          Mensual
+                        </a>
+                        <a th:href="@{/planes/{id}(id=${plan?.id}, modalidad='anual')}" class="btn btn-sm"
+                          th:classappend="${esModalidadAnual ? 'btn-light' : 'btn-outline-light'}">
+                          Anual
+                        </a>
+                      </div>
+
+                      <!-- Información de ahorro -->
+                      <div th:if="${!esModalidadAnual && plan?.precioAnual != null && plan?.precioAnual > 0}"
+                        class="mt-2">
+                        <div class="small opacity-75">
+                          <i class="bi bi-piggy-bank me-1"></i>
+                          Ahorra <strong>20%</strong> con plan anual
+                        </div>
+                      </div>
+
+                      <div th:if="${esModalidadAnual}" class="mt-2">
+                        <div class="small">
+                          <span class="badge bg-success">
+                            <i class="bi bi-piggy-bank me-1"></i>
+                            ¡Ahorrando 20%!
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Cuerpo de la card -->
+                <div class="card-body p-4">
+
+                  <!-- Descripción corta -->
+                  <p class="text-center mb-4"
+                    th:text="${plan?.descripcionCorta ?: plan?.descripcion ?: 'Descripción del plan'}">
+                    Acceso ilimitado y funciones exclusivas.
+                  </p>
+
+                  <!-- Botón CTA principal -->
+                  <div class="d-grid gap-2 mb-4">
+                    <!-- Botón para usuarios con el plan actual -->
+                    <div th:if="${usuarioAutenticado != null && usuarioAutenticado && tieneEstePlan != null && tieneEstePlan}" class="text-center">
+                      <button type="button" class="btn btn-success btn-lg w-100 mb-2" disabled>
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        Tu Plan Actual
+                      </button>
+                      <a th:href="@{/mi-cuenta/suscripcion}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-gear me-2"></i>
+                        Gestionar Mi Suscripción
+                      </a>
+                    </div>
+
+                    <!-- Botón para otros casos -->
+                    <div th:unless="${usuarioAutenticado != null && usuarioAutenticado && tieneEstePlan != null && tieneEstePlan}">
+                      <!-- Botón activo cuando es perfil principal -->
+                      <div th:if="${esPerfilPrincipal}">
+                        <button type="button" class="btn cta-button btn-lg w-100" 
+                                th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}"
+                                onclick="iniciarSuscripcion()">
+                          <i class="bi bi-rocket-takeoff me-2"></i>
+                          <span th:if="${!usuarioAutenticado}">Suscribirse Ahora</span>
+                          <span th:if="${usuarioAutenticado && suscripcionActual == null}">Suscribirse Ahora</span>
+                          <span th:if="${usuarioAutenticado && suscripcionActual != null && tieneEstePlan != null && !tieneEstePlan}">
+                            <span th:if="${plan.precioMensual > (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Actualizar a Este Plan</span>
+                            <span th:if="${plan.precioMensual <= (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Cambiar a Este Plan</span>
+                          </span>
+                        </button>
+                      </div>
+
+                      <!-- Botón deshabilitado cuando NO es perfil principal -->
+                      <div th:unless="${esPerfilPrincipal}">
+                        <button type="button" class="btn btn-secondary btn-lg w-100 disabled" disabled
+                                style="opacity: 0.6; cursor: not-allowed;">
+                          <i class="bi bi-lock me-2"></i>
+                          Solo Consulta
+                        </button>
+                        <small class="text-muted d-block mt-2 text-center">
+                          <i class="bi bi-info-circle me-1"></i>
+                          Las suscripciones solo se pueden gestionar desde el perfil principal
+                        </small>
+                      </div>
+
+                      <a th:href="@{/planes}" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Comparar Planes
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- Información adicional -->
+                  <div class="text-start small text-muted">
+                    <div class="d-flex align-items-center mb-2">
+                      <i class="bi bi-shield-check text-success me-2"></i>
+                      <span>Pago 100% seguro</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                      <i class="bi bi-arrow-repeat text-primary me-2"></i>
+                      <span>Cancela cuando quieras</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2" th:if="${plan?.diasPrueba > 0}">
+                      <i class="bi bi-gift text-warning me-2"></i>
+                      <span th:text="${plan.diasPrueba + ' días de prueba gratis'}">14 días de prueba gratis</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-headset text-info me-2"></i>
+                      <span>Soporte 24/7</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card adicional con estadísticas -->
+              <div class="enhanced-card mt-4 animate-fade-in-right" style="animation-delay: 0.2s;">
+                <div class="card-body p-4 text-center">
+                  <h5 class="card-title mb-3">
+                    <i class="bi bi-graph-up text-success me-2"></i>
+                    ¿Por qué elegir este plan?
+                  </h5>
+
+                  <div class="row text-center">
+                    <div class="col-4">
+                      <div class="fw-bold fs-4 text-primary">98%</div>
+                      <div class="small text-muted">Satisfacción</div>
+                    </div>
+                    <div class="col-4">
+                      <div class="fw-bold fs-4 text-success">24/7</div>
+                      <div class="small text-muted">Soporte</div>
+                    </div>
+                    <div class="col-4">
+                      <div class="fw-bold fs-4 text-warning">+10K</div>
+                      <div class="small text-muted">Usuarios</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonios específicos del plan -->
+      <section class="container py-5">
+        <div class="text-center mb-5 animate-fade-in-up">
+          <h2 class="display-5 fw-bold mb-3">Lo que dicen nuestros usuarios</h2>
+          <p class="lead text-muted">Experiencias reales de lectores como tú</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4 animate-fade-in-up" style="animation-delay: 0.1s;">
+            <div class="testimonial-card h-100">
+              <div class="testimonial-stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <img src="https://images.unsplash.com/photo-1494790108755-2616b612b5c2?w=150&h=150&fit=crop&crop=face"
+                alt="Avatar" class="testimonial-avatar">
+              <p class="testimonial-text">
+                "Este plan me ha permitido acceder a una biblioteca increíble.
+                La calidad del contenido y la facilidad de uso son excepcionales."
               </p>
-
-              <div class="d-grid gap-2">
-                <a href="#" class="btn btn-primary btn-lg">Suscribirse ahora</a>
-                <a th:href="@{/planes}" class="btn btn-outline-secondary">Ver todos los planes</a>
-              </div>
-
-              <div class="mt-4 text-start">
-                <div class="d-flex align-items-center mb-3">
-                  <i class="bi bi-shield-check text-success fs-4 me-3"></i>
-                  <span>Cancelación gratuita</span>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                  <i class="bi bi-credit-card text-success fs-4 me-3"></i>
-                  <span>Pago seguro</span>
-                </div>
-                <div class="d-flex align-items-center">
-                  <i class="bi bi-clock-history text-success fs-4 me-3"></i>
-                  <span>7 días de prueba gratis</span>
-                </div>
-              </div>
+              <div class="testimonial-author">María González</div>
+              <div class="testimonial-role">Profesora universitaria</div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Testimonios específicos del plan -->
-    <section class="container py-5">
-      <h2 class="text-center fw-bold mb-5">Lo que dicen nuestros usuarios</h2>
-
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body p-4">
-              <div class="mb-3">
-                <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
+          <div class="col-md-4 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <div class="testimonial-card h-100">
+              <div class="testimonial-stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
               </div>
-              <p class="card-text mb-4">
-                "Este plan me ha permitido disfrutar de mis libros favoritos sin preocuparme por los costos
-                individuales. Una excelente inversión para cualquier amante de la lectura."
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                alt="Avatar" class="testimonial-avatar">
+              <p class="testimonial-text">
+                "La flexibilidad de poder leer en cualquier dispositivo y
+                la sincronización automática hacen que sea perfecto para mi estilo de vida."
               </p>
-              <div class="mt-auto">
-                <div class="mb-3">
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                </div>
-                <div class="d-flex align-items-center">
-                  <img src="https://randomuser.me/api/portraits/men/45.jpg"
-                    class="rounded-circle testimonial-avatar me-3" alt="Usuario">
-                  <div>
-                    <h6 class="mb-0 fw-bold">Roberto García</h6>
-                    <small class="text-muted">Suscriptor desde 2023</small>
-                  </div>
-                </div>
-              </div>
+              <div class="testimonial-author">Carlos Mendoza</div>
+              <div class="testimonial-role">Ejecutivo</div>
             </div>
           </div>
-        </div>
 
-        <div class="col-md-4">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body p-4">
-              <div class="mb-3">
-                <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
+          <div class="col-md-4 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <div class="testimonial-card h-100">
+              <div class="testimonial-stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
               </div>
-              <p class="card-text mb-4">
-                "La relación calidad-precio es inmejorable. He descubierto autores y géneros que nunca habría explorado
-                si tuviera que comprar cada libro individualmente."
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
+                alt="Avatar" class="testimonial-avatar">
+              <p class="testimonial-text">
+                "Los beneficios del plan familiar nos han permitido compartir
+                la pasión por la lectura con toda la familia. ¡Altamente recomendado!"
               </p>
-              <div class="mt-auto">
-                <div class="mb-3">
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-half text-warning"></i>
-                </div>
-                <div class="d-flex align-items-center">
-                  <img src="https://randomuser.me/api/portraits/women/28.jpg"
-                    class="rounded-circle testimonial-avatar me-3" alt="Usuario">
-                  <div>
-                    <h6 class="mb-0 fw-bold">María López</h6>
-                    <small class="text-muted">Suscriptora desde 2022</small>
-                  </div>
-                </div>
-              </div>
+              <div class="testimonial-author">Ana Rodríguez</div>
+              <div class="testimonial-role">Madre de familia</div>
             </div>
           </div>
         </div>
+      </section>
 
-        <div class="col-md-4">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body p-4">
-              <div class="mb-3">
-                <i class="bi bi-quote fs-1 text-primary opacity-25"></i>
-              </div>
-              <p class="card-text mb-4">
-                "El soporte al cliente es excepcional. Tuve un problema con mi facturación y lo resolvieron en minutos.
-                Además, la biblioteca es extensa y siempre actualizada."
+      <!-- CTA Final -->
+      <section class="cta-final" th:classappend="'plan-' + ${tipoPlan.contains('basic') ? 'basic' : (tipoPlan.contains('premium') ? 'premium' : (tipoPlan.contains('familiar') ? 'familiar' : 'lector'))}">
+        <div class="container">
+          <div class="cta-content row align-items-center justify-content-between">
+            <div class="col-lg-7 text-center text-lg-start mb-4 mb-lg-0">
+              <h2 class="fw-bold mb-3" th:text="'¿Listo para disfrutar del ' + ${plan?.nombre ?: 'plan'} + '?'">
+                ¿Listo para disfrutar del Plan Premium?
+              </h2>
+              <p class="lead mb-0">
+                Comienza hoy mismo y accede a nuestra extensa biblioteca de contenidos.
+                Tu próxima gran lectura te está esperando.
               </p>
-              <div class="mt-auto">
-                <div class="mb-3">
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star-fill text-warning"></i>
-                  <i class="bi bi-star text-warning"></i>
+              <div class="mt-3 small opacity-75">
+                <i class="bi bi-shield-check me-2"></i>Garantía de satisfacción
+                <span class="mx-3">•</span>
+                <i class="bi bi-headset me-2"></i>Soporte 24/7
+                <span class="mx-3">•</span>
+                <i class="bi bi-arrow-repeat me-2"></i>Sin compromisos
+              </div>
+            </div>
+            <div class="col-lg-4 text-center text-lg-end">
+              <!-- Botón para usuarios con el plan actual -->
+              <div th:if="${usuarioAutenticado != null && usuarioAutenticado && tieneEstePlan != null && tieneEstePlan}">
+                <button type="button" class="btn btn-success btn-lg me-2 mb-2" disabled>
+                  <i class="bi bi-check-circle-fill me-2"></i>
+                  Tu Plan Actual
+                </button>
+                <a th:href="@{/mi-cuenta/suscripcion}" class="btn btn-outline-light btn-lg mb-2">
+                  <i class="bi bi-gear me-2"></i>
+                  Gestionar
+                </a>
+              </div>
+
+              <!-- Botón para otros casos -->
+              <div th:unless="${usuarioAutenticado != null && usuarioAutenticado && tieneEstePlan != null && tieneEstePlan}">
+                <!-- Botón activo cuando es perfil principal -->
+                <div th:if="${esPerfilPrincipal}">
+                  <button type="button" class="btn btn-light btn-lg me-2 mb-2" onclick="iniciarSuscripcion()">
+                    <i class="bi bi-rocket-takeoff me-2"></i>
+                    <span th:if="${!usuarioAutenticado || suscripcionActual == null}">Suscribirse Ahora</span>
+                    <span th:if="${usuarioAutenticado && suscripcionActual != null && tieneEstePlan != null && !tieneEstePlan}">
+                      <span th:if="${plan.precioMensual > (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Actualizar Plan</span>
+                      <span th:if="${plan.precioMensual <= (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Cambiar Plan</span>
+                    </span>
+                  </button>
                 </div>
-                <div class="d-flex align-items-center">
-                  <img src="https://randomuser.me/api/portraits/men/22.jpg"
-                    class="rounded-circle testimonial-avatar me-3" alt="Usuario">
-                  <div>
-                    <h6 class="mb-0 fw-bold">Javier Rodríguez</h6>
-                    <small class="text-muted">Suscriptor desde 2023</small>
-                  </div>
+
+                <!-- Botón deshabilitado cuando NO es perfil principal -->
+                <div th:unless="${esPerfilPrincipal}">
+                  <button type="button" class="btn btn-secondary btn-lg me-2 mb-2 disabled" disabled
+                          style="opacity: 0.6; cursor: not-allowed;">
+                    <i class="bi bi-lock me-2"></i>Solo Consulta
+                  </button>
+                  <br>
+                  <small class="text-light">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Gestiona desde el perfil principal
+                  </small>
+                  <br>
                 </div>
+
+                <a th:href="@{/planes}" class="btn btn-outline-light btn-lg mb-2">
+                  <i class="bi bi-arrow-left me-2"></i>
+                  Comparar Planes
+                </a>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- CTA Final -->
-    <section class="bg-primary text-white py-5 mb-5">
-      <div class="container">
-        <div class="row align-items-center justify-content-between">
-          <div class="col-lg-7 text-center text-lg-start">
-            <h2 class="fw-bold mb-3" th:text="'¿Listo para disfrutar del plan ' + ${plan?.nombre ?: ''} + '?'">¿Listo
-              para disfrutar de este plan?</h2>
-            <p class="lead mb-0">Comienza hoy mismo y accede a nuestra extensa biblioteca de contenidos</p>
-          </div>
-          <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
-            <a href="#" class="btn btn-light btn-lg me-2">Suscribirse ahora</a>
-            <a th:href="@{/planes}" class="btn btn-outline-light">Comparar planes</a>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
+    </th:block>
   </th:block>
 
   <th:block th:fragment="planDetalleScripts">
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         // Animaciones al hacer scroll
-        const animateOnScroll = function () {
-          const cards = document.querySelectorAll('.benefit-card, .timeline-step, .accordion-item');
-
-          cards.forEach(card => {
-            const cardTop = card.getBoundingClientRect().top;
-            const triggerBottom = window.innerHeight * 0.8;
-
-            if (cardTop < triggerBottom) {
-              card.classList.add('animate__animated', 'animate__fadeInUp');
-            }
-          });
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
         };
 
-        // Ejecutar al cargar la página
-        animateOnScroll();
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, observerOptions);
 
-        // Ejecutar al hacer scroll
-        window.addEventListener('scroll', animateOnScroll);
+        // Observar elementos para animación
+        document.querySelectorAll('.animate-fade-in-up, .animate-fade-in-left, .animate-fade-in-right').forEach(el => {
+          observer.observe(el);
+        });
+
+        // Smooth scroll para anclas internas
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          });
+        });
+
+        // Animación de escritura para beneficios
+        const benefitCards = document.querySelectorAll('.benefit-card');
+        benefitCards.forEach((card, index) => {
+          setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          }, index * 100);
+        });
+
+        // Mejorar accesibilidad
+        document.querySelectorAll('.cta-button').forEach(btn => {
+          btn.addEventListener('focus', function () {
+            this.style.outline = '3px solid rgba(255, 255, 255, 0.5)';
+            this.style.outlineOffset = '2px';
+          });
+
+          btn.addEventListener('blur', function () {
+            this.style.outline = 'none';
+          });
+        });
+
+        // Console.log para debug (eliminar en producción)
+        console.log('✅ Página de detalle del plan cargada correctamente');
+        console.log('📋 Plan:', document.querySelector('.plan-title')?.textContent);
+
+        // Detectar tipo de plan para debug
+        const planHeader = document.querySelector('.plan-header');
+        const planType = planHeader.className.match(/plan-(\w+)/)?.[1] || 'unknown';
+        console.log('🎨 Tipo de plan detectado:', planType);
+      });
+
+      // Función para iniciar suscripción
+      function iniciarSuscripcion() {
+        console.log('Iniciando proceso de suscripción...');
+        
+        // Verificar si es perfil principal (solo como medida adicional de seguridad)
+        const esPerfilPrincipal = /*[[${esPerfilPrincipal}]]*/ true;
+        
+        if (!esPerfilPrincipal) {
+          alert('Solo puedes gestionar suscripciones desde el perfil principal.');
+          return;
+        }
+        
+        // Obtener el ID del plan desde la URL o elemento
+        const planId = window.location.pathname.split('/planes/')[1]?.split('?')[0];
+        const urlParams = new URLSearchParams(window.location.search);
+        const modalidad = urlParams.get('modalidad') || 'MENSUAL';
+        
+        if (planId) {
+          // Redirigir al checkout
+          window.location.href = `/checkout/plan/${planId}?modalidad=${modalidad}`;
+        } else {
+          console.error('No se pudo obtener el ID del plan');
+          alert('Error: No se pudo procesar la solicitud. Inténtalo de nuevo.');
+        }
+      }
+
+      // Función para manejar errores de imagen
+      function handleImageError(img) {
+        img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"><rect width="150" height="150" fill="%23f8f9fa"/><circle cx="75" cy="60" r="20" fill="%236c757d"/><path d="M45 110 Q 75 90 105 110" stroke="%236c757d" stroke-width="3" fill="none"/></svg>';
+        img.alt = 'Avatar no disponible';
+      }
+
+      // Añadir onerror a las imágenes
+      document.querySelectorAll('.testimonial-avatar').forEach(img => {
+        img.onerror = function () { handleImageError(this); };
       });
     </script>
   </th:block>

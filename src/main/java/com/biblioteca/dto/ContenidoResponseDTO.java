@@ -1,5 +1,6 @@
 package com.biblioteca.dto;
 
+import com.biblioteca.dto.actividades.PrestamoResponseDTO;
 import com.biblioteca.enums.FormatoFisico;
 import com.biblioteca.enums.TipoContenido;
 import com.biblioteca.enums.TipoLicenciaDigital;
@@ -76,5 +77,98 @@ public class ContenidoResponseDTO {
 
   // Campos de Series
   private SerieResponseDTO serie;
-  
+  private Integer ordenEnSerie;
+
+  // ========== CAMPOS PARA GESTIÓN DE PRÉSTAMOS ==========
+
+  /**
+   * Indica si este contenido ya está prestado por el perfil actual
+   * (solo se llena cuando hay un perfil activo en sesión)
+   */
+  private Boolean yaPrestadoPorPerfil;
+
+  /**
+   * Información del préstamo activo si existe
+   * (solo se llena cuando yaPrestadoPorPerfil = true)
+   */
+  private PrestamoResponseDTO prestamoActivo;
+
+  // ========== MÉTODOS HELPER PARA PRÉSTAMOS ==========
+
+  /**
+   * Verifica de forma segura si está prestado por el perfil actual
+   */
+  public boolean isYaPrestadoPorPerfilSafe() {
+    return Boolean.TRUE.equals(yaPrestadoPorPerfil);
+  }
+
+  /**
+   * Verifica si tiene un préstamo activo con información válida
+   */
+  public boolean tienePrestamoActivo() {
+    return isYaPrestadoPorPerfilSafe() && prestamoActivo != null;
+  }
+
+  /**
+   * Obtiene el ID del préstamo activo de forma segura
+   */
+  public Long getPrestamoActivoId() {
+    return tienePrestamoActivo() ? prestamoActivo.getId() : null;
+  }
+
+  /**
+   * Verifica si el préstamo está próximo a vencer (menos de 3 días)
+   */
+  public boolean isPrestamoProximoAVencer() {
+    if (!tienePrestamoActivo())
+      return false;
+
+    LocalDate fechaVencimiento = prestamoActivo.getFechaDevolucionPrevista();
+    if (fechaVencimiento == null)
+      return false;
+
+    return fechaVencimiento.isBefore(LocalDate.now().plusDays(3));
+  }
+
+  /**
+   * Verifica si el préstamo está vencido
+   */
+  public boolean isPrestamoVencido() {
+    if (!tienePrestamoActivo())
+      return false;
+
+    LocalDate fechaVencimiento = prestamoActivo.getFechaDevolucionPrevista();
+    if (fechaVencimiento == null)
+      return false;
+
+    return fechaVencimiento.isBefore(LocalDate.now());
+  }
+
+  /**
+   * Obtiene el estado del préstamo de forma legible
+   */
+  public String getEstadoPrestamoTexto() {
+    if (!tienePrestamoActivo())
+      return "Disponible";
+
+    if (isPrestamoVencido())
+      return "Vencido";
+    if (isPrestamoProximoAVencer())
+      return "Próximo a vencer";
+    return "Prestado";
+  }
+
+  /**
+   * Obtiene la clase CSS apropiada para el estado del préstamo
+   */
+  public String getEstadoPrestamoClase() {
+    if (!tienePrestamoActivo())
+      return "text-success";
+
+    if (isPrestamoVencido())
+      return "text-danger";
+    if (isPrestamoProximoAVencer())
+      return "text-warning";
+    return "text-info";
+  }
 }

@@ -19,6 +19,11 @@ public interface FacturaMapper {
   Factura toEntity(FacturaRequestDTO dto);
 
   @Mapping(target = "ordenId", source = "orden.id")
+  @Mapping(target = "fechaOrden", source = "orden.fechaCreacion")
+  @Mapping(target = "estadoOrden", source = "orden.estadoOrden")
+  @Mapping(target = "clienteNombre", source = "orden.perfil.nombreVisible")
+  @Mapping(target = "clienteEmail", source = "orden.perfil.usuario.email")
+  @Mapping(target = "perfilId", source = "orden.perfil.id")
   FacturaResponseDTO toResponseDTO(Factura entity);
 
   List<FacturaResponseDTO> toResponseDTOList(List<Factura> entities);

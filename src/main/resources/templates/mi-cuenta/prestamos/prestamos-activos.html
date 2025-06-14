@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Mis Préstamos Activos - Biblioteca Virtual',
+        paramCss=~{::prestamosActivosCss},
+        paramScripts=~{::prestamosActivosScripts},
+        activeMenu='prestamos',
+        pageSpecificContent=~{::mainContent}
+    )}">
+
+<head>
+  <th:block th:fragment="prestamosActivosCss">
+    <style>
+      .prestamos-container {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+      }
+
+      .prestamo-card {
+        border: none;
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+      }
+
+      .prestamo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.75rem 1.5rem rgba(45, 110, 126, 0.15);
+      }
+
+      .prestamo-header {
+        background: linear-gradient(135deg, var(--bs-primary) 0%, #1e5f6f 100%);
+        color: white;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .prestamo-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .prestamo-header-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .prestamo-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .prestamo-subtitle {
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        font-size: 1rem;
+      }
+
+      .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin: -1rem 1.5rem 1.5rem 1.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 3;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        background: rgba(45, 110, 126, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .stat-item:hover {
+        background: rgba(45, 110, 126, 0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.1);
+      }
+
+      .stat-number {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        display: block;
+      }
+
+      .stat-number.activos {
+        color: var(--bs-success);
+      }
+
+      .stat-number.disponibles {
+        color: var(--bs-info);
+      }
+
+      .stat-number.total {
+        color: var(--bs-primary);
+      }
+
+      .stat-number.porcentaje {
+        color: var(--bs-warning);
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: var(--bs-secondary);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .prestamo-item {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .prestamo-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1.25rem rgba(45, 110, 126, 0.15);
+        border-color: rgba(45, 110, 126, 0.2);
+      }
+
+      .prestamo-content {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+      }
+
+      .libro-portada {
+        width: 80px;
+        height: 120px;
+        border-radius: 0.75rem;
+        object-fit: cover;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+      }
+
+      .prestamo-item:hover .libro-portada {
+        transform: scale(1.05) rotate(1deg);
+        box-shadow: 0 0.75rem 1.5rem rgba(45, 110, 126, 0.2);
+      }
+
+      .prestamo-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .libro-titulo {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--bs-primary);
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+      }
+
+      .libro-autor {
+        color: var(--bs-secondary);
+        margin-bottom: 1rem;
+        font-weight: 500;
+      }
+
+      .prestamo-detalles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .detalle-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: rgba(45, 110, 126, 0.05);
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+      }
+
+      .detalle-item:hover {
+        background: rgba(45, 110, 126, 0.1);
+      }
+
+      .detalle-item i {
+        color: var(--bs-primary);
+        font-size: 1rem;
+        opacity: 0.7;
+      }
+
+      .estado-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .estado-badge.activo {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .estado-badge.proximo-vencer {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: #212529;
+      }
+
+      .estado-badge.vencido {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+      }
+
+      .prestamo-acciones {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .btn-prestamo {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: 2px solid transparent;
+      }
+
+      .btn-prestamo:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      }
+
+      .btn-devolver {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: #212529;
+        border-color: #ffc107;
+      }
+
+      .btn-devolver:hover {
+        background: linear-gradient(135deg, #e0a800, #e8650e);
+        color: #212529;
+      }
+
+      .btn-renovar {
+        background: transparent;
+        color: var(--bs-info);
+        border-color: var(--bs-info);
+      }
+
+      .btn-renovar:hover {
+        background: var(--bs-info);
+        color: white;
+      }
+
+      .btn-leer {
+        background: linear-gradient(135deg, var(--bs-primary), #1e5f6f);
+        color: white;
+        border-color: var(--bs-primary);
+      }
+
+      .btn-leer:hover {
+        background: linear-gradient(135deg, #1e5f6f, #0d4449);
+        color: white;
+      }
+
+      .alert-prestamos {
+        border: none;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .alert-prestamos i {
+        font-size: 1.5rem;
+        margin-top: 0.125rem;
+      }
+
+      .alert-content h6 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+      }
+
+      .alert-content p {
+        margin: 0;
+        line-height: 1.4;
+      }
+
+      .sin-prestamos {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+      }
+
+      .sin-prestamos i {
+        font-size: 4rem;
+        color: var(--bs-primary);
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+      }
+
+      .sin-prestamos h3 {
+        color: var(--bs-primary);
+        margin-bottom: 1rem;
+      }
+
+      .sin-prestamos p {
+        color: var(--bs-secondary);
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+      }
+
+      .btn-explorar {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: linear-gradient(135deg, var(--bs-primary), #1e5f6f);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 2rem;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.3);
+      }
+
+      .btn-explorar:hover {
+        background: linear-gradient(135deg, #1e5f6f, #0d4449);
+        transform: translateY(-3px);
+        box-shadow: 0 0.75rem 1.5rem rgba(45, 110, 126, 0.4);
+        color: white;
+      }
+
+      .progress-prestamos {
+        background: rgba(45, 110, 126, 0.05);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .progress-title {
+        font-weight: 600;
+        color: var(--bs-primary);
+      }
+
+      .progress-value {
+        font-weight: 700;
+        color: var(--bs-success);
+      }
+
+      .progress-bar-custom {
+        height: 8px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--bs-success), #20c997);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+      }
+
+      /* Responsive */
+      @media (max-width: 991.98px) {
+        .prestamo-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .libro-portada {
+          align-self: center;
+        }
+
+        .stats-overview {
+          margin: -0.5rem 1rem 1rem 1rem;
+        }
+      }
+
+      @media (max-width: 767.98px) {
+        .prestamo-header {
+          padding: 1rem;
+        }
+
+        .prestamo-title {
+          font-size: 1.5rem;
+        }
+
+        .prestamo-item {
+          padding: 1rem;
+        }
+
+        .prestamo-detalles {
+          grid-template-columns: 1fr;
+        }
+
+        .prestamo-acciones {
+          flex-direction: column;
+        }
+
+        .btn-prestamo {
+          justify-content: center;
+        }
+      }
+
+      /* Animaciones */
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      .prestamo-item {
+        animation: slideInUp 0.6s ease-out;
+      }
+
+      .stats-overview {
+        animation: slideInUp 0.6s ease-out 0.1s both;
+      }
+
+      .alert-prestamos {
+        animation: fadeIn 0.8s ease-out;
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido específico de la página -->
+  <div th:fragment="mainContent">
+
+    <!-- Header de la página -->
+    <div class="prestamo-card">
+      <div class="prestamo-header">
+        <div class="prestamo-header-content">
+          <div>
+            <h1 class="prestamo-title">
+              <i class="bi bi-book me-2"></i>Préstamos Activos
+            </h1>
+            <p class="prestamo-subtitle">
+              Gestiona todos tus préstamos actuales y accede a tu biblioteca personal
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas generales -->
+      <div class="stats-overview">
+        <div class="stat-item">
+          <span class="stat-number activos" th:text="${totalActivos ?: 0}">0</span>
+          <span class="stat-label">Activos</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number disponibles" th:text="${prestamosDisponibles ?: 0}">0</span>
+          <span class="stat-label">Disponibles</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number total" th:text="${limitePrestamos ?: 0}">0</span>
+          <span class="stat-label">Límite Total</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number porcentaje"
+            th:text="${#numbers.formatDecimal(porcentajeUso ?: 0, 0, 1) + '%'}">0%</span>
+          <span class="stat-label">Uso</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de progreso de límites -->
+    <div class="progress-prestamos" th:if="${limitePrestamos != null and limitePrestamos > 0}">
+      <div class="progress-header">
+        <span class="progress-title">
+          <i class="bi bi-speedometer2 me-2"></i>Uso de Préstamos
+        </span>
+        <span class="progress-value" th:text="${totalActivos + ' de ' + limitePrestamos}">0 de 5</span>
+      </div>
+      <div class="progress-bar-custom">
+        <div class="progress-fill" th:style="${'width: ' + (porcentajeUso ?: 0) + '%'}"></div>
+      </div>
+    </div>
+
+    <!-- Alerta si está cerca del límite -->
+    <div th:if="${cercaDelLimite}" class="alert alert-prestamos alert-warning">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div class="alert-content">
+        <h6>Cerca del límite de préstamos</h6>
+        <p>
+          Estás usando el <span th:text="${#numbers.formatDecimal(porcentajeUso, 0, 1)}">80</span>%
+          de tu límite de préstamos. Considera devolver algunos contenidos o
+          <a href="/mi-cuenta/suscripcion/actualizar" class="alert-link">mejorar tu plan</a>
+          para acceder a más préstamos simultáneos.
+        </p>
+      </div>
+    </div>
+
+    <!-- Lista de préstamos activos -->
+    <div th:if="${prestamosActivos != null and not #lists.isEmpty(prestamosActivos)}">
+      <div th:each="prestamo : ${prestamosActivos}" class="prestamo-item">
+        <div class="prestamo-content">
+          <!-- Portada del libro -->
+          <img th:src="${prestamo.contenido?.portadaUrl ?: '/img/portada-default.jpg'}" class="libro-portada"
+            th:alt="${prestamo.contenido?.obra?.titulo ?: 'Portada del libro'}">
+
+          <!-- Información del préstamo -->
+          <div class="prestamo-info">
+            <h3 class="libro-titulo" th:text="${prestamo.contenido?.obra?.titulo ?: 'Título no disponible'}">
+              Título del Libro
+            </h3>
+
+            <p class="libro-autor" th:text="${prestamo.contenido?.obra?.autor != null and not #strings.isEmpty(prestamo.contenido.obra.autor) ? 
+                      'Por ' + prestamo.contenido.obra.autor : 
+                      'Autor no disponible'}">
+              Por Autor Desconocido
+            </p>
+
+            <!-- Detalles del préstamo -->
+            <div class="prestamo-detalles">
+              <div class="detalle-item">
+                <i class="bi bi-calendar-check"></i>
+                <span th:text="${'Prestado: ' + #temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy')}">
+                  Prestado: 01/01/2025
+                </span>
+              </div>
+
+              <div class="detalle-item">
+                <i class="bi bi-calendar-x"></i>
+                <span th:text="${'Vence: ' + #temporals.format(prestamo.fechaDevolucionPrevista, 'dd/MM/yyyy')}">
+                  Vence: 15/01/2025
+                </span>
+              </div>
+
+              <div class="detalle-item">
+                <i class="bi bi-clock"></i>
+                <span th:text="${prestamo.diasRestantes != null ? 
+                    (prestamo.diasRestantes > 0 ? prestamo.diasRestantes + ' días restantes' : 
+                    prestamo.diasRestantes == 0 ? 'Vence hoy' : 'Vencido hace ' + Math.abs(prestamo.diasRestantes) + ' días') : 
+                    'Calculando...'}">
+                  5 días restantes
+                </span>
+              </div>
+
+              <div class="detalle-item">
+                <i class="bi bi-bookmark"></i>
+                <span
+                  th:text="${prestamo.contenido?.tipoContenido?.toString()?.replace('_', ' ')?.toLowerCase() ?: 'Tipo no disponible'}">
+                  Libro digital
+                </span>
+              </div>
+            </div>
+
+            <!-- Estado del préstamo -->
+            <div class="mb-3">
+              <span
+                th:class="${'estado-badge ' + (prestamo.vencido ? 'vencido' : prestamo.proximoAVencer ? 'proximo-vencer' : 'activo')}">
+                <i
+                  th:class="${'bi ' + (prestamo.vencido ? 'bi-exclamation-triangle' : prestamo.proximoAVencer ? 'bi-clock' : 'bi-check-circle')}"></i>
+                <span
+                  th:text="${prestamo.vencido ? 'Vencido' : prestamo.proximoAVencer ? 'Próximo a Vencer' : 'Activo'}">
+                  Activo
+                </span>
+              </span>
+            </div>
+
+            <!-- Acciones del préstamo -->
+            <div class="prestamo-acciones">
+              <!-- Leer/Acceder -->
+              <a th:href="@{'/biblioteca/leer/' + ${prestamo.contenido?.id}}" class="btn-prestamo btn-leer">
+                <i class="bi bi-play-circle"></i>
+                <span>Leer Ahora</span>
+              </a>
+
+              <form th:action="@{'/mi-cuenta/prestamos/' + ${prestamo.id} + '/devolver'}" method="post"
+                style="display: inline-block;"
+                onsubmit="return confirm('¿Estás seguro de que deseas devolver este préstamo?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-prestamo btn-devolver">
+                  <i class="bi bi-arrow-return-left"></i>
+                  <span>Devolver</span>
+                </button>
+              </form>
+
+              <form th:if="${!prestamo.vencido}" th:action="@{'/mi-cuenta/prestamos/' + ${prestamo.id} + '/renovar'}"
+                method="post" style="display: inline-block;"
+                onsubmit="return confirm('¿Deseas renovar este préstamo por 14 días adicionales?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="diasExtension" value="14" />
+                <button type="submit" class="btn-prestamo btn-renovar">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  <span>Renovar</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado sin préstamos -->
+    <div th:if="${prestamosActivos == null or #lists.isEmpty(prestamosActivos)}" class="sin-prestamos">
+      <i class="bi bi-book"></i>
+      <h3>No tienes préstamos activos</h3>
+      <p>
+        ¡Explora nuestro catálogo y encuentra tu próxima lectura favorita!<br>
+        Tienes <strong th:text="${limitePrestamos ?: 0}">0</strong> préstamos disponibles.
+      </p>
+      <a href="/catalogo" class="btn-explorar">
+        <i class="bi bi-search"></i>
+        <span>Explorar Catálogo</span>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Scripts específicos -->
+  <th:block th:fragment="prestamosActivosScripts">
+    <script>
+      // ✅ SOLO MANEJAR NOTIFICACIONES Y ANIMACIONES
+      document.addEventListener('DOMContentLoaded', function () {
+        // Mostrar mensajes flash de éxito/error
+        const successMessage = /*[[${success}]]*/ null;
+        const errorMessage = /*[[${error}]]*/ null;
+
+        if (successMessage) {
+          showNotification(successMessage, 'success');
+        }
+
+        if (errorMessage) {
+          showNotification(errorMessage, 'error');
+        }
+
+        // Animaciones de entrada
+        const prestamosItems = document.querySelectorAll('.prestamo-item');
+        prestamosItems.forEach((item, index) => {
+          item.style.opacity = '0';
+          item.style.transform = 'translateY(30px)';
+
+          setTimeout(() => {
+            item.style.transition = 'all 0.6s ease-out';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+          }, index * 100);
+        });
+      });
+
+      // Función para mostrar notificaciones
+      function showNotification(message, type) {
+        // Remover notificaciones existentes
+        document.querySelectorAll('.notification-custom').forEach(n => n.remove());
+
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed notification-custom`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+        notification.innerHTML = `
+        <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove después de 4 segundos
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 4000);
+      }
+    </script>
+  </th:block>
+
+</body>
+
+</html>

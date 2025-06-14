@@ -1,253 +1,234 @@
 package com.biblioteca.service.impl;
 
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.biblioteca.dto.comercial.HistorialPagoSuscripcionRequestDTO;
 import com.biblioteca.dto.comercial.HistorialPagoSuscripcionResponseDTO;
+import com.biblioteca.exceptions.RecursoNoEncontradoException;
 import com.biblioteca.mapper.comercial.HistorialPagoSuscripcionMapper;
 import com.biblioteca.models.comercial.HistorialPagoSuscripcion;
 import com.biblioteca.models.comercial.Pago;
 import com.biblioteca.models.comercial.Suscripcion;
+import com.biblioteca.repositories.comercial.HistorialPagoSuscripcionRepository;
+import com.biblioteca.repositories.comercial.PagoRepository;
+import com.biblioteca.repositories.comercial.SuscripcionRepository;
 import com.biblioteca.service.HistorialPagoSuscripcionService;
-import com.biblioteca.service.PagoService;
-import com.biblioteca.service.SuscripcionService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class HistorialPagoSuscripcionServiceImpl implements HistorialPagoSuscripcionService {
 
-  private final List<HistorialPagoSuscripcion> historialPagos = new ArrayList<>();
-  private final AtomicLong historialPagoIdCounter = new AtomicLong(0);
+  private final HistorialPagoSuscripcionRepository historialPagoRepository;
+  private final SuscripcionRepository suscripcionRepository; // Usar repositorio directamente
+  private final PagoRepository pagoRepository; // Usar repositorio directamente
   private final HistorialPagoSuscripcionMapper historialPagoMapper;
-  private final SuscripcionService suscripcionService;
-  private final PagoService pagoService;
-  private final ObjectMapper objectMapper;
-  private final ResourceLoader resourceLoader;
 
-  // Estados posibles de un pago de suscripción
+  // Estados posibles de un pago de suscripción (se pueden mover a un Enum si se
+  // prefiere)
   public static final String ESTADO_PAGADO = "PAGADO";
   public static final String ESTADO_PENDIENTE = "PENDIENTE";
   public static final String ESTADO_FALLIDO = "FALLIDO";
   public static final String ESTADO_CANCELADO = "CANCELADO";
   public static final String ESTADO_REEMBOLSADO = "REEMBOLSADO";
 
-  @PostConstruct
-  public void initHistorialPagosData() {
-    try {
-      InputStream inputStream = resourceLoader.getResource("classpath:data/historial-pagos-suscripcion-data.json")
-          .getInputStream();
-      List<HistorialPagoSuscripcionRequestDTO> historialPagosDTOs = objectMapper.readValue(inputStream,
-          new TypeReference<List<HistorialPagoSuscripcionRequestDTO>>() {
-          });
-      historialPagosDTOs.forEach(this::registrarPago);
-      System.out.println(
-          "Datos iniciales de Historial de Pagos cargados desde JSON: " + historialPagos.size() + " registros.");
-    } catch (Exception e) {
-      System.err.println("Error al cargar datos iniciales de historial de pagos desde JSON: " + e.getMessage());
-      // No cargamos datos por defecto porque dependemos de suscripciones existentes
-    }
-  }
-
   @Override
+  @Transactional
   public HistorialPagoSuscripcionResponseDTO registrarPago(HistorialPagoSuscripcionRequestDTO pagoDTO) {
-
-    Suscripcion suscripcion = suscripcionService.obtenerEntidadSuscripcionPorId(pagoDTO.getSuscripcionId())
+    Suscripcion suscripcion = suscripcionRepository.findById(pagoDTO.getSuscripcionId())
         .orElseThrow(
-            () -> new IllegalArgumentException("Suscripción no encontrada con ID: " + pagoDTO.getSuscripcionId()));
+            () -> new RecursoNoEncontradoException("Suscripción no encontrada con ID: " + pagoDTO.getSuscripcionId()));
 
     HistorialPagoSuscripcion historialPago = historialPagoMapper.toEntity(pagoDTO);
-    historialPago.setId(historialPagoIdCounter.incrementAndGet());
+    // El ID será generado por la base de datos
     historialPago.setSuscripcion(suscripcion);
 
-    // Si se proporciona un ID de pago general, intentar vincularlo
     if (pagoDTO.getPagoId() != null) {
-      Pago pago = pagoService.obtenerEntidadPagoPorId(pagoDTO.getPagoId())
-          .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado con ID: " + pagoDTO.getPagoId()));
+      Pago pago = pagoRepository.findById(pagoDTO.getPagoId())
+          .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado con ID: " + pagoDTO.getPagoId()));
       historialPago.setPago(pago);
     }
 
-    // Establecer fecha de pago y estado por defecto si es necesario
     if (historialPago.getFechaPago() == null) {
       historialPago.setFechaPago(LocalDateTime.now());
     }
-
     if (historialPago.getEstado() == null || historialPago.getEstado().isEmpty()) {
       historialPago.setEstado(ESTADO_PENDIENTE);
     }
-
-    // Generar período si no se proporciona
     if (historialPago.getPeriodo() == null || historialPago.getPeriodo().isEmpty()) {
-      historialPago.setPeriodo(generarPeriodo(suscripcion.getFechaRenovacion()));
+      historialPago.setPeriodo(generarPeriodo(
+          suscripcion.getFechaRenovacion() != null ? suscripcion.getFechaRenovacion() : LocalDate.now()));
     }
 
-    // Mantener la relación bidireccional con la suscripción
-    suscripcion.addHistorialPago(historialPago);
+    // La relación bidireccional se maneja al guardar la entidad dueña
+    // (HistorialPagoSuscripcion)
+    // o si Suscripcion tiene CascadeType.PERSIST o ALL en su colección de
+    // historialPagos.
+    // suscripcion.addHistorialPago(historialPago); // No es estrictamente necesario
+    // si la relación está bien mapeada
 
-    historialPagos.add(historialPago);
-    return historialPagoMapper.toResponseDTO(historialPago);
+    HistorialPagoSuscripcion pagoGuardado = historialPagoRepository.save(historialPago);
+    return historialPagoMapper.toResponseDTO(pagoGuardado);
   }
 
-  private String generarPeriodo(LocalDate fechaRenovacion) {
-    // Formatear el periodo como "MMMM yyyy" (por ejemplo, "Mayo 2024")
+  private String generarPeriodo(LocalDate fechaReferencia) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy");
-    return fechaRenovacion.format(formatter);
+    return fechaReferencia.format(formatter);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<HistorialPagoSuscripcionResponseDTO> obtenerPagoPorId(Long id) {
-    return historialPagos.stream()
-        .filter(p -> p.getId().equals(id))
-        .findFirst()
+    return historialPagoRepository.findById(id)
         .map(historialPagoMapper::toResponseDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<HistorialPagoSuscripcionResponseDTO> obtenerPagosPorSuscripcion(Long suscripcionId) {
-    return historialPagos.stream()
-        .filter(p -> p.getSuscripcion().getId().equals(suscripcionId))
+    return historialPagoRepository.findBySuscripcionId(suscripcionId).stream()
         .map(historialPagoMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional
   public Optional<HistorialPagoSuscripcionResponseDTO> actualizarPago(Long id,
       HistorialPagoSuscripcionRequestDTO pagoDTO) {
-    return obtenerEntidadPagoPorId(id)
+    return historialPagoRepository.findById(id)
         .map(historialPago -> {
-          // Actualizar estado si se proporciona
           if (pagoDTO.getEstado() != null && !pagoDTO.getEstado().isEmpty()) {
             historialPago.setEstado(pagoDTO.getEstado());
           }
-
-          // Actualizar monto si se proporciona
           if (pagoDTO.getMonto() != null) {
             historialPago.setMonto(pagoDTO.getMonto());
           }
-
-          // Actualizar periodo si se proporciona
           if (pagoDTO.getPeriodo() != null && !pagoDTO.getPeriodo().isEmpty()) {
             historialPago.setPeriodo(pagoDTO.getPeriodo());
           }
-
-          // Actualizar pago general si se proporciona
           if (pagoDTO.getPagoId() != null) {
-            Pago pago = pagoService.obtenerEntidadPagoPorId(pagoDTO.getPagoId())
-                .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado con ID: " + pagoDTO.getPagoId()));
+            Pago pago = pagoRepository.findById(pagoDTO.getPagoId())
+                .orElseThrow(
+                    () -> new RecursoNoEncontradoException("Pago no encontrado con ID: " + pagoDTO.getPagoId()));
             historialPago.setPago(pago);
           }
+          // Actualizar fecha de pago si se proporciona
+          if (pagoDTO.getFechaPago() != null) {
+            historialPago.setFechaPago(pagoDTO.getFechaPago());
+          }
 
-          return historialPagoMapper.toResponseDTO(historialPago);
+          HistorialPagoSuscripcion pagoActualizado = historialPagoRepository.save(historialPago);
+          return historialPagoMapper.toResponseDTO(pagoActualizado);
         });
   }
 
   @Override
+  @Transactional
   public boolean eliminarPago(Long id) {
-    return historialPagos.removeIf(p -> p.getId().equals(id));
+    if (historialPagoRepository.existsById(id)) {
+      historialPagoRepository.deleteById(id);
+      return true;
+    }
+    return false;
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<HistorialPagoSuscripcion> obtenerEntidadPagoPorId(Long id) {
-    return historialPagos.stream()
-        .filter(p -> p.getId().equals(id))
-        .findFirst();
+    return historialPagoRepository.findById(id);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<HistorialPagoSuscripcionResponseDTO> obtenerPagosPorEstado(String estado) {
-    return historialPagos.stream()
-        .filter(p -> estado.equals(p.getEstado()))
+    return historialPagoRepository.findByEstado(estado).stream()
         .map(historialPagoMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<HistorialPagoSuscripcionResponseDTO> obtenerPagosPorRangoFechas(LocalDate fechaInicio,
       LocalDate fechaFin) {
     LocalDateTime inicio = fechaInicio.atStartOfDay();
-    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay();
+    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1); // Para incluir todo el día de fechaFin
 
-    return historialPagos.stream()
-        .filter(p -> !p.getFechaPago().isBefore(inicio) && p.getFechaPago().isBefore(fin))
+    return historialPagoRepository.findByFechaPagoBetween(inicio, fin).stream()
         .map(historialPagoMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional
   public HistorialPagoSuscripcionResponseDTO marcarComoPagado(Long id) {
-    HistorialPagoSuscripcion historialPago = obtenerEntidadPagoPorId(id)
-        .orElseThrow(() -> new IllegalArgumentException("Historial de pago no encontrado con ID: " + id));
-
+    HistorialPagoSuscripcion historialPago = historialPagoRepository.findById(id)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Historial de pago no encontrado con ID: " + id));
     historialPago.setEstado(ESTADO_PAGADO);
-
-    return historialPagoMapper.toResponseDTO(historialPago);
+    // Podría ser útil actualizar la fecha de pago aquí si no estaba ya establecida
+    // historialPago.setFechaPago(LocalDateTime.now());
+    HistorialPagoSuscripcion pagoGuardado = historialPagoRepository.save(historialPago);
+    return historialPagoMapper.toResponseDTO(pagoGuardado);
   }
 
   @Override
+  @Transactional
   public HistorialPagoSuscripcionResponseDTO marcarComoFallido(Long id, String motivoFallo) {
-    HistorialPagoSuscripcion historialPago = obtenerEntidadPagoPorId(id)
-        .orElseThrow(() -> new IllegalArgumentException("Historial de pago no encontrado con ID: " + id));
-
+    HistorialPagoSuscripcion historialPago = historialPagoRepository.findById(id)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Historial de pago no encontrado con ID: " + id));
     historialPago.setEstado(ESTADO_FALLIDO);
-
-    // Agregar el motivo o en observaciones
-
-    return historialPagoMapper.toResponseDTO(historialPago);
+    // Considerar añadir el motivoFallo a un campo en la entidad
+    // HistorialPagoSuscripcion si existe
+    // ejemplo: historialPago.setMotivoFallo(motivoFallo);
+    HistorialPagoSuscripcion pagoGuardado = historialPagoRepository.save(historialPago);
+    return historialPagoMapper.toResponseDTO(pagoGuardado);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public double calcularTotalPagosPorPeriodo(Long suscripcionId, String periodo) {
-    return historialPagos.stream()
-        .filter(p -> p.getSuscripcion().getId().equals(suscripcionId))
-        .filter(p -> periodo.equals(p.getPeriodo()))
-        .filter(p -> ESTADO_PAGADO.equals(p.getEstado()))
-        .mapToDouble(p -> p.getMonto() / 100.0) // Convertir centavos a unidades
+    return historialPagoRepository.findBySuscripcionIdAndPeriodoAndEstado(suscripcionId, periodo, ESTADO_PAGADO)
+        .stream()
+        .mapToDouble(p -> p.getMonto() != null ? p.getMonto() / 100.0 : 0.0) // Convertir centavos a unidades
         .sum();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public double calcularTotalPagosPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin) {
     LocalDateTime inicio = fechaInicio.atStartOfDay();
-    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay();
+    LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1);
 
-    return historialPagos.stream()
-        .filter(p -> !p.getFechaPago().isBefore(inicio) && p.getFechaPago().isBefore(fin))
-        .filter(p -> ESTADO_PAGADO.equals(p.getEstado()))
-        .mapToDouble(p -> p.getMonto() / 100.0) // Convertir centavos a unidades
+    return historialPagoRepository.findByFechaPagoBetweenAndEstado(inicio, fin, ESTADO_PAGADO).stream()
+        .mapToDouble(p -> p.getMonto() != null ? p.getMonto() / 100.0 : 0.0) // Convertir centavos a unidades
         .sum();
   }
 
   @Override
+  @Transactional
   public HistorialPagoSuscripcionResponseDTO vincularConPagoGeneral(Long id, Long pagoId) {
-    HistorialPagoSuscripcion historialPago = obtenerEntidadPagoPorId(id)
-        .orElseThrow(() -> new IllegalArgumentException("Historial de pago no encontrado con ID: " + id));
+    HistorialPagoSuscripcion historialPago = historialPagoRepository.findById(id)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Historial de pago no encontrado con ID: " + id));
+    Pago pagoGeneral = pagoRepository.findById(pagoId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Pago general no encontrado con ID: " + pagoId));
 
-    Pago pago = pagoService.obtenerEntidadPagoPorId(pagoId)
-        .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado con ID: " + pagoId));
+    historialPago.setPago(pagoGeneral);
 
-    historialPago.setPago(pago);
-
-    // Si el pago general está pagado, actualizar también el estado del pago de
-    // suscripción
-    if ("PAGADO".equals(pago.getEstado())) {
+    if (ESTADO_PAGADO.equals(pagoGeneral.getEstado())) {
       historialPago.setEstado(ESTADO_PAGADO);
+      if (historialPago.getFechaPago() == null && pagoGeneral.getFechaPago() != null) {
+        historialPago.setFechaPago(pagoGeneral.getFechaPago());
+      }
     }
-
-    return historialPagoMapper.toResponseDTO(historialPago);
+    HistorialPagoSuscripcion pagoGuardado = historialPagoRepository.save(historialPago);
+    return historialPagoMapper.toResponseDTO(pagoGuardado);
   }
 }

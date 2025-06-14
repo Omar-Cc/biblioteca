@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.biblioteca.dto.GeneroRequestDTO;
 import com.biblioteca.dto.GeneroResponseDTO;
-import com.biblioteca.models.Genero;
+import com.biblioteca.models.contenido.Genero;
 
 public interface GeneroService {
   GeneroResponseDTO crearGenero(GeneroRequestDTO generoRequestDTO);

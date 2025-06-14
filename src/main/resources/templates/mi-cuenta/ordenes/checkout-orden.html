@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Checkout - Finalizar Orden',
+          pageAdditionalCss=~{::checkoutCss},
+          pageContent=~{::checkoutContent},
+          pageAdditionalScripts=~{::checkoutScripts}
+      )}">
+
+<head>
+	<!-- Fragmento para CSS específico -->
+	<th:block th:fragment="checkoutCss">
+		<style>
+			.checkout-container {
+				background-color: rgba(245, 245, 240, 0.4);
+				border-radius: 1rem;
+				padding: 2rem;
+				margin-bottom: 2rem;
+			}
+
+			.paso-checkout {
+				background-color: rgba(45, 110, 126, 0.1);
+				border-radius: 0.75rem;
+				padding: 1.5rem;
+				margin-bottom: 1.5rem;
+				border: 1px solid rgba(45, 110, 126, 0.2);
+				transition: all 0.3s ease;
+			}
+
+			.paso-checkout:hover {
+				background-color: rgba(45, 110, 126, 0.15);
+				transform: translateY(-2px);
+				box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.1);
+			}
+
+			.metodo-pago-card {
+				border: 2px solid rgba(45, 110, 126, 0.2);
+				border-radius: 1rem;
+				padding: 1.25rem;
+				margin-bottom: 1rem;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				background-color: rgba(255, 255, 255, 0.8);
+			}
+
+			.metodo-pago-card:hover {
+				border-color: rgba(45, 110, 126, 0.5);
+				background-color: rgba(45, 110, 126, 0.05);
+				transform: translateY(-2px);
+				box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.15);
+			}
+
+			.metodo-pago-card.selected {
+				border-color: var(--bs-primary);
+				background-color: rgba(45, 110, 126, 0.1);
+				box-shadow: 0 0 0 0.2rem rgba(45, 110, 126, 0.25);
+			}
+
+			.datos-pago {
+				background-color: rgba(255, 255, 255, 0.9);
+				border: 1px solid rgba(45, 110, 126, 0.2);
+				border-radius: 0.75rem;
+				padding: 1.25rem;
+				margin-top: 1rem;
+				display: none;
+				animation: slideDown 0.3s ease-out;
+			}
+
+			.datos-pago.show {
+				display: block;
+			}
+
+			@keyframes slideDown {
+				from {
+					opacity: 0;
+					transform: translateY(-10px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.opcion-entrega {
+				border: 2px solid rgba(45, 110, 126, 0.2);
+				border-radius: 0.75rem;
+				padding: 1rem;
+				margin-bottom: 1rem;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				background-color: rgba(255, 255, 255, 0.8);
+			}
+
+			.opcion-entrega:hover {
+				border-color: rgba(45, 110, 126, 0.5);
+				background-color: rgba(45, 110, 126, 0.05);
+			}
+
+			.opcion-entrega.selected {
+				border-color: var(--bs-primary);
+				background-color: rgba(45, 110, 126, 0.1);
+				box-shadow: 0 0 0 0.2rem rgba(45, 110, 126, 0.25);
+			}
+
+			.metodo-pago-icon {
+				font-size: 2rem;
+				color: var(--bs-primary);
+				margin-bottom: 0.5rem;
+			}
+
+			.resumen-orden {
+				position: sticky;
+				top: 100px;
+				border-radius: 1rem;
+				overflow: hidden;
+				box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+				background-color: rgba(255, 255, 255, 0.95);
+			}
+
+			.item-resumen {
+				display: flex;
+				align-items: center;
+				padding: 1rem;
+				border-bottom: 1px solid rgba(45, 110, 126, 0.1);
+				transition: all 0.2s ease;
+			}
+
+			.item-resumen:hover {
+				background-color: rgba(45, 110, 126, 0.03);
+			}
+
+			.item-resumen:last-child {
+				border-bottom: none;
+			}
+
+			.item-resumen-img {
+				width: 60px;
+				height: 75px;
+				object-fit: cover;
+				border-radius: 0.5rem;
+				margin-right: 1rem;
+				box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+			}
+
+			.paso-indicador {
+				display: flex;
+				justify-content: center;
+				margin-bottom: 2rem;
+			}
+
+			.paso-item {
+				display: flex;
+				align-items: center;
+				margin: 0 1rem;
+				color: #6c757d;
+				font-weight: 500;
+			}
+
+			.paso-item.activo {
+				color: var(--bs-primary);
+				font-weight: bold;
+			}
+
+			.paso-item.completado {
+				color: var(--bs-success);
+			}
+
+			.paso-numero {
+				width: 2.5rem;
+				height: 2.5rem;
+				border-radius: 50%;
+				background-color: #6c757d;
+				color: white;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-right: 0.5rem;
+				font-weight: bold;
+			}
+
+			.paso-item.activo .paso-numero {
+				background-color: var(--bs-primary);
+			}
+
+			.paso-item.completado .paso-numero {
+				background-color: var(--bs-success);
+			}
+
+			.btn-finalizar {
+				background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-darker) 100%);
+				border: none;
+				border-radius: 0.75rem;
+				padding: 1rem 2rem;
+				font-size: 1.1rem;
+				font-weight: bold;
+				color: white;
+				transition: all 0.3s ease;
+				box-shadow: 0 0.25rem 0.5rem rgba(45, 110, 126, 0.3);
+			}
+
+			.btn-finalizar:hover {
+				transform: translateY(-3px);
+				box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.4);
+				background: linear-gradient(135deg, var(--bs-primary-darker) 0%, var(--bs-primary) 100%);
+			}
+
+			.btn-finalizar:disabled {
+				background: #6c757d;
+				transform: none;
+				box-shadow: none;
+				cursor: not-allowed;
+			}
+
+			.info-seguridad {
+				background-color: rgba(25, 135, 84, 0.1);
+				border: 1px solid rgba(25, 135, 84, 0.2);
+				border-radius: 0.5rem;
+				padding: 1rem;
+				margin: 1rem 0;
+				text-align: center;
+			}
+
+			.direccion-entrega {
+				background-color: rgba(255, 255, 255, 0.9);
+				border: 1px solid rgba(45, 110, 126, 0.2);
+				border-radius: 0.75rem;
+				padding: 1.25rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.form-control:focus,
+			.form-select:focus {
+				border-color: rgba(45, 110, 126, 0.5);
+				box-shadow: 0 0 0 0.2rem rgba(45, 110, 126, 0.25);
+			}
+
+			.section-header {
+				color: var(--bs-primary);
+				border-bottom: 2px solid rgba(45, 110, 126, 0.1);
+				padding-bottom: 0.5rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.loading-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.7);
+				display: none;
+				align-items: center;
+				justify-content: center;
+				z-index: 9999;
+			}
+
+			.loading-spinner {
+				border: 4px solid rgba(255, 255, 255, 0.3);
+				border-radius: 50%;
+				border-top: 4px solid white;
+				width: 50px;
+				height: 50px;
+				animation: spin 1s linear infinite;
+			}
+
+			@keyframes spin {
+				0% {
+					transform: rotate(0deg);
+				}
+
+				100% {
+					transform: rotate(360deg);
+				}
+			}
+
+			.validation-error {
+				border-color: var(--bs-danger) !important;
+				box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+			}
+
+			.error-message {
+				color: var(--bs-danger);
+				font-size: 0.875rem;
+				margin-top: 0.25rem;
+			}
+		</style>
+	</th:block>
+</head>
+
+<body>
+	<!-- Contenido principal -->
+	<th:block th:fragment="checkoutContent">
+		<div class="container py-3">
+			<!-- Indicador de pasos -->
+			<div class="paso-indicador">
+				<div class="paso-item completado">
+					<div class="paso-numero">1</div>
+					<span>Carrito</span>
+				</div>
+				<div class="paso-item activo" id="paso-entrega">
+					<div class="paso-numero">2</div>
+					<span>Entrega</span>
+				</div>
+				<div class="paso-item" id="paso-pago">
+					<div class="paso-numero">3</div>
+					<span>Pago</span>
+				</div>
+				<div class="paso-item" id="paso-confirmacion">
+					<div class="paso-numero">4</div>
+					<span>Confirmación</span>
+				</div>
+			</div>
+
+			<div class="row mb-4">
+				<div class="col">
+					<h1 class="display-5 fw-bold text-primary section-header">Finalizar Compra</h1>
+					<p class="text-muted">Completa los datos para procesar tu orden de manera segura.</p>
+				</div>
+			</div>
+
+			<!-- Mensajes de alerta -->
+			<div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+				<i class="bi bi-check-circle-fill me-2"></i> <span th:text="${mensaje}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+			<div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+				<i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div> <!-- Formulario de checkout -->
+			<form id="checkoutForm" th:action="@{/mi-cuenta/orden/crear}" method="post" class="needs-validation" novalidate>
+				<!-- Campos hidden -->
+				<input type="hidden" name="perfilId" th:value="${perfil != null ? perfil.id : ''}" />
+				<input type="hidden" name="carritoId" th:value="${carrito != null ? carrito.id : ''}" />
+				<div class="row">
+					<div class="col-lg-8">
+						<!-- Paso 1: Opciones de entrega -->
+						<div class="paso-checkout" id="seccion-entrega">
+							<h4 class="fw-bold text-primary mb-3">
+								<i class="bi bi-truck me-2"></i>Opciones de Entrega
+							</h4>
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<div class="opcion-entrega" data-entrega="delivery">
+										<input type="radio" name="tipoEntrega" value="DELIVERY" id="delivery" class="d-none entrega-radio"
+											required>
+										<label for="delivery" class="w-100 m-0">
+											<div class="d-flex align-items-center">
+												<div class="me-3">
+													<i class="bi bi-truck text-primary" style="font-size: 2rem;"></i>
+												</div>
+												<div>
+													<h6 class="fw-bold mb-1">Delivery a domicilio</h6>
+													<p class="text-muted small mb-1">Recibe tu orden en casa</p>
+													<span class="badge bg-success">GRATIS</span>
+													<small class="text-muted d-block">Tiempo estimado: 3-5 días hábiles</small>
+												</div>
+											</div>
+										</label>
+									</div>
+								</div>
+								<div class="col-md-6 mb-3">
+									<div class="opcion-entrega" data-entrega="pickup">
+										<input type="radio" name="tipoEntrega" value="PICKUP" id="pickup" class="d-none entrega-radio"
+											required>
+										<label for="pickup" class="w-100 m-0">
+											<div class="d-flex align-items-center">
+												<div class="me-3">
+													<i class="bi bi-shop text-primary" style="font-size: 2rem;"></i>
+												</div>
+												<div>
+													<h6 class="fw-bold mb-1">Recojo en tienda</h6>
+													<p class="text-muted small mb-1">Retira en nuestras instalaciones</p>
+													<span class="badge bg-info">INMEDIATO</span>
+													<small class="text-muted d-block">Disponible de L-V 9am-6pm</small>
+												</div>
+											</div>
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Paso 2: Información de entrega (solo para delivery) -->
+						<div class="paso-checkout" id="seccion-direccion" style="display: none;">
+							<h4 class="fw-bold text-primary mb-3">
+								<i class="bi bi-geo-alt-fill me-2"></i>Información de Entrega
+							</h4>
+							<div class="direccion-entrega">
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<label for="nombre" class="form-label fw-bold">Nombre completo</label>
+										<input type="text" class="form-control" id="nombre" name="nombre"
+											th:value="${perfil != null ? perfil.nombreVisible : (carrito != null ? carrito.perfilNombre : '')}"
+											required>
+										<div class="invalid-feedback">Por favor ingresa tu nombre completo.</div>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label for="telefono" class="form-label fw-bold">Teléfono</label>
+										<input type="tel" class="form-control" id="telefono" name="telefono" placeholder="+51 999 999 999"
+											required>
+										<div class="invalid-feedback">Por favor ingresa un teléfono válido.</div>
+									</div>
+									<div class="col-12 mb-3">
+										<label for="direccion" class="form-label fw-bold">Dirección completa</label>
+										<textarea class="form-control" id="direccion" name="direccion" rows="3"
+											placeholder="Calle, número, distrito, referencia..." required></textarea>
+										<div class="invalid-feedback">Por favor ingresa tu dirección completa.</div>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label for="ciudad" class="form-label fw-bold">Ciudad</label>
+										<input type="text" class="form-control" id="ciudad" name="ciudad" value="Lima" required>
+										<div class="invalid-feedback">Por favor ingresa tu ciudad.</div>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label for="codigoPostal" class="form-label fw-bold">Código Postal</label>
+										<input type="text" class="form-control" id="codigoPostal" name="codigoPostal" placeholder="15001">
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Paso 3: Método de pago -->
+						<div class="paso-checkout" id="seccion-pago" style="display: none;">
+							<h4 class="fw-bold text-primary mb-3">
+								<i class="bi bi-credit-card-fill me-2"></i>Método de Pago
+							</h4>
+							<div>
+								<!-- Verificación de métodos de pago disponibles -->
+								<div class="row" id="metodosPagoContainer" th:if="${metodosPago != null and !metodosPago.isEmpty()}">
+									<div th:each="metodo : ${metodosPago}" class="col-md-6 mb-3">
+										<div class="metodo-pago-card" th:data-metodo-id="${metodo.id}">
+											<input type="radio" name="metodoPagoId" th:value="${metodo.id}" th:id="'metodo-' + ${metodo.id}"
+												class="d-none metodo-radio" required>
+											<label th:for="'metodo-' + ${metodo.id}" class="w-100 m-0">
+												<div class="text-center">
+													<i th:class="${metodo.tipo == 'TARJETA_CREDITO' ? 'bi bi-credit-card' : 
+                                           metodo.tipo == 'TARJETA_DEBITO' ? 'bi bi-credit-card-2-front' :
+                                           metodo.tipo == 'SIMULADO' ? 'bi bi-wallet2' : 'bi bi-cash-coin'}"
+														class="metodo-pago-icon"></i>
+													<h6 class="fw-bold mb-1" th:text="${metodo.nombre}">Método de Pago</h6>
+													<p class="text-muted small mb-2" th:text="${metodo.descripcion}">Descripción</p>
+													<span th:if="${metodo.requiereAutorizacion}" class="badge bg-warning text-dark">
+														<i class="bi bi-shield-lock me-1"></i>Requiere autorización
+													</span>
+												</div>
+											</label>
+										</div>
+									</div>
+								</div>
+
+								<!-- Mensaje si no hay métodos de pago -->
+								<div th:if="${metodosPago == null or metodosPago.isEmpty()}" class="col-12">
+									<div class="alert alert-warning" role="alert">
+										<i class="bi bi-exclamation-triangle me-2"></i>
+										No hay métodos de pago disponibles en este momento. Por favor, contacta al soporte.
+									</div>
+								</div>
+							</div>
+							<div class="invalid-feedback" id="metodoPagoError" style="display: none;">
+								Por favor selecciona un método de pago.
+							</div>
+
+							<!-- Datos específicos de tarjeta -->
+							<div class="datos-pago" id="datosTarjeta">
+								<h5 class="fw-bold text-primary mb-3">
+									<i class="bi bi-credit-card me-2"></i>Datos de la Tarjeta
+								</h5>
+								<div class="row">
+									<div class="col-12 mb-3">
+										<label for="numeroTarjeta" class="form-label fw-bold">Número de tarjeta</label>
+										<input type="text" class="form-control" id="numeroTarjeta" name="numeroTarjeta"
+											placeholder="1234 5678 9012 3456" maxlength="19">
+										<div class="invalid-feedback">Por favor ingresa un número de tarjeta válido.</div>
+									</div>
+									<div class="col-md-8 mb-3">
+										<label for="nombreTarjeta" class="form-label fw-bold">Nombre en la tarjeta</label>
+										<input type="text" class="form-control" id="nombreTarjeta" name="nombreTarjeta"
+											placeholder="JUAN PEREZ" style="text-transform: uppercase;">
+										<div class="invalid-feedback">Por favor ingresa el nombre como aparece en la tarjeta.</div>
+									</div>
+									<div class="col-md-4 mb-3">
+										<label for="cvv" class="form-label fw-bold">CVV</label>
+										<input type="text" class="form-control" id="cvv" name="cvv" placeholder="123" maxlength="4">
+										<div class="invalid-feedback">CVV requerido.</div>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label for="mesVencimiento" class="form-label fw-bold">Mes de vencimiento</label>
+										<select class="form-select" id="mesVencimiento" name="mesVencimiento">
+											<option value="">Seleccionar mes</option>
+											<option value="01">01 - Enero</option>
+											<option value="02">02 - Febrero</option>
+											<option value="03">03 - Marzo</option>
+											<option value="04">04 - Abril</option>
+											<option value="05">05 - Mayo</option>
+											<option value="06">06 - Junio</option>
+											<option value="07">07 - Julio</option>
+											<option value="08">08 - Agosto</option>
+											<option value="09">09 - Septiembre</option>
+											<option value="10">10 - Octubre</option>
+											<option value="11">11 - Noviembre</option>
+											<option value="12">12 - Diciembre</option>
+										</select>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label for="anioVencimiento" class="form-label fw-bold">Año de vencimiento</label>
+										<select class="form-select" id="anioVencimiento" name="anioVencimiento">
+											<option value="">Seleccionar año</option>
+											<!-- Se llenarán dinámicamente con JavaScript -->
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Paso 4: Confirmación -->
+						<div class="paso-checkout" id="seccion-confirmacion" style="display: none;">
+							<h4 class="fw-bold text-primary mb-3">
+								<i class="bi bi-check-circle-fill me-2"></i>Confirmar Orden
+							</h4>
+							<div class="alert alert-info">
+								<h5><i class="bi bi-info-circle me-2"></i>Revisa tu orden antes de finalizar</h5>
+								<div id="resumenConfirmacion">
+									<!-- Se llenará dinámicamente -->
+								</div>
+							</div>
+						</div>
+
+						<!-- Botones de navegación -->
+						<div class="d-flex justify-content-between mt-4">
+							<button type="button" class="btn btn-outline-secondary" id="btnAnterior" style="display: none;">
+								<i class="bi bi-arrow-left me-2"></i>Anterior
+							</button>
+							<button type="button" class="btn btn-primary" id="btnSiguiente">
+								Siguiente <i class="bi bi-arrow-right ms-2"></i>
+							</button>
+						</div>
+
+						<!-- Información de seguridad -->
+						<div class="info-seguridad">
+							<i class="bi bi-shield-lock text-success me-2"></i>
+							<strong>Compra 100% segura:</strong> Tus datos están protegidos con encriptación SSL de 256
+							bits.
+							Nunca almacenamos información sensible de tarjetas de crédito.
+						</div>
+					</div>
+
+					<!-- Resumen de la orden -->
+					<div class="col-lg-4">
+						<div class="card shadow-sm border-0 resumen-orden">
+							<div class="card-header bg-primary text-white">
+								<h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Resumen de tu Orden</h5>
+							</div>
+							<div class="card-body p-0">
+								<!-- Items del carrito -->
+								<div class="items-resumen">
+									<!-- Verificación de items del carrito -->
+									<div th:if="${carrito != null and carrito.items != null and !carrito.items.isEmpty()}">
+										<div th:each="item : ${carrito.items}" class="item-resumen">
+											<img th:src="${item.contenidoImagen ?: '/img/portada-default.jpg'}"
+												th:alt="${item.contenidoTitulo ?: 'Contenido'}" class="item-resumen-img">
+											<div class="flex-grow-1">
+												<h6 class="mb-1 fw-bold" th:text="${item.contenidoTitulo ?: 'Título no disponible'}">Título</h6>
+												<div class="d-flex justify-content-between align-items-center">
+													<span class="text-muted small" th:text="'Cantidad: ' + ${item.cantidad ?: 1}">Cantidad:
+														1</span>
+													<span class="fw-bold"
+														th:text="${'S/ ' + #numbers.formatDecimal((item.subtotal ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT')}">
+														S/ 0.00
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- Mensaje si no hay items -->
+									<div th:if="${carrito == null or carrito.items == null or carrito.items.isEmpty()}"
+										class="item-resumen text-center">
+										<div class="alert alert-info m-3" role="alert">
+											<i class="bi bi-info-circle me-2"></i>
+											No hay artículos en el carrito
+										</div>
+									</div>
+								</div>
+
+								<!-- Totales -->
+								<div class="p-3 bg-light">
+									<div class="d-flex justify-content-between mb-2">
+										<span>Subtotal:</span>
+										<span
+											th:text="${carrito != null ? 'S/ ' + #numbers.formatDecimal((carrito.subtotal ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT') : 'S/ 0.00'}">
+											S/ 0.00
+										</span>
+									</div>
+									<div th:if="${carrito != null and carrito.totalDescuentos != null and carrito.totalDescuentos > 0}"
+										class="d-flex justify-content-between mb-2 text-success">
+										<span><i class="bi bi-tag-fill me-1"></i>Descuentos:</span>
+										<span>- <span
+												th:text="${'S/ ' + #numbers.formatDecimal(carrito.totalDescuentos / 100.0, 1, 'COMMA', 2, 'POINT')}">
+												S/ 0.00
+											</span></span>
+									</div>
+									<div class="d-flex justify-content-between mb-2">
+										<span>Envío:</span>
+										<span class="text-success">GRATIS</span>
+									</div>
+									<hr>
+									<div class="d-flex justify-content-between fw-bold h5">
+										<span>Total:</span>
+										<span class="text-primary"
+											th:text="${carrito != null ? 'S/ ' + #numbers.formatDecimal((carrito.total ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT') : 'S/ 0.00'}">
+											S/ 0.00
+										</span>
+									</div>
+								</div> <!-- Botón de finalizar compra -->
+								<div class="p-3">
+									<button type="submit" class="btn btn-finalizar w-100" id="btnFinalizar" style="display: none;"
+										th:disabled="${carrito == null or carrito.items == null or carrito.items.isEmpty() or metodosPago == null or metodosPago.isEmpty()}">
+										<i class="bi bi-lock-fill me-2"></i>Finalizar Compra
+									</button>
+									<p class="text-center small mt-2 text-muted">
+										Al finalizar aceptas nuestros
+										<a href="/terminos" target="_blank">términos y condiciones</a>
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Volver al carrito -->
+						<div class="mt-3 text-center">
+							<a th:href="@{/mi-cuenta/carrito}" class="btn btn-outline-secondary">
+								<i class="bi bi-arrow-left me-2"></i>Volver al carrito
+							</a>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<!-- Modal de confirmación -->
+		<div class="modal fade" id="confirmacionModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5>Confirmar Orden</h5>
+					</div>
+					<div class="modal-body">
+						<p>¿Estás seguro de procesar esta orden por <strong id="totalConfirm"></strong>?</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+						<button type="button" class="btn btn-primary" id="confirmarProceso">Confirmar Pago</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Loading overlay -->
+		<div class="loading-overlay" id="loadingOverlay">
+			<div class="text-center">
+				<div class="loading-spinner"></div>
+				<p class="text-white mt-3">Procesando tu orden...</p>
+			</div>
+		</div>
+	</th:block>
+	<th:block th:fragment="checkoutScripts">
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const form = document.getElementById('checkoutForm');
+				const metodosPago = document.querySelectorAll('.metodo-pago-card');
+				const opcionesEntrega = document.querySelectorAll('.opcion-entrega');
+				const btnSiguiente = document.getElementById('btnSiguiente');
+				const btnAnterior = document.getElementById('btnAnterior');
+				const btnFinalizar = document.getElementById('btnFinalizar');
+				const loadingOverlay = document.getElementById('loadingOverlay');
+
+				// Control de pasos
+				let pasoActual = 1;
+				const totalPasos = 4;
+
+				// Elementos de secciones
+				const seccionEntrega = document.getElementById('seccion-entrega');
+				const seccionDireccion = document.getElementById('seccion-direccion');
+				const seccionPago = document.getElementById('seccion-pago');
+				const seccionConfirmacion = document.getElementById('seccion-confirmacion');
+				const datosTarjeta = document.getElementById('datosTarjeta');
+
+				// Inicializar años de vencimiento
+				inicializarAniosVencimiento();
+
+				// Manejo de opciones de entrega
+				opcionesEntrega.forEach(opcion => {
+					opcion.addEventListener('click', function () {
+						opcionesEntrega.forEach(o => o.classList.remove('selected'));
+						this.classList.add('selected');
+
+						const radio = this.querySelector('.entrega-radio');
+						if (radio) {
+							radio.checked = true;
+						}
+
+						// Mostrar/ocultar sección de dirección según el tipo
+						const tipoEntrega = radio.value;
+						if (tipoEntrega === 'DELIVERY') {
+							seccionDireccion.style.display = 'block';
+							habilitarValidacionDireccion(true);
+						} else {
+							seccionDireccion.style.display = 'none';
+							habilitarValidacionDireccion(false);
+						}
+					});
+				});
+
+				// Manejo de selección de método de pago
+				metodosPago.forEach(card => {
+					card.addEventListener('click', function () {
+						metodosPago.forEach(c => c.classList.remove('selected'));
+						this.classList.add('selected');
+
+						const radio = this.querySelector('.metodo-radio');
+						if (radio) {
+							radio.checked = true;
+
+							// Mostrar datos de tarjeta si es necesario
+							const metodoTipo = this.querySelector('i').className;
+							if (metodoTipo.includes('credit-card') || metodoTipo.includes('card')) {
+								datosTarjeta.classList.add('show');
+								habilitarValidacionTarjeta(true);
+							} else {
+								datosTarjeta.classList.remove('show');
+								habilitarValidacionTarjeta(false);
+							}
+						}
+					});
+				});
+
+				// Control de navegación por pasos
+				btnSiguiente.addEventListener('click', function () {
+					if (validarPasoActual()) {
+						if (pasoActual < totalPasos) {
+							pasoActual++;
+							actualizarPaso();
+						}
+					}
+				});
+
+				btnAnterior.addEventListener('click', function () {
+					if (pasoActual > 1) {
+						pasoActual--;
+						actualizarPaso();
+					}
+				});
+
+				function actualizarPaso() {
+					// Ocultar todas las secciones
+					seccionEntrega.style.display = 'none';
+					seccionDireccion.style.display = 'none';
+					seccionPago.style.display = 'none';
+					seccionConfirmacion.style.display = 'none';
+
+					// Mostrar sección actual
+					switch (pasoActual) {
+						case 1:
+							seccionEntrega.style.display = 'block';
+							// Mostrar dirección si delivery está seleccionado
+							const deliverySelected = document.querySelector('input[name="tipoEntrega"]:checked');
+							if (deliverySelected && deliverySelected.value === 'DELIVERY') {
+								seccionDireccion.style.display = 'block';
+							}
+							break;
+						case 2:
+							seccionPago.style.display = 'block';
+							break;
+						case 3:
+							seccionConfirmacion.style.display = 'block';
+							generarResumenConfirmacion();
+							break;
+					}
+
+					// Actualizar indicadores de paso
+					actualizarIndicadoresPaso();
+
+					// Mostrar/ocultar botones
+					btnAnterior.style.display = pasoActual > 1 ? 'inline-block' : 'none';
+					btnSiguiente.style.display = pasoActual < totalPasos ? 'inline-block' : 'none';
+					btnFinalizar.style.display = pasoActual === totalPasos ? 'block' : 'none';
+
+					// Cambiar texto del botón siguiente en el último paso de datos
+					if (pasoActual === 2) {
+						btnSiguiente.innerHTML = 'Revisar Orden <i class="bi bi-arrow-right ms-2"></i>';
+					} else {
+						btnSiguiente.innerHTML = 'Siguiente <i class="bi bi-arrow-right ms-2"></i>';
+					}
+				}
+
+				function validarPasoActual() {
+					switch (pasoActual) {
+						case 1:
+							// Validar tipo de entrega
+							const entregaSeleccionada = document.querySelector('input[name="tipoEntrega"]:checked');
+							if (!entregaSeleccionada) {
+								mostrarError('Por favor selecciona una opción de entrega.');
+								return false;
+							}
+
+							// Si es delivery, validar dirección
+							if (entregaSeleccionada.value === 'DELIVERY') {
+								return validarDireccion();
+							}
+							return true;
+
+						case 2:
+							// Validar método de pago
+							const metodoPagoSeleccionado = document.querySelector('input[name="metodoPagoId"]:checked');
+							if (!metodoPagoSeleccionado) {
+								mostrarError('Por favor selecciona un método de pago.');
+								return false;
+							}
+
+							// Si es tarjeta, validar datos
+							if (datosTarjeta.classList.contains('show')) {
+								return validarDatosTarjeta();
+							}
+							return true;
+
+						case 3:
+							return true; // Confirmación no requiere validación adicional
+					}
+					return true;
+				}
+
+				function validarDireccion() {
+					const campos = ['nombre', 'telefono', 'direccion', 'ciudad'];
+					let valido = true;
+
+					campos.forEach(campo => {
+						const input = document.getElementById(campo);
+						if (input && !input.value.trim()) {
+							input.classList.add('validation-error');
+							valido = false;
+						} else if (input) {
+							input.classList.remove('validation-error');
+						}
+					});
+
+					if (!valido) {
+						mostrarError('Por favor completa todos los campos requeridos de entrega.');
+					}
+					return valido;
+				}
+
+				function validarDatosTarjeta() {
+					const numeroTarjeta = document.getElementById('numeroTarjeta');
+					const nombreTarjeta = document.getElementById('nombreTarjeta');
+					const cvv = document.getElementById('cvv');
+					const mesVencimiento = document.getElementById('mesVencimiento');
+					const anioVencimiento = document.getElementById('anioVencimiento');
+
+					let valido = true;
+
+					// Validar número de tarjeta
+					if (!numeroTarjeta.value.replace(/\s/g, '')) {
+						numeroTarjeta.classList.add('validation-error');
+						valido = false;
+					} else {
+						numeroTarjeta.classList.remove('validation-error');
+					}
+
+					// Validar nombre
+					if (!nombreTarjeta.value.trim()) {
+						nombreTarjeta.classList.add('validation-error');
+						valido = false;
+					} else {
+						nombreTarjeta.classList.remove('validation-error');
+					}
+
+					// Validar CVV
+					if (!cvv.value || cvv.value.length < 3) {
+						cvv.classList.add('validation-error');
+						valido = false;
+					} else {
+						cvv.classList.remove('validation-error');
+					}
+
+					// Validar fecha de vencimiento
+					if (!mesVencimiento.value || !anioVencimiento.value) {
+						if (!mesVencimiento.value) mesVencimiento.classList.add('validation-error');
+						if (!anioVencimiento.value) anioVencimiento.classList.add('validation-error');
+						valido = false;
+					} else {
+						mesVencimiento.classList.remove('validation-error');
+						anioVencimiento.classList.remove('validation-error');
+					}
+
+					if (!valido) {
+						mostrarError('Por favor completa todos los datos de la tarjeta.');
+					}
+					return valido;
+				}
+
+				function generarResumenConfirmacion() {
+					const resumen = document.getElementById('resumenConfirmacion');
+					let html = '<div class="row">';
+
+					// Información de entrega
+					const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked');
+					if (tipoEntrega) {
+						html += '<div class="col-md-6 mb-3"><h6><i class="bi bi-truck me-2"></i>Entrega:</h6>';
+						html += `<p class="mb-1">${tipoEntrega.value === 'DELIVERY' ? 'Delivery a domicilio' : 'Recojo en tienda'}</p>`;
+
+						if (tipoEntrega.value === 'DELIVERY') {
+							const nombre = document.getElementById('nombre').value;
+							const direccion = document.getElementById('direccion').value;
+							const telefono = document.getElementById('telefono').value;
+							html += `<small class="text-muted">${nombre}<br>${direccion}<br>Tel: ${telefono}</small>`;
+						}
+						html += '</div>';
+					}
+
+					// Información de pago
+					const metodoPago = document.querySelector('input[name="metodoPagoId"]:checked');
+					if (metodoPago) {
+						const metodoCard = document.querySelector(`[data-metodo-id="${metodoPago.value}"]`);
+						const nombreMetodo = metodoCard.querySelector('h6').textContent;
+						html += '<div class="col-md-6 mb-3"><h6><i class="bi bi-credit-card me-2"></i>Pago:</h6>';
+						html += `<p class="mb-1">${nombreMetodo}</p>`;
+
+						if (datosTarjeta.classList.contains('show')) {
+							const numeroTarjeta = document.getElementById('numeroTarjeta').value;
+							const ultimosDigitos = numeroTarjeta.slice(-4);
+							html += `<small class="text-muted">Tarjeta terminada en ${ultimosDigitos}</small>`;
+						}
+						html += '</div>';
+					}
+
+					html += '</div>';
+					resumen.innerHTML = html;
+				}
+
+				function actualizarIndicadoresPaso() {
+					const pasos = document.querySelectorAll('.paso-item');
+					pasos.forEach((paso, index) => {
+						paso.classList.remove('activo', 'completado');
+						if (index + 1 < pasoActual) {
+							paso.classList.add('completado');
+						} else if (index + 1 === pasoActual) {
+							paso.classList.add('activo');
+						}
+					});
+				}
+
+				function habilitarValidacionDireccion(habilitar) {
+					const campos = ['nombre', 'telefono', 'direccion', 'ciudad'];
+					campos.forEach(campo => {
+						const input = document.getElementById(campo);
+						if (input) {
+							input.required = habilitar;
+						}
+					});
+				}
+
+				function habilitarValidacionTarjeta(habilitar) {
+					const campos = ['numeroTarjeta', 'nombreTarjeta', 'cvv', 'mesVencimiento', 'anioVencimiento'];
+					campos.forEach(campo => {
+						const input = document.getElementById(campo);
+						if (input) {
+							input.required = habilitar;
+						}
+					});
+				}
+
+				function mostrarError(mensaje) {
+					// Remover alertas existentes
+					const alertaExistente = document.querySelector('.alert-danger');
+					if (alertaExistente) {
+						alertaExistente.remove();
+					}
+
+					// Crear nueva alerta
+					const alerta = document.createElement('div');
+					alerta.className = 'alert alert-danger alert-dismissible fade show';
+					alerta.innerHTML = `
+						<i class="bi bi-exclamation-triangle-fill me-2"></i>${mensaje}
+						<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+					`;
+
+					// Insertar al inicio del contenido
+					const container = document.querySelector('.container.py-3');
+					container.insertBefore(alerta, container.firstChild.nextSibling);
+
+					// Scroll hacia arriba
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				}
+
+				function inicializarAniosVencimiento() {
+					const anioSelect = document.getElementById('anioVencimiento');
+					const anioActual = new Date().getFullYear();
+
+					for (let i = 0; i < 20; i++) {
+						const anio = anioActual + i;
+						const option = document.createElement('option');
+						option.value = anio;
+						option.textContent = anio;
+						anioSelect.appendChild(option);
+					}
+				}
+
+				// Formateo automático de número de tarjeta
+				const numeroTarjetaInput = document.getElementById('numeroTarjeta');
+				if (numeroTarjetaInput) {
+					numeroTarjetaInput.addEventListener('input', function () {
+						let value = this.value.replace(/\s/g, '').replace(/\D/g, '');
+						value = value.replace(/(.{4})/g, '$1 ').trim();
+						this.value = value;
+					});
+				}
+
+				// Formateo de CVV (solo números)
+				const cvvInput = document.getElementById('cvv');
+				if (cvvInput) {
+					cvvInput.addEventListener('input', function () {
+						this.value = this.value.replace(/\D/g, '');
+					});
+				}
+
+				// Formateo de nombre en tarjeta (solo mayúsculas)
+				const nombreTarjetaInput = document.getElementById('nombreTarjeta');
+				if (nombreTarjetaInput) {
+					nombreTarjetaInput.addEventListener('input', function () {
+						this.value = this.value.toUpperCase();
+					});
+				}
+
+				// Auto-formatear teléfono
+				const telefonoInput = document.getElementById('telefono');
+				if (telefonoInput) {
+					telefonoInput.addEventListener('input', function () {
+						let value = this.value.replace(/\D/g, '');
+						if (value.length > 0) {
+							if (value.length <= 3) {
+								value = value;
+							} else if (value.length <= 6) {
+								value = value.slice(0, 3) + ' ' + value.slice(3);
+							} else {
+								value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6, 9);
+							}
+						}
+						this.value = value;
+					});
+				}
+
+				// Validación en tiempo real
+				const inputs = form.querySelectorAll('input, textarea, select');
+				inputs.forEach(input => {
+					input.addEventListener('blur', function () {
+						if (this.checkValidity()) {
+							this.classList.remove('validation-error');
+						}
+					});
+
+					input.addEventListener('input', function () {
+						if (this.classList.contains('validation-error') && this.checkValidity()) {
+							this.classList.remove('validation-error');
+						}
+					});
+				});
+
+				// Envío del formulario
+				form.addEventListener('submit', function (event) {
+					event.preventDefault();
+					event.stopPropagation();
+
+					if (pasoActual === totalPasos && validarPasoActual()) {
+						// Mostrar loading
+						if (loadingOverlay) {
+							loadingOverlay.style.display = 'flex';
+						}
+						btnFinalizar.disabled = true;
+
+						// Enviar formulario
+						form.submit();
+					}
+				});
+
+				// Inicializar primer paso
+				actualizarPaso();
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

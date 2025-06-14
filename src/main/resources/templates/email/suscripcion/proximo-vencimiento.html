@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu suscripción vence pronto</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #ffc107, #fd7e14);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+
+    .countdown-box {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .renewal-info {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .footer {
+      background: #343a40;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>⏰ Biblioteca Digital</h1>
+      <p>Recordatorio de renovación</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <h2 style="color: #fd7e14;">¡Hola <span th:text="${nombreUsuario}">Usuario</span>!</h2>
+
+      <p>Te recordamos que tu suscripción está próxima a vencer.</p>
+
+      <div class="countdown-box">
+        <h3 style="margin: 0; color: #856404;">⏳ Tiempo restante</h3>
+        <div style="font-size: 36px; font-weight: bold; color: #dc3545; margin: 10px 0;">
+          <span th:text="${diasRestantes}">3</span>
+          <span th:if="${diasRestantes == 1}">día</span>
+          <span th:unless="${diasRestantes == 1}">días</span>
+        </div>
+        <p style="margin: 0;">Hasta el vencimiento de tu suscripción</p>
+      </div>
+
+      <div class="renewal-info">
+        <h3>📋 Detalles de renovación:</h3>
+        <ul>
+          <li><strong>Plan actual:</strong> <span th:text="${nombrePlan}">Plan Premium</span></li>
+          <li><strong>Fecha de renovación:</strong> <span
+              th:text="${#temporals.format(fechaRenovacion, 'dd/MM/yyyy')}">15/06/2024</span></li>
+          <li><strong>Método de pago:</strong> <span th:text="${metodoPago}">Tarjeta terminada en ****1234</span></li>
+        </ul>
+      </div>
+
+      <div style="background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0;">
+        <h4>ℹ️ ¿Qué sucederá?</h4>
+        <p>Tu suscripción se renovará automáticamente usando tu método de pago guardado. No necesitas hacer nada.</p>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="#" class="btn">💳 Actualizar método de pago</a>
+        <a href="#" class="btn" style="background: #6c757d; margin-left: 10px;">⚙️ Gestionar suscripción</a>
+      </div>
+
+      <div style="background: #e9ecef; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <h4>❓ ¿Necesitas ayuda?</h4>
+        <p>Si tienes problemas con tu método de pago o deseas cambiar tu plan, contáctanos:</p>
+        <ul>
+          <li>📧 Email: <a href="mailto:soporte@biblioteca.com">soporte@biblioteca.com</a></li>
+          <li>📞 Teléfono: (123) 456-7890</li>
+          <li>💬 Chat en vivo: Disponible 24/7</li>
+        </ul>
+      </div>
+
+      <p>
+        Gracias por ser parte de Biblioteca Digital,<br>
+        <strong>El equipo de soporte</strong>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>📧 contacto@biblioteca.com | 📞 (123) 456-7890</p>
+      <p>© 2024 Biblioteca Digital. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</body>
+
+</html>

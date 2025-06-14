@@ -16,18 +16,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.biblioteca.dto.comercial.CarritoResponseDTO;
 import com.biblioteca.dto.comercial.ItemCarritoRequestDTO;
-import com.biblioteca.models.Perfil;
+import com.biblioteca.models.acceso.Perfil;
 import com.biblioteca.service.CarritoService;
 import com.biblioteca.service.PerfilService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/mi-cuenta/carrito")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER', 'LECTOR')")
+@PreAuthorize("hasRole('LECTOR')")
+@Slf4j
 public class MiCarritoController {
 
   private final CarritoService carritoService;
@@ -44,15 +46,25 @@ public class MiCarritoController {
 
     Optional<CarritoResponseDTO> carritoOpt = carritoService.obtenerCarritoPorPerfil(perfil.getId());
 
+    log.debug("Carrito obtenido para perfil {}: {}", perfil.getId(),
+        carritoOpt.isPresent() ? "Presente" : "No presente");
+
     if (carritoOpt.isPresent() && carritoOpt.get().getItems() != null && !carritoOpt.get().getItems().isEmpty()) {
-      model.addAttribute("carrito", carritoOpt.get());
+      CarritoResponseDTO carrito = carritoOpt.get();
+      log.debug("Carrito con {} items. Subtotal: {}, Total: {}",
+          carrito.getItems().size(), carrito.getSubtotal(), carrito.getTotal());
+
+      // Log de cada item
+      carrito.getItems().forEach(item -> log.debug("Item ID: {}, Precio: {}, Cantidad: {}, Subtotal: {}",
+          item.getId(), item.getPrecio(), item.getCantidad(), item.getSubtotal()));
+
+      model.addAttribute("carrito", carrito);
       model.addAttribute("carritoVacio", false);
     } else {
+      log.debug("Carrito vacío o sin items");
       model.addAttribute("carritoVacio", true);
       carritoOpt.ifPresent(carrito -> model.addAttribute("carrito", carrito));
     }
-
-    model.addAttribute("totalCarrito", carritoService.calcularTotalCarritoPorPerfil(perfil.getId()));
 
     return "public/carrito/ver";
   }
@@ -78,6 +90,7 @@ public class MiCarritoController {
 
     try {
       carritoService.agregarItemAlCarritoPorPerfil(perfil.getId(), itemDTO);
+      actualizarContadorCarritoEnSesion(session, perfil.getId());
       redirectAttributes.addFlashAttribute("mensaje", "Producto agregado al carrito");
       return "redirect:/mi-cuenta/carrito";
     } catch (Exception e) {
@@ -107,6 +120,7 @@ public class MiCarritoController {
 
     try {
       carritoService.actualizarCantidadItemPorPerfil(perfil.getId(), itemId, cantidad);
+      actualizarContadorCarritoEnSesion(session, perfil.getId());
       redirectAttributes.addFlashAttribute("mensaje", "Cantidad actualizada correctamente");
     } catch (Exception e) {
       redirectAttributes.addFlashAttribute("error", "Error al actualizar cantidad: " + e.getMessage());
@@ -130,6 +144,7 @@ public class MiCarritoController {
 
     boolean eliminado = carritoService.eliminarItemDelCarritoPorPerfil(perfil.getId(), itemId);
     if (eliminado) {
+      actualizarContadorCarritoEnSesion(session, perfil.getId());
       redirectAttributes.addFlashAttribute("mensaje", "Producto eliminado del carrito");
     } else {
       redirectAttributes.addFlashAttribute("error", "No se pudo eliminar el producto");
@@ -149,6 +164,7 @@ public class MiCarritoController {
 
     boolean vaciado = carritoService.vaciarCarritoPorPerfil(perfil.getId());
     if (vaciado) {
+      actualizarContadorCarritoEnSesion(session, perfil.getId());
       redirectAttributes.addFlashAttribute("mensaje", "Carrito vaciado correctamente");
     } else {
       redirectAttributes.addFlashAttribute("error", "No se pudo vaciar el carrito");
@@ -228,6 +244,7 @@ public class MiCarritoController {
       itemDTO.setCantidad(1);
 
       carritoService.agregarItemAlCarritoPorPerfil(perfil.getId(), itemDTO);
+      actualizarContadorCarritoEnSesion(session, perfil.getId());
       redirectAttributes.addFlashAttribute("mensaje", "Producto agregado al carrito");
     } catch (Exception e) {
       redirectAttributes.addFlashAttribute("error", "Error al agregar al carrito: " + e.getMessage());
@@ -245,7 +262,28 @@ public class MiCarritoController {
     }
 
     // Obtener el perfil desde la base de datos usando el ID
-    return perfilService.obtenerPerfilPorId(perfilActivoId)
+    return perfilService.obtenerEntidadPerfilPorId(perfilActivoId)
         .orElse(null);
+  }
+
+  /**
+   * Método auxiliar para actualizar el contador del carrito en la sesión
+   */
+  private void actualizarContadorCarritoEnSesion(HttpSession session, Long perfilId) {
+    try {
+      int itemsUnicos = carritoService.obtenerCarritoPorPerfil(perfilId)
+          .map(carrito -> {
+            if (carrito.getItems() != null) {
+              return carrito.getItems().size();
+            }
+            return 0;
+          })
+          .orElse(0);
+
+      session.setAttribute("carritoItems", itemsUnicos);
+    } catch (Exception e) {
+      log.error("Error al actualizar contador del carrito en sesión", e);
+      session.setAttribute("carritoItems", 0);
+    }
   }
 }

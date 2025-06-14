@@ -7,7 +7,7 @@
     "fechaRegistro": "2023-05-10T08:30:00",
     "ultimaActividad": "2023-05-14T15:45:00",
     "ultimaActualizacionPassword": "2023-05-10T08:30:00",
-    "roles": ["ROLE_USER"]
+    "roles": ["ROLE_LECTOR"]
   },
   {
     "username": "bibliotecario1",
@@ -17,7 +17,7 @@
     "fechaRegistro": "2023-04-15T10:20:00",
     "ultimaActividad": "2023-05-13T09:30:00",
     "ultimaActualizacionPassword": "2023-04-15T10:20:00",
-    "roles": ["ROLE_USER", "ROLE_BIBLIOTECARIO"]
+    "roles": ["ROLE_LECTOR"]
   },
   {
     "username": "editor1",
@@ -27,6 +27,6 @@
     "fechaRegistro": "2023-03-20T11:45:00",
     "ultimaActividad": "2023-05-12T16:20:00",
     "ultimaActualizacionPassword": "2023-03-20T11:45:00",
-    "roles": ["ROLE_USER", "ROLE_EDITOR"]
+    "roles": ["ROLE_LECTOR"]
   }
 ]

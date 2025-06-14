@@ -23,9 +23,6 @@ public interface CarritoService {
     // Vaciar el carrito completo
     boolean vaciarCarritoPorPerfil(Long perfilId);
     
-    // Obtener total del carrito
-    double calcularTotalCarritoPorPerfil(Long perfilId);
-    
     // Para uso interno principalmente
     Optional<Carrito> obtenerEntidadCarritoPorPerfil(Long perfilId);
     
@@ -34,4 +31,30 @@ public interface CarritoService {
     
     // Verificar disponibilidad de ítems
     boolean verificarDisponibilidadItemsPorPerfil(Long perfilId);
+    
+    // ============ NUEVOS MÉTODOS SUGERIDOS ============
+    
+    // Fusionar carritos (útil cuando un usuario anónimo se registra)
+    CarritoResponseDTO fusionarCarritos(Long carritoDestinoId, Long carritoOrigenId);
+    
+    // Obtener cantidad total de items en carrito
+    int obtenerCantidadTotalItemsPorPerfil(Long perfilId);
+    
+    // Calcular valor total sin descuentos
+    Integer calcularSubtotalPorPerfil(Long perfilId);
+    
+    // Limpiar carritos abandonados (tarea programada)
+    int limpiarCarritosAbandonados(int diasInactividad);
+    
+    // Validar límites de cantidad por item
+    boolean validarLimiteCantidadItem(Long contenidoId, int cantidadSolicitada);
+    
+    // Transferir carrito entre perfiles del mismo usuario
+    boolean transferirCarritoEntrePerfiles(Long perfilOrigenId, Long perfilDestinoId);
+    
+    // Guardar carrito para compra posterior
+    boolean guardarCarritoParaCompra(Long perfilId, String nombreGuardado);
+    
+    // Restaurar carrito guardado
+    CarritoResponseDTO restaurarCarritoGuardado(Long perfilId, Long carritoGuardadoId);
 }

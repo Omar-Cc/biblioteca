@@ -26,7 +26,7 @@ public class AdminOrdenController {
   public String listarTodasLasOrdenes(Model model) {
     model.addAttribute("ordenes", ordenService.obtenerTodasLasOrdenes());
     model.addAttribute("activeTab", "ordenes");
-    return "admin/ordenes/lista";
+    return "admin/ordenes/lista-ordenes-admin";
   }
 
   @GetMapping("/{id}")
@@ -36,7 +36,7 @@ public class AdminOrdenController {
           model.addAttribute("orden", orden);
           model.addAttribute("items", ordenService.obtenerItemsDeOrden(id));
           model.addAttribute("activeTab", "ordenes");
-          return "admin/ordenes/detalle";
+          return "admin/ordenes/detalle-orden-admin";
         })
         .orElseGet(() -> {
           redirectAttributes.addFlashAttribute("error", "Orden no encontrada");

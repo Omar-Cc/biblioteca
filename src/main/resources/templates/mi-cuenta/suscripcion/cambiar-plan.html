@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        'Cambiar Plan de Suscripción',
+        ~{::pageSpecificCss},
+        ~{::pageSpecificScripts},
+        'suscripcion',
+        ~{::pageContent}
+      )}">
+
+<head>
+	<th:block th:fragment="pageSpecificCss">
+	</th:block>
+</head>
+
+<body>
+	<div th:fragment="pageContent">
+		<div
+			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+			<h1 class="h2">
+				<i class="fas fa-exchange-alt me-2"></i>
+				Cambiar Plan de Suscripción
+			</h1>
+			<div class="btn-toolbar mb-2 mb-md-0">
+				<a th:href="@{/mi-cuenta/suscripcion}" class="btn btn-outline-secondary">
+					<i class="fas fa-arrow-left me-1"></i>
+					Volver
+				</a>
+			</div>
+		</div>
+
+		<!-- Plan Actual -->
+		<div class="card mb-4">
+			<div class="card-header bg-primary text-white">
+				<h5 class="mb-0">
+					<i class="fas fa-star me-2"></i>
+					Tu Plan Actual
+				</h5>
+			</div>
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-md-8">
+						<h4 th:text="${suscripcionActual.plan.nombre}"></h4>
+						<p class="text-muted mb-2" th:text="${suscripcionActual.plan.descripcion}"></p>
+						<div class="d-flex align-items-center">
+							<span class="badge bg-success me-2">Activo</span>
+							<small class="text-muted">
+								Vence el <span th:text="${#temporals.format(suscripcionActual.fechaFin, 'dd/MM/yyyy')}"></span>
+							</small>
+						</div>
+					</div>
+					<div class="col-md-4 text-end">
+						<div class="fs-3 fw-bold text-primary">
+							S/.<span th:text="${#numbers.formatDecimal(plan.precioMensual/100, 0, 'COMMA', 2, 'POINT')}"></span>
+							<small class="text-muted fs-6">/mes</small>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Planes Disponibles -->
+		<div class="row">
+			<div class="col-md-4 mb-4" th:each="plan : ${planesDisponibles}">
+				<div class="card h-100" th:classappend="${plan.id == suscripcionActual.plan.id ? 'border-primary' : ''}">
+					<div class="card-header text-center"
+						th:classappend="${plan.id == suscripcionActual.plan.id ? 'bg-primary text-white' : 'bg-light'}">
+						<h5 class="mb-0" th:text="${plan.nombre}"></h5>
+						<div class="mt-2" th:if="${plan.id == suscripcionActual.plan.id}">
+							<span class="badge bg-white text-primary">Plan Actual</span>
+						</div>
+					</div>
+					<div class="card-body d-flex flex-column">
+						<div class="text-center mb-3">
+							<div class="fs-2 fw-bold text-primary">
+								S/.<span th:text="${#numbers.formatDecimal(plan.precioMensual/100, 0, 'COMMA', 2, 'POINT')}"></span>
+							</div>
+							<small class="text-muted">/mes</small>
+						</div>
+
+						<p class="text-muted mb-3" th:text="${plan.descripcion}"></p>
+
+						<ul class="list-unstyled mb-4 flex-grow-1">
+							<li class="mb-2" th:if="${plan.limitePrestamos != null}">
+								<i class="fas fa-check text-success me-2"></i>
+								<span th:text="${plan.limitePrestamos}"></span> préstamos simultáneos
+							</li>
+							<li class="mb-2" th:if="${plan.limitePrestamos == null}">
+								<i class="fas fa-check text-success me-2"></i>
+								Préstamos ilimitados
+							</li>
+							<li class="mb-2" th:if="${plan.limiteTiempoPrestamo != null}">
+								<i class="fas fa-check text-success me-2"></i>
+								<span th:text="${plan.limiteTiempoPrestamo}"></span> días por préstamo
+							</li>
+							<li class="mb-2" th:each="beneficio : ${plan.beneficios}">
+								<i class="fas fa-check text-success me-2"></i>
+								<span th:text="${beneficio.nombre}"></span>
+							</li>
+						</ul>
+
+						<div class="mt-auto">
+							<div class="d-grid" th:if="${plan.id != suscripcionActual.plan.id}">
+								<form th:action="@{/mi-cuenta/suscripcion/cambiar-plan}" method="post" class="plan-form">
+									<input type="hidden" name="planId" th:value="${plan.id}">
+									
+									<!-- Selector de modalidad de pago -->
+									<div class="mb-3">
+										<label class="form-label small">Modalidad de pago:</label>
+										<div class="btn-group w-100" role="group">
+											<input type="radio" class="btn-check" th:id="'mensual_' + ${plan.id}" 
+												name="modalidadPago" value="mensual" 
+												th:checked="${suscripcionActual.modalidadPago == 'mensual'}">
+											<label class="btn btn-outline-secondary btn-sm" th:for="'mensual_' + ${plan.id}">
+												<div class="small">Mensual</div>
+												<div class="fw-bold">S/.<span th:text="${#numbers.formatDecimal(plan.precioMensual/100, 0, 'COMMA', 2, 'POINT')}"></span></div>
+											</label>
+											
+											<input type="radio" class="btn-check" th:id="'anual_' + ${plan.id}" 
+												name="modalidadPago" value="anual"
+												th:checked="${suscripcionActual.modalidadPago == 'anual'}">
+											<label class="btn btn-outline-secondary btn-sm" th:for="'anual_' + ${plan.id}">
+												<div class="small">Anual</div>
+												<div class="fw-bold">S/.<span th:text="${#numbers.formatDecimal(plan.precioAnual/100, 0, 'COMMA', 2, 'POINT')}"></span></div>
+												<div class="text-success small" th:if="${plan.precioAnual < plan.precioMensual * 12}">
+													Ahorro: S/.<span th:text="${#numbers.formatDecimal((plan.precioMensual * 12 - plan.precioAnual)/100, 0, 'COMMA', 2, 'POINT')}"></span>
+												</div>
+											</label>
+										</div>
+									</div>
+									
+									<button type="submit" class="btn btn-primary w-100"
+										th:classappend="${plan.precioMensual > suscripcionActual.plan.precioMensual ? 'btn-success' : 'btn-warning'}">
+										<i class="fas fa-arrow-up me-1"
+											th:if="${plan.precioMensual > suscripcionActual.plan.precioMensual}"></i>
+										<i class="fas fa-arrow-down me-1"
+											th:if="${plan.precioMensual < suscripcionActual.plan.precioMensual}"></i>
+										<span th:if="${plan.precioMensual > suscripcionActual.plan.precioMensual}">Mejorar Plan</span>
+										<span th:if="${plan.precioMensual < suscripcionActual.plan.precioMensual}">Cambiar Plan</span>
+										<span th:if="${plan.precioMensual == suscripcionActual.plan.precioMensual}">Seleccionar</span>
+									</button>
+								</form>
+							</div>
+							<div class="d-grid" th:if="${plan.id == suscripcionActual.plan.id}">
+								<button class="btn btn-outline-primary" disabled>
+									Plan Actual
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Información Importante -->
+		<div class="alert alert-info">
+			<h6><i class="fas fa-info-circle me-2"></i>Información Importante</h6>
+			<ul class="mb-0">
+				<li><strong>Mejoras (Upgrade):</strong> Cambio inmediato con prorrateado del precio</li>
+				<li><strong>Reducciones (Downgrade):</strong> Efectivo al final del período actual</li>
+				<li><strong>Modalidad Anual:</strong> Generalmente incluye descuentos significativos</li>
+				<li><strong>Modalidad Mensual:</strong> Mayor flexibilidad para cambios</li>
+				<li>Puedes cambiar de plan cuando lo necesites</li>
+			</ul>
+		</div>
+	</div>
+
+	<th:block layout:fragment="pageSpecificScripts">
+		<script>
+			// Confirmación antes de cambiar plan
+			document.querySelectorAll('form').forEach(form => {
+				form.addEventListener('submit', function (e) {
+					e.preventDefault();
+					const planNombre = this.closest('.card').querySelector('h5').textContent;
+					if (confirm("¿Está seguro de que desea cambiar a el plan ?")) {
+						this.submit();
+					}
+				});
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

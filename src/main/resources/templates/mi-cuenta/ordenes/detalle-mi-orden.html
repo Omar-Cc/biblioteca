@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Detalle de Orden | Biblioteca Virtual',
+        paramCss=~{mi-cuenta/ordenes/detalle-mi-orden :: pageSpecificCss},
+        paramScripts=~{mi-cuenta/ordenes/detalle-mi-orden :: pageSpecificScripts},
+        activeMenu='pedidos', 
+        pageSpecificContent=~{mi-cuenta/ordenes/detalle-mi-orden :: pageContent}
+      )}">
+
+<head>
+	<th:block th:fragment="pageSpecificCss">
+		<style>
+			/* ========================================
+         VARIABLES Y CONFIGURACIÓN INICIAL
+         ======================================== */
+			:root {
+				--orden-primary: #2d6e7e;
+				--orden-secondary: #3a8a9b;
+				--orden-accent: #f8f4ef;
+				--orden-success: #28a745;
+				--orden-warning: #ffc107;
+				--orden-danger: #dc3545;
+				--orden-info: #17a2b8;
+				--orden-light: #f8f9fa;
+				--orden-dark: #343a40;
+				--orden-gradient: linear-gradient(135deg, var(--orden-primary), var(--orden-secondary));
+				--orden-shadow: 0 8px 25px rgba(45, 110, 126, 0.15);
+				--orden-shadow-hover: 0 12px 35px rgba(45, 110, 126, 0.25);
+				--orden-border-radius: 12px;
+				--orden-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+
+			/* ========================================
+         HEADER DE PÁGINA
+         ======================================== */
+			.page-header-orden {
+				background: var(--orden-gradient);
+				border-radius: var(--orden-border-radius);
+				padding: 2rem;
+				margin-bottom: 2rem;
+				position: relative;
+				overflow: hidden;
+				color: white;
+			}
+
+			.page-header-orden::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				right: 0;
+				width: 200px;
+				height: 200px;
+				background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+				border-radius: 50%;
+				transform: translate(50%, -50%);
+			}
+
+			.page-header-content-orden {
+				position: relative;
+				z-index: 2;
+			}
+
+			.page-title-orden {
+				font-size: 2rem;
+				font-weight: 700;
+				margin-bottom: 0.5rem;
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+			}
+
+			.page-subtitle-orden {
+				font-size: 1.1rem;
+				opacity: 0.9;
+				margin: 0;
+			}
+
+			.orden-number {
+				background: rgba(255, 255, 255, 0.2);
+				padding: 0.5rem 1rem;
+				border-radius: 25px;
+				font-size: 0.9rem;
+				font-weight: 600;
+			}
+
+			/* ========================================
+         CARD PRINCIPAL DE ORDEN
+         ======================================== */
+			.orden-card {
+				background: white;
+				border-radius: var(--orden-border-radius);
+				box-shadow: var(--orden-shadow);
+				margin-bottom: 2rem;
+				overflow: hidden;
+				transition: var(--orden-transition);
+			}
+
+			.orden-card:hover {
+				box-shadow: var(--orden-shadow-hover);
+				transform: translateY(-2px);
+			}
+
+			.orden-header {
+				background: var(--orden-gradient);
+				color: white;
+				padding: 1.5rem;
+				position: relative;
+			}
+
+			.orden-header::before {
+				content: '';
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				height: 4px;
+				background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+			}
+
+			.orden-status-badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.5rem 1rem;
+				border-radius: 25px;
+				font-weight: 600;
+				font-size: 0.9rem;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				transition: var(--orden-transition);
+			}
+
+			.orden-status-badge:hover {
+				transform: scale(1.05);
+			}
+
+			.status-pendiente {
+				background: rgba(255, 193, 7, 0.2);
+				color: #856404;
+				border: 2px solid rgba(255, 193, 7, 0.3);
+			}
+
+			.status-completada {
+				background: rgba(40, 167, 69, 0.2);
+				color: #155724;
+				border: 2px solid rgba(40, 167, 69, 0.3);
+			}
+
+			.status-cancelada {
+				background: rgba(220, 53, 69, 0.2);
+				color: #721c24;
+				border: 2px solid rgba(220, 53, 69, 0.3);
+			}
+
+			.status-procesando {
+				background: rgba(23, 162, 184, 0.2);
+				color: #0c5460;
+				border: 2px solid rgba(23, 162, 184, 0.3);
+			}
+
+			/* ========================================
+         INFORMACIÓN DE LA ORDEN
+         ======================================== */
+			.orden-info-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				gap: 1.5rem;
+				padding: 1.5rem;
+				background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+			}
+
+			.info-item-orden {
+				background: white;
+				padding: 1.25rem;
+				border-radius: 10px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+				transition: var(--orden-transition);
+				border-left: 4px solid var(--orden-primary);
+			}
+
+			.info-item-orden:hover {
+				transform: translateY(-3px);
+				box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+			}
+
+			.info-icon-orden {
+				width: 40px;
+				height: 40px;
+				background: var(--orden-gradient);
+				color: white;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-bottom: 0.75rem;
+				font-size: 1.2rem;
+			}
+
+			.info-title-orden {
+				font-size: 0.85rem;
+				font-weight: 600;
+				color: #6c757d;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				margin-bottom: 0.5rem;
+			}
+
+			.info-value-orden {
+				font-size: 1.1rem;
+				font-weight: 700;
+				color: var(--orden-dark);
+			}
+
+			/* ========================================
+         ITEMS DE LA ORDEN
+         ======================================== */
+			.items-section {
+				padding: 1.5rem;
+			}
+
+			.section-title {
+				font-size: 1.5rem;
+				font-weight: 700;
+				color: var(--orden-dark);
+				margin-bottom: 1.5rem;
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+
+			.section-title::before {
+				content: '';
+				width: 4px;
+				height: 2rem;
+				background: var(--orden-gradient);
+				border-radius: 2px;
+			}
+
+			.item-card {
+				background: #f8f9fa;
+				border-radius: 10px;
+				padding: 1.25rem;
+				margin-bottom: 1rem;
+				transition: var(--orden-transition);
+				border: 1px solid #e9ecef;
+			}
+
+			.item-card:hover {
+				background: white;
+				box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+				transform: translateX(5px);
+			}
+
+			.item-content {
+				display: grid;
+				grid-template-columns: 80px 1fr auto;
+				gap: 1rem;
+				align-items: center;
+			}
+
+			.item-image {
+				width: 80px;
+				height: 80px;
+				border-radius: 8px;
+				object-fit: cover;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			}
+
+			.item-details h6 {
+				font-weight: 700;
+				color: var(--orden-dark);
+				margin-bottom: 0.5rem;
+			}
+
+			.item-meta {
+				font-size: 0.9rem;
+				color: #6c757d;
+				margin-bottom: 0.25rem;
+			}
+
+			.item-pricing {
+				text-align: right;
+			}
+
+			.item-price {
+				font-size: 1.1rem;
+				font-weight: 700;
+				color: var(--orden-primary);
+			}
+
+			.item-original-price {
+				font-size: 0.9rem;
+				color: #6c757d;
+				text-decoration: line-through;
+			}
+
+			.item-discount {
+				font-size: 0.85rem;
+				color: var(--orden-success);
+				font-weight: 600;
+			}
+
+			/* ========================================
+         RESUMEN DE TOTALES
+         ======================================== */
+			.totales-card {
+				background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+				border-radius: var(--orden-border-radius);
+				padding: 1.5rem;
+				margin-top: 1.5rem;
+			}
+
+			.totales-row {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 0.75rem 0;
+				border-bottom: 1px solid #dee2e6;
+			}
+
+			.totales-row:last-child {
+				border-bottom: none;
+				font-size: 1.2rem;
+				font-weight: 700;
+				color: var(--orden-primary);
+				padding-top: 1rem;
+				margin-top: 0.5rem;
+				border-top: 2px solid var(--orden-primary);
+			}
+
+			.total-label {
+				font-weight: 600;
+			}
+
+			.total-value {
+				font-weight: 700;
+			}
+
+			/* ========================================
+         INFORMACIÓN DE FACTURA
+         ======================================== */
+			.factura-section {
+				background: white;
+				border-radius: var(--orden-border-radius);
+				box-shadow: var(--orden-shadow);
+				margin-top: 2rem;
+				overflow: hidden;
+			}
+
+			.factura-header {
+				background: var(--orden-gradient);
+				color: white;
+				padding: 1.25rem;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.factura-content {
+				padding: 1.5rem;
+			}
+
+			.factura-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+				gap: 1.5rem;
+			}
+
+			.factura-item {
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+			}
+
+			.factura-icon {
+				width: 35px;
+				height: 35px;
+				background: rgba(45, 110, 126, 0.1);
+				color: var(--orden-primary);
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			/* ========================================
+         BOTONES DE ACCIÓN
+         ======================================== */
+			.acciones-card {
+				background: white;
+				border-radius: var(--orden-border-radius);
+				box-shadow: var(--orden-shadow);
+				padding: 1.5rem;
+				margin-top: 2rem;
+			}
+
+			.btn-accion {
+				padding: 0.75rem 1.5rem;
+				border-radius: 8px;
+				font-weight: 600;
+				text-decoration: none;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				transition: var(--orden-transition);
+				margin-right: 1rem;
+				margin-bottom: 0.5rem;
+			}
+
+			.btn-primary-orden {
+				background: var(--orden-gradient);
+				color: white;
+				border: none;
+			}
+
+			.btn-primary-orden:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(45, 110, 126, 0.4);
+				color: white;
+			}
+
+			.btn-secondary-orden {
+				background: #6c757d;
+				color: white;
+				border: none;
+			}
+
+			.btn-secondary-orden:hover {
+				background: #5a6268;
+				transform: translateY(-2px);
+				color: white;
+			}
+
+			.btn-success-orden {
+				background: var(--orden-success);
+				color: white;
+				border: none;
+			}
+
+			.btn-success-orden:hover {
+				background: #218838;
+				transform: translateY(-2px);
+				color: white;
+				box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+			}
+
+			.btn-outline-orden {
+				background: transparent;
+				color: var(--orden-primary);
+				border: 2px solid var(--orden-primary);
+			}
+
+			.btn-outline-orden:hover {
+				background: var(--orden-primary);
+				color: white;
+				transform: translateY(-2px);
+			}
+
+			/* ========================================
+         RESPONSIVE
+         ======================================== */
+			@media (max-width: 991.98px) {
+				.orden-info-grid {
+					grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+					gap: 1rem;
+				}
+
+				.item-content {
+					grid-template-columns: 1fr;
+					text-align: center;
+				}
+
+				.item-pricing {
+					text-align: center;
+				}
+			}
+
+			@media (max-width: 767.98px) {
+				.page-header-orden {
+					padding: 1.5rem;
+				}
+
+				.page-title-orden {
+					font-size: 1.5rem;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 0.5rem;
+				}
+
+				.orden-info-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.factura-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.btn-accion {
+					width: 100%;
+					justify-content: center;
+					margin-right: 0;
+				}
+			}
+
+			/* ========================================
+         ANIMACIONES
+         ======================================== */
+			@keyframes fadeInUp {
+				from {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@keyframes slideInRight {
+				from {
+					opacity: 0;
+					transform: translateX(30px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateX(0);
+				}
+			}
+
+			/* Aplicar animaciones */
+			.orden-card {
+				animation: fadeInUp 0.6s ease-out;
+			}
+
+			.item-card {
+				animation: slideInRight 0.4s ease-out;
+			}
+
+			.item-card:nth-child(1) {
+				animation-delay: 0.1s;
+			}
+
+			.item-card:nth-child(2) {
+				animation-delay: 0.2s;
+			}
+
+			.item-card:nth-child(3) {
+				animation-delay: 0.3s;
+			}
+		</style>
+	</th:block>
+</head>
+
+<body>
+	<div th:fragment="pageContent">
+		<!-- Header de la página -->
+		<div class="page-header-orden">
+			<div class="page-header-content-orden">
+				<h1 class="page-title-orden">
+					<i class="fas fa-receipt"></i>
+					Detalle de Orden
+					<span class="orden-number" th:text="'#' + ${orden.id}">Orden #123</span>
+				</h1>
+				<p class="page-subtitle-orden">Información completa de tu orden</p>
+			</div>
+		</div>
+
+		<!-- Card principal de la orden -->
+		<div class="orden-card">
+			<!-- Header con estado -->
+			<div class="orden-header">
+				<div class="d-flex justify-content-between align-items-center">
+					<div>
+						<h3 class="mb-1">Orden <span th:text="${orden.id}">#123</span></h3>
+						<p class="mb-0 opacity-75"
+							th:text="'Creada el ' + ${#temporals.format(orden.fechaCreacion, 'dd/MM/yyyy HH:mm')}">
+							Creada el 15/06/2024 14:30
+						</p>
+					</div>
+					<div>
+						<span class="orden-status-badge"
+							th:classappend="${#strings.toLowerCase(orden.estadoOrden)} == 'completada' ? 'status-completada' : 
+                     (${#strings.toLowerCase(orden.estadoOrden)} == 'pendiente' ? 'status-pendiente' : 
+                     (${#strings.toLowerCase(orden.estadoOrden)} == 'cancelada' ? 'status-cancelada' : 'status-procesando'))"
+							th:text="${orden.estadoOrden}">
+							<i class="fas fa-check-circle"></i>
+							Completada
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Grid de información -->
+			<div class="orden-info-grid">
+				<div class="info-item-orden">
+					<div class="info-icon-orden">
+						<i class="fas fa-user"></i>
+					</div>
+					<div class="info-title-orden">Cliente</div>
+					<div class="info-value-orden" th:text="${orden.perfilNombre}">Juan Pérez</div>
+				</div>
+
+				<div class="info-item-orden">
+					<div class="info-icon-orden">
+						<i class="fas fa-calendar"></i>
+					</div>
+					<div class="info-title-orden">Fecha de Orden</div>
+					<div class="info-value-orden" th:text="${#temporals.format(orden.fechaCreacion, 'dd/MM/yyyy')}">15/06/2024
+					</div>
+				</div>
+
+				<div class="info-item-orden">
+					<div class="info-icon-orden">
+						<i class="fas fa-box"></i>
+					</div>
+					<div class="info-title-orden">Total Items</div>
+					<div class="info-value-orden" th:text="${orden.cantidadItems} + ' items'">3 items</div>
+				</div>
+
+				<div class="info-item-orden">
+					<div class="info-icon-orden">
+						<i class="fas fa-dollar-sign"></i>
+					</div>
+					<div class="info-title-orden">Total</div>
+					<div class="info-value-orden"
+						th:text="'S/. ' + ${#numbers.formatDecimal((orden.totalOrden ?: 0) / 100.0, 1, 2)}">$45.99</div>
+				</div>
+			</div>
+
+			<!-- Items de la orden -->
+			<div class="items-section">
+				<h4 class="section-title">
+					<i class="fas fa-list"></i>
+					Items de la Orden
+				</h4>
+
+				<div th:each="item : ${orden.items}" class="item-card">
+					<div class="item-content">
+						<img th:src="${item.contenidoImagen} ?: '/images/default-book.jpg'" th:alt="${item.contenidoTitulo}"
+							class="item-image">
+
+						<div class="item-details">
+							<h6 th:text="${item.contenidoTitulo}">Título del Contenido</h6>
+							<div class="item-meta" th:text="${item.contenidoTipoDescripcion}">Libro Digital</div>
+							<div class="item-meta">
+								<span class="badge bg-secondary" th:text="'Cantidad: ' + ${item.cantidad}">Cantidad: 1</span>
+							</div>
+						</div>
+
+						<div class="item-pricing">
+							<div class="item-price"
+								th:text="'S/. ' + ${#numbers.formatDecimal((item.precioAlComprar ?: 0) * (item.cantidad ?: 1) / 100.0, 1, 2)}">
+								$15.99</div>
+
+							<div th:if="${item.descuentoAplicado != null and item.descuentoAplicado > 0}" class="item-original-price"
+								th:text="'S/. ' + ${#numbers.formatDecimal(((item.precioAlComprar ?: 0) + (item.descuentoAplicado ?: 0)) * (item.cantidad ?: 1) / 100.0, 1, 2)}">
+								$19.99
+							</div>
+
+							<div th:if="${item.descuentoAplicado != null and item.descuentoAplicado > 0}" class="item-discount"
+								th:text="'Descuento: $' + ${#numbers.formatDecimal((item.descuentoAplicado ?: 0) * (item.cantidad ?: 1) / 100.0, 1, 2)}">
+								Descuento: $4.00
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Resumen de totales -->
+				<div class="totales-card">
+					<div class="totales-row" th:if="${orden.subtotal != null and orden.subtotal > 0}">
+						<span class="total-label">Subtotal:</span>
+						<span class="total-value"
+							th:text="'S/. ' + ${#numbers.formatDecimal(orden.subtotal / 100.0, 1, 2)}">$45.97</span>
+					</div>
+
+					<div class="totales-row" th:if="${orden.totalDescuentos != null and orden.totalDescuentos > 0}">
+						<span class="total-label">Descuentos:</span>
+						<span class="total-value text-success"
+							th:text="'-$' + ${#numbers.formatDecimal(orden.totalDescuentos / 100.0, 1, 2)}">-$5.00</span>
+					</div>
+
+					<div class="totales-row">
+						<span class="total-label">Total:</span>
+						<span class="total-value"
+							th:text="'S/. ' + ${#numbers.formatDecimal((orden.totalOrden ?: 0) / 100.0, 1, 2)}">$40.97</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Información de factura -->
+			<div th:if="${orden.factura}" class="factura-section">
+				<div class="factura-header">
+					<h4 class="mb-0">
+						<i class="fas fa-file-invoice"></i>
+						Información de Factura
+					</h4>
+					<span class="badge bg-light text-dark" th:text="${orden.factura.numeroFactura}">FAC-000123-20240615</span>
+				</div>
+
+				<div class="factura-content">
+					<div class="factura-grid">
+						<div class="factura-item">
+							<div class="factura-icon">
+								<i class="fas fa-hashtag"></i>
+							</div>
+							<div>
+								<strong>Número de Factura</strong><br>
+								<span th:text="${orden.factura.numeroFactura}">FAC-000123-20240615</span>
+							</div>
+						</div>
+
+						<div class="factura-item">
+							<div class="factura-icon">
+								<i class="fas fa-calendar-alt"></i>
+							</div>
+							<div>
+								<strong>Fecha de Emisión</strong><br>
+								<span th:text="${#temporals.format(orden.factura.fechaEmision, 'dd/MM/yyyy')}">15/06/2024</span>
+							</div>
+						</div>
+
+						<div class="factura-item">
+							<div class="factura-icon">
+								<i class="fas fa-calculator"></i>
+							</div>
+							<div>
+								<strong>Impuestos</strong><br>
+								<span
+									th:text="'S/. ' + ${#numbers.formatDecimal((orden.factura.impuestos ?: 0) / 100.0, 1, 2)}">$7.38</span>
+							</div>
+						</div>
+
+						<div class="factura-item">
+							<div class="factura-icon">
+								<i class="fas fa-dollar-sign"></i>
+							</div>
+							<div>
+								<strong>Total Facturado</strong><br>
+								<span
+									th:text="'S/. ' + ${#numbers.formatDecimal((orden.factura.total ?: 0) / 100.0, 1, 2)}">$48.35</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Botones de acción -->
+			<div class="acciones-card">
+				<h5 class="mb-3">
+					<i class="fas fa-tools"></i>
+					Acciones Disponibles
+				</h5>
+
+				<div class="d-flex flex-wrap">
+					<!-- Descargar factura -->
+					<a th:if="${orden.factura}" th:href="@{/mi-cuenta/facturas/{id}/descargar(id=${orden.factura.id})}"
+						class="btn-accion btn-primary-orden">
+						<i class="fas fa-download"></i>
+						Descargar Factura
+					</a>
+
+					<!-- Botón imprimir -->
+					<a th:if="${orden.factura}" th:href="@{/mi-cuenta/facturas/{id}/imprimir(id=${orden.factura.id})}"
+						class="btn-accion btn-secondary-orden" target="_blank">
+						<i class="fas fa-print"></i> Imprimir
+					</a>
+
+					<!-- Botón enviar por email -->
+					<form th:if="${orden.factura}" th:action="@{/mi-cuenta/facturas/{id}/enviar-email(id=${orden.factura.id})}"
+						method="post" style="display: inline-block;">
+						<button type="submit" class="btn-accion btn-success-orden">
+							<i class="fas fa-envelope"></i> Enviar por Email
+						</button>
+					</form>
+
+					<!-- Ver todos los pagos -->
+					<a th:href="@{/mi-cuenta/pagos?ordenId={id}(id=${orden.id})}" class="btn-accion btn-outline-orden">
+						<i class="fas fa-credit-card"></i>
+						Ver Pagos
+					</a>
+
+					<!-- Volver a órdenes -->
+					<a th:href="@{/mi-cuenta/orden}" class="btn-accion btn-secondary-orden">
+						<i class="fas fa-arrow-left"></i>
+						Volver a Mis Órdenes
+					</a>
+
+					<!-- Soporte (si hay problemas) -->
+					<a th:if="${orden.estadoOrden == 'Cancelada' or orden.estadoOrden == 'Fallida'}"
+						th:href="@{/contacto?asunto=Problema+con+orden+{id}(id=${orden.id})}" class="btn-accion btn-outline-orden">
+						<i class="fas fa-headset"></i>
+						Contactar Soporte
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<th:block th:fragment="pageSpecificScripts">
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				// Animación de entrada para las tarjetas
+				const cards = document.querySelectorAll('.item-card');
+				cards.forEach((card, index) => {
+					card.style.opacity = '0';
+					card.style.transform = 'translateX(30px)';
+
+					setTimeout(() => {
+						card.style.transition = 'all 0.4s ease-out';
+						card.style.opacity = '1';
+						card.style.transform = 'translateX(0)';
+					}, index * 100);
+				});
+
+				const botones = document.querySelectorAll('.btn-accion');
+				botones.forEach(boton => {
+					boton.addEventListener('mouseenter', function () {
+						this.style.transform = 'translateY(-2px) scale(1.02)';
+					});
+
+					boton.addEventListener('mouseleave', function () {
+						this.style.transform = 'translateY(0) scale(1)';
+					});
+				});
+
+				const btnDescarga = document.querySelector('a[href*="descargar"]');
+				if (btnDescarga) {
+					btnDescarga.addEventListener('click', function () {
+						const icon = this.querySelector('i');
+						const originalClass = icon.className;
+
+						icon.className = 'fas fa-spinner fa-spin';
+						this.style.pointerEvents = 'none';
+
+						setTimeout(() => {
+							icon.className = originalClass;
+							this.style.pointerEvents = 'auto';
+						}, 3000);
+					});
+				}
+
+				// Mostrar tooltip para estado de orden
+				const statusBadge = document.querySelector('.orden-status-badge');
+				if (statusBadge) {
+					const estado = statusBadge.textContent.trim();
+					let tooltip = '';
+
+					switch (estado) {
+						case 'Pendiente':
+							tooltip = 'La orden está esperando procesamiento';
+							break;
+						case 'Procesando':
+							tooltip = 'La orden está siendo procesada';
+							break;
+						case 'Completada':
+							tooltip = 'La orden se ha completado exitosamente';
+							break;
+						case 'Cancelada':
+							tooltip = 'La orden ha sido cancelada';
+							break;
+					}
+
+					statusBadge.setAttribute('title', tooltip);
+				}
+
+				// Función para copiar número de orden al portapapeles
+				const ordenNumber = document.querySelector('.orden-number');
+				if (ordenNumber) {
+					ordenNumber.style.cursor = 'pointer';
+					ordenNumber.addEventListener('click', function () {
+						const text = this.textContent;
+						navigator.clipboard.writeText(text).then(() => {
+							// Mostrar feedback visual
+							const original = this.textContent;
+							this.textContent = '¡Copiado!';
+							this.style.background = 'rgba(40, 167, 69, 0.8)';
+
+							setTimeout(() => {
+								this.textContent = original;
+								this.style.background = 'rgba(255,255,255,0.2)';
+							}, 1500);
+						});
+					});
+				}
+
+				console.log('Detalle de orden cargado correctamente');
+
+				// Manejar envío de email con confirmación
+				const formulariosEmail = document.querySelectorAll('form[action*="/enviar-email"]');
+
+				formulariosEmail.forEach(form => {
+					form.addEventListener('submit', function (e) {
+						e.preventDefault();
+
+						const boton = form.querySelector('button[type="submit"]');
+						const textoOriginal = boton.innerHTML;
+
+						// Confirmar acción
+						if (confirm('¿Está seguro que desea enviar esta factura por email?')) {
+							// Mostrar loading
+							boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+							boton.disabled = true;
+							boton.classList.add('btn-loading');
+
+							// Enviar formulario
+							form.submit();
+						}
+					});
+				});
+
+				// Auto-ocultar mensajes de éxito/error después de 5 segundos
+				const alertas = document.querySelectorAll('.alert');
+				alertas.forEach(alerta => {
+					setTimeout(() => {
+						alerta.style.opacity = '0';
+						setTimeout(() => {
+							alerta.remove();
+						}, 300);
+					}, 5000);
+				});
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

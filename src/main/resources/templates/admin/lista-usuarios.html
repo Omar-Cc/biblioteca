@@ -49,7 +49,7 @@
                 <td th:text="${usuario.email}">email@example.com</td>
                 <td>
                   <span th:each="rol, iterStat : ${usuario.roles}" class="badge bg-secondary me-1"
-                    th:text="${rol.nombre.replace('ROLE_', '')}">
+                    th:text="${rol.replace('ROLE_', '')}">
                     ADMIN
                   </span>
                 </td>

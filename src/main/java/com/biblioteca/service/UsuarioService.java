@@ -4,12 +4,13 @@ import com.biblioteca.dto.ActividadRecienteDTO;
 import com.biblioteca.dto.UsuarioAdminDTO;
 import com.biblioteca.dto.UsuarioDataDTO;
 import com.biblioteca.dto.UsuarioRegistroDTO;
-import com.biblioteca.models.Lector;
-import com.biblioteca.models.Usuario;
+import com.biblioteca.models.acceso.Usuario;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UsuarioService extends UserDetailsService {
     Usuario registrarUsuario(UsuarioRegistroDTO registroDTO);
@@ -21,26 +22,47 @@ public interface UsuarioService extends UserDetailsService {
     Optional<Usuario> buscarPorId(Long id);
 
     // Actualizar datos básicos del usuario
-    Usuario actualizarUsuario(String username, UsuarioDataDTO datosActualizados);
+    Usuario actualizarDatosUsuario(String username, UsuarioDataDTO datosActualizados);
+
+    // Método genérico para guardar/actualizar un usuario, útil para otros servicios
+    Usuario actualizarUsuario(Usuario usuario);
 
     // Cambiar contraseña
     boolean cambiarPassword(String username, String passwordActual, String nuevaPassword);
 
     // Listar usuarios (para admin)
-    List<Usuario> listarTodosLosUsuarios();
+    List<UsuarioAdminDTO> listarTodosLosUsuariosAdmin();
 
     // Activar/desactivar usuario
     boolean toggleEstadoUsuario(Long id);
 
-    Usuario crearUsuarioConRoles(UsuarioAdminDTO usuarioDTO);
-
-    void actualizarLector(Lector lector);
+    UsuarioAdminDTO crearUsuarioConRoles(UsuarioAdminDTO usuarioDTO);
 
     boolean eliminarCuenta(String username, String password);
-    
+
     // Métodos para el dashboard
     long contarUsuarios();
+
     long contarUsuariosNuevosMes();
+
     List<ActividadRecienteDTO> obtenerActividadesRecientes(int limit);
+
+    boolean tieneUsuarioSuscripcionActiva(Long usuarioId);
+
+    Optional<String> obtenerPlanActualUsuario(Long usuarioId);
+
+    long contarSuscripcionesActivas();
+
+    long contarUsuariosConSuscripcionActiva();
+
+    /**
+     * Actualizar usuario completo desde panel de administración
+     */
+    UsuarioAdminDTO actualizarUsuarioAdmin(UsuarioAdminDTO usuarioDTO);
+    
+    /**
+     * Actualizar solo los roles de un usuario
+     */
+    void actualizarRolesUsuario(Long usuarioId, Set<String> nuevosRoles);
     
 }

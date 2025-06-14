@@ -11,8 +11,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ActividadRecienteDTO {
     private String titulo;
-    private String descripcion;
     private String usuario;
+    private String descripcion;
     private LocalDateTime fecha;
     private String tipo; // PRÉSTAMO, DEVOLUCIÓN, REGISTRO, etc.
+
+    public ActividadRecienteDTO(String usuario, LocalDateTime fecha, String tipo) {
+        this.usuario = usuario;
+        this.fecha = fecha;
+        this.tipo = tipo;
+    }
 }

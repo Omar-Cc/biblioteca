@@ -11,7 +11,7 @@ public class SerieResponseDTO {
   private Long id;
   private String nombre;
   private String descripcion;
-  private int numeroVolumenes;
+  private Integer numeroVolumenes;
   private boolean completa;
-  private Integer ordenEnSerie; // Posición del contenido dentro de la serie
+  private Integer ordenEnSerie;
 }

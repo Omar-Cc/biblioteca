@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Factura</title>
+  <style>
+    @page {
+      size: A4;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #333333;
+      background-color: white;
+    }
+
+    .invoice-container {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #2d6e7e, #1d4b55);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      position: relative;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .factura-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .empresa-info {
+      background-color: #f5f5f0;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      border-left: 4px solid #2d6e7e;
+      font-size: 11px;
+      color: #333333;
+    }
+
+    .empresa-info strong {
+      color: #2d6e7e;
+      font-size: 13px;
+    }
+
+    .factura-info {
+      margin: 25px 0;
+      background-color: #fafafa;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid rgba(45, 110, 126, 0.1);
+    }
+
+    .info-grid {
+      display: table;
+      width: 100%;
+      border-spacing: 15px;
+    }
+
+    .info-row {
+      display: table-row;
+    }
+
+    .info-item {
+      display: table-cell;
+      background-color: white;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+      width: 48%;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #5b7d87;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      color: #333333;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .highlight-value {
+      color: #2d6e7e;
+      font-weight: 600;
+    }
+
+    .tabla {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      border: 2px solid #2d6e7e;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tabla th {
+      background: linear-gradient(135deg, #2d6e7e, #1d4b55);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 11px;
+      padding: 15px 12px;
+      text-align: left;
+    }
+
+    .tabla td {
+      padding: 15px 12px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 12px;
+    }
+
+    .tabla tbody tr:nth-child(even) {
+      background-color: rgba(245, 245, 240, 0.5);
+    }
+
+    .tabla .number {
+      text-align: right;
+      font-weight: 600;
+      color: #2d6e7e;
+    }
+
+    .tabla .product-title {
+      font-weight: 600;
+      color: #333333;
+      margin-bottom: 4px;
+    }
+
+    .tabla .product-details {
+      font-size: 10px;
+      color: #666;
+      line-height: 1.3;
+    }
+
+    .total-section {
+      margin-top: 25px;
+      text-align: right;
+    }
+
+    .total-table {
+      width: 350px;
+      border-collapse: collapse;
+      border: 2px solid #2d6e7e;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-left: auto;
+    }
+
+    .total-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .total-table .label {
+      text-align: right;
+      font-weight: 600;
+      background-color: #f8f9fa;
+      color: #5b7d87;
+      width: 210px;
+    }
+
+    .total-table .value {
+      text-align: right;
+      font-weight: 600;
+      color: #2d6e7e;
+      width: 140px;
+    }
+
+    .total-table .final-total {
+      background: linear-gradient(135deg, #d9a566, #b38444);
+      color: #333333;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .total-table .final-total td {
+      border-bottom: none;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-emitida {
+      background-color: rgba(42, 98, 70, 0.15);
+      color: #2a6246;
+      border: 1px solid rgba(42, 98, 70, 0.3);
+    }
+
+    .status-anulada {
+      background-color: rgba(192, 107, 62, 0.15);
+      color: #c06b3e;
+      border: 1px solid rgba(192, 107, 62, 0.3);
+    }
+
+    .status-pendiente {
+      background-color: rgba(221, 164, 72, 0.15);
+      color: #dda448;
+      border: 1px solid rgba(221, 164, 72, 0.3);
+    }
+
+    .qr-section {
+      margin-top: 30px;
+      text-align: center;
+      background-color: rgba(42, 98, 70, 0.05);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(42, 98, 70, 0.2);
+    }
+
+    .qr-section h4 {
+      margin: 0 0 10px 0;
+      color: #2a6246;
+      font-size: 14px;
+    }
+
+    .qr-section p {
+      margin: 5px 0;
+      font-size: 11px;
+      color: #333333;
+    }
+
+    .no-items {
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(135deg, rgba(192, 107, 62, 0.05), rgba(192, 107, 62, 0.1));
+      border: 2px solid rgba(192, 107, 62, 0.2);
+      border-radius: 10px;
+      margin: 25px 0;
+      color: #c06b3e;
+    }
+
+    .no-items h4 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .no-items p {
+      margin: 0;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+      border-top: 2px solid #2d6e7e;
+      padding-top: 20px;
+    }
+
+    .footer p {
+      margin: 5px 0;
+    }
+
+    .footer .generated-date {
+      font-weight: 600;
+      color: #2d6e7e;
+    }
+
+    .watermark {
+      position: fixed;
+      top: 300px;
+      left: 200px;
+      transform: rotate(-45deg);
+      font-size: 120px;
+      font-weight: 100;
+      color: rgba(45, 110, 126, 0.03);
+      z-index: -1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="invoice-container">
+    <div class="header">
+      <div class="header-content">
+        <div class="logo">BIBLIOTECA DIGITAL</div>
+        <h1 class="factura-title">FACTURA ELECTRÓNICA</h1>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="empresa-info">
+        <strong>Biblioteca Digital S.A.C.</strong><br />
+        RUC: 20123456789<br />
+        Dirección: Av. Bibliotecarios 123, Lima, Perú<br />
+        Teléfono: (01) 123-4567 | Email: contacto@biblioteca.com<br />
+        Web: www.biblioteca-digital.com
+      </div>
+
+      <div class="factura-info">
+        <div class="info-grid">
+          <div class="info-row">
+            <div class="info-item">
+              <div class="info-label">Número de Factura</div>
+              <div class="info-value highlight-value" th:text="${factura.numeroFactura ?: 'N/A'}">F001-00000001</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Fecha de Emisión</div>
+              <div class="info-value"
+                th:text="${factura.fechaEmision != null ? #temporals.format(factura.fechaEmision, 'dd/MM/yyyy') : 'N/A'}">
+                12/06/2025</div>
+            </div>
+          </div>
+
+          <div class="info-row" th:if="${factura.orden != null and factura.orden.perfil != null}">
+            <div class="info-item">
+              <div class="info-label">Cliente</div>
+              <div class="info-value" th:text="${factura.orden.perfil.nombreVisible ?: 'Cliente'}">Nombre del Cliente
+              </div>
+            </div>
+            <div class="info-item"
+              th:if="${factura.orden != null and factura.orden.perfil != null and factura.orden.perfil.usuario != null}">
+              <div class="info-label">Email</div>
+              <div class="info-value" th:text="${factura.orden.perfil.usuario.email ?: 'N/A'}">cliente@email.com</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-item">
+              <div class="info-label">Estado</div>
+              <div class="info-value">
+                <span class="status-badge" th:classappend="${factura.estado == 'EMITIDA' ? 'status-emitida' : 
+                                     (factura.estado == 'PENDIENTE' ? 'status-pendiente' : 'status-anulada')}"
+                  th:text="${factura.estado ?: 'PENDIENTE'}">EMITIDA</span>
+              </div>
+            </div>
+            <div class="info-item" th:if="${factura.orden != null and factura.orden.fechaCreacion != null}">
+              <div class="info-label">Fecha de Orden</div>
+              <div class="info-value" th:text="${#temporals.format(factura.orden.fechaCreacion, 'dd/MM/yyyy HH:mm')}">
+                12/06/2025 10:30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de items -->
+      <div th:if="${factura.orden != null and factura.orden.items != null and !factura.orden.items.empty}">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th style="width: 50%;">Descripción del Producto</th>
+              <th style="width: 12%;">Cantidad</th>
+              <th style="width: 19%;">Precio Unitario</th>
+              <th style="width: 19%;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="item : ${factura.orden.items}">
+              <td>
+                <div class="product-title"
+                  th:text="${item.contenido != null and item.contenido.obra != null ? item.contenido.obra.titulo : 'Producto'}">
+                  Título del Contenido
+                </div>
+                <div class="product-details">
+                  <span th:if="${item.contenido != null and item.contenido.tipo != null}">
+                    Tipo: <span th:text="${item.contenido.tipo}">LIBRO</span>
+                  </span>
+                  <span th:if="${item.contenido != null and item.contenido.obra != null}">
+                    <span th:with="autorPrincipal=${item.contenido.obra.autoresObras.![autor].?[#this != null][0]}">
+                      <span th:if="${autorPrincipal != null}"> | Autor: <span
+                          th:text="${autorPrincipal.nombre}">Autor</span></span>
+                    </span>
+                  </span>
+                </div>
+              </td>
+              <td class="number" th:text="${item.cantidad ?: 1}">1</td>
+              <td class="number"
+                th:text="'S/. ' + ${#numbers.formatDecimal((item.precioAlComprar ?: 0) / 100.0, 1, 2)}">S/. 25.00</td>
+              <td class="number"
+                th:text="'S/. ' + ${#numbers.formatDecimal(((item.precioAlComprar ?: 0) * (item.cantidad ?: 1)) / 100.0, 1, 2)}">
+                S/. 25.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mensaje si no hay items -->
+      <div th:unless="${factura.orden != null and factura.orden.items != null and !factura.orden.items.empty}"
+        class="no-items">
+        <h4>⚠️ Sin Items Disponibles</h4>
+        <p>No hay productos asociados a esta factura para mostrar.</p>
+      </div>
+
+      <div class="total-section">
+        <table class="total-table">
+          <tr>
+            <td class="label">Subtotal:</td>
+            <td class="value" th:text="'S/. ' + ${#numbers.formatDecimal((factura.subtotal ?: 0) / 100.0, 1, 2)}">S/.
+              21.19</td>
+          </tr>
+          <tr>
+            <td class="label">IGV (18%):</td>
+            <td class="value" th:text="'S/. ' + ${#numbers.formatDecimal((factura.impuestos ?: 0) / 100.0, 1, 2)}">S/.
+              3.81</td>
+          </tr>
+          <tr class="final-total">
+            <td class="label">TOTAL A PAGAR:</td>
+            <td class="value" th:text="'S/. ' + ${#numbers.formatDecimal((factura.total ?: 0) / 100.0, 1, 2)}">S/. 25.00
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="qr-section" th:if="${factura.estado == 'EMITIDA'}">
+        <h4>✅ Factura Electrónica Válida</h4>
+        <p><strong>Este documento ha sido generado electrónicamente y tiene validez fiscal.</strong></p>
+        <p>Representación impresa de la factura electrónica</p>
+      </div>
+
+      <div class="footer">
+        <p class="generated-date">
+          <strong>Documento generado electrónicamente el <span th:text="${fechaGeneracion}">12/06/2025
+              14:30</span></strong>
+        </p>
+        <p>Esta factura ha sido generada de forma automática por el sistema de Biblioteca Digital.</p>
+        <p>Para consultas sobre esta factura, contacte a: facturacion@biblioteca-digital.com</p>
+        <p>© <span th:text="${año}">2025</span> Biblioteca Digital S.A.C. - Todos los derechos reservados</p>
+        <p style="margin-top: 10px; font-style: italic;">
+          Sistema de Biblioteca Virtual - Documento generado automáticamente
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Licencias de Contenido - Biblioteca Virtual',
+          pageAdditionalCss=~{::licenciasCss},
+          pageContent=~{::licenciasContent},
+          pageAdditionalScripts=~{::licenciasScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="licenciasCss">
+    <style>
+      .licenses-hero {
+        background: linear-gradient(135deg, rgba(45, 110, 126, 0.9), rgba(91, 125, 135, 0.8)),
+          url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 6rem 0 4rem 0;
+      }
+
+      .license-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .license-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--bs-primary), var(--bs-info));
+      }
+
+      .license-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      }
+
+      .license-type {
+        background: rgba(45, 110, 126, 0.1);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        border-left: 5px solid var(--bs-primary);
+        transition: all 0.3s ease;
+      }
+
+      .license-type:hover {
+        background: rgba(45, 110, 126, 0.15);
+        transform: translateX(5px);
+      }
+
+      .license-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 10px 25px rgba(45, 110, 126, 0.3);
+      }
+
+      .restrictions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
+
+      .restriction-item {
+        background: #fff5f5;
+        border: 1px solid #fed7d7;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .restriction-item:hover {
+        background: #fed7d7;
+        transform: translateY(-3px);
+      }
+
+      .restriction-icon {
+        color: #e53e3e;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .permissions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
+
+      .permission-item {
+        background: #f0fff4;
+        border: 1px solid #9ae6b4;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .permission-item:hover {
+        background: #c6f6d5;
+        transform: translateY(-3px);
+      }
+
+      .permission-icon {
+        color: #38a169;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .license-comparison {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        overflow-x: auto;
+      }
+
+      .comparison-table {
+        width: 100%;
+        min-width: 600px;
+        border-collapse: collapse;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .comparison-table th {
+        background: var(--bs-primary);
+        color: white;
+        font-weight: 600;
+      }
+
+      .comparison-table tr:hover {
+        background: rgba(45, 110, 126, 0.05);
+      }
+
+      .check-mark {
+        color: #38a169;
+        font-size: 1.2rem;
+      }
+
+      .x-mark {
+        color: #e53e3e;
+        font-size: 1.2rem;
+      }
+
+      .license-toc {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        position: sticky;
+        top: 100px;
+      }
+
+      .license-toc a {
+        display: block;
+        padding: 0.75rem 0;
+        color: var(--bs-primary);
+        text-decoration: none;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+      }
+
+      .license-toc a:hover {
+        color: var(--bs-primary-darker);
+        padding-left: 15px;
+      }
+
+      .license-toc a:last-child {
+        border-bottom: none;
+      }
+
+      .contact-licenses {
+        background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+        color: white;
+        border-radius: 20px;
+        padding: 3rem;
+        text-align: center;
+        margin-top: 3rem;
+      }
+
+      @media (max-width: 991px) {
+        .license-toc {
+          position: static;
+          margin-bottom: 2rem;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <th:block th:fragment="licenciasContent">
+    <!-- Hero Section -->
+    <section class="licenses-hero">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <h1 class="display-4 fw-bold mb-4">Licencias de Contenido</h1>
+            <p class="lead mb-4">
+              Comprenda los términos de uso y licenciamiento del contenido digital en BiblioVirtual
+            </p>
+            <div class="d-flex justify-content-center align-items-center gap-3">
+              <span class="badge bg-light text-dark px-3 py-2 fs-6">
+                <i class="bi bi-shield-check me-2"></i>Contenido Licenciado Legalmente
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container py-5">
+      <div class="row">
+        <!-- Índice -->
+        <div class="col-lg-4">
+          <div class="license-toc">
+            <h5 class="fw-bold mb-3">Contenidos</h5>
+            <a href="#introduccion">1. Introducción</a>
+            <a href="#tipos-contenido">2. Tipos de Contenido</a>
+            <a href="#prestamo-digital">3. Préstamo Digital</a>
+            <a href="#compra-permanente">4. Compra Permanente</a>
+            <a href="#suscripcion">5. Contenido por Suscripción</a>
+            <a href="#acceso-abierto">6. Acceso Abierto</a>
+            <a href="#uso-academico">7. Uso Académico</a>
+            <a href="#restricciones">8. Restricciones Generales</a>
+            <a href="#comparacion">9. Comparación de Licencias</a>
+            <a href="#contacto-licenses">10. Contacto Legal</a>
+          </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="col-lg-8">
+          <!-- 1. Introducción -->
+          <div class="license-card" id="introduccion">
+            <div class="text-center mb-4">
+              <div class="license-icon">
+                <i class="bi bi-book-half"></i>
+              </div>
+              <h3 class="text-primary fw-bold">Introducción a las Licencias</h3>
+            </div>
+            <p class="lead">
+              BiblioVirtual ofrece acceso a contenido digital bajo diferentes tipos de licencias,
+              cada una con términos específicos que regulan cómo puede utilizar el material.
+            </p>
+            <p>
+              Al acceder o utilizar cualquier contenido de nuestra plataforma, usted acepta cumplir
+              con estos términos de licenciamiento y las restricciones aplicables.
+            </p>
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Importante:</strong> Diferentes tipos de contenido pueden tener diferentes
+              términos de licencia. Asegúrese de revisar los términos específicos para cada material.
+            </div>
+          </div>
+
+          <!-- 2. Tipos de Contenido -->
+          <div class="license-card" id="tipos-contenido">
+            <h3 class="text-primary fw-bold mb-4">2. Tipos de Contenido y Licencias</h3>
+            <p>
+              BiblioVirtual clasifica su contenido en diferentes categorías según el tipo de
+              licencia y acceso disponible:
+            </p>
+
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="text-center p-3 border rounded">
+                  <i class="bi bi-clock-history text-primary fs-2 mb-2"></i>
+                  <h5>Préstamo Digital</h5>
+                  <p class="text-muted small mb-0">Acceso temporal con límites de tiempo</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="text-center p-3 border rounded">
+                  <i class="bi bi-download text-success fs-2 mb-2"></i>
+                  <h5>Compra Permanente</h5>
+                  <p class="text-muted small mb-0">Acceso perpetuo al contenido adquirido</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="text-center p-3 border rounded">
+                  <i class="bi bi-infinity text-info fs-2 mb-2"></i>
+                  <h5>Suscripción</h5>
+                  <p class="text-muted small mb-0">Acceso ilimitado durante la suscripción</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="text-center p-3 border rounded">
+                  <i class="bi bi-unlock text-warning fs-2 mb-2"></i>
+                  <h5>Acceso Abierto</h5>
+                  <p class="text-muted small mb-0">Contenido libre bajo licencias específicas</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Préstamo Digital -->
+          <div class="license-card" id="prestamo-digital">
+            <h3 class="text-primary fw-bold mb-4">3. Licencia de Préstamo Digital</h3>
+
+            <div class="license-type">
+              <h5><i class="bi bi-clock me-2"></i>Características del Préstamo Digital</h5>
+              <ul class="mb-3">
+                <li>Acceso temporal limitado (típicamente 7-21 días)</li>
+                <li>Renovación automática si no hay lista de espera</li>
+                <li>Límite de préstamos simultáneos según su plan</li>
+                <li>Acceso offline durante el período de préstamo</li>
+                <li>Marcadores y notas se conservan en su cuenta</li>
+              </ul>
+            </div>
+
+            <div class="permissions-grid">
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Lectura Personal</h6>
+                <p class="small mb-0">Leer el contenido durante el período de préstamo</p>
+              </div>
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Notas y Marcadores</h6>
+                <p class="small mb-0">Crear anotaciones personales</p>
+              </div>
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Acceso Offline</h6>
+                <p class="small mb-0">Descargar para leer sin conexión</p>
+              </div>
+            </div>
+
+            <div class="restrictions-grid">
+              <div class="restriction-item">
+                <i class="bi bi-x-circle restriction-icon"></i>
+                <h6 class="fw-bold">No Compartir</h6>
+                <p class="small mb-0">Prohibido compartir con otros usuarios</p>
+              </div>
+              <div class="restriction-item">
+                <i class="bi bi-x-circle restriction-icon"></i>
+                <h6 class="fw-bold">No Imprimir</h6>
+                <p class="small mb-0">No se permite impresión del contenido</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Compra Permanente -->
+          <div class="license-card" id="compra-permanente">
+            <h3 class="text-primary fw-bold mb-4">4. Licencia de Compra Permanente</h3>
+
+            <div class="license-type">
+              <h5><i class="bi bi-download me-2"></i>Características de la Compra Permanente</h5>
+              <ul class="mb-3">
+                <li>Acceso perpetuo al contenido adquirido</li>
+                <li>Sin límites de tiempo de lectura</li>
+                <li>Disponible en todos sus dispositivos registrados</li>
+                <li>Copias de seguridad automáticas en la nube</li>
+                <li>Actualizaciones gratuitas cuando estén disponibles</li>
+              </ul>
+            </div>
+
+            <div class="permissions-grid">
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Acceso Perpetuo</h6>
+                <p class="small mb-0">El contenido permanece en su biblioteca</p>
+              </div>
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Múltiples Dispositivos</h6>
+                <p class="small mb-0">Sincronización entre todos sus dispositivos</p>
+              </div>
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Copias Limitadas</h6>
+                <p class="small mb-0">Hasta 10% del contenido para uso personal</p>
+              </div>
+            </div>
+
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>Nota:</strong> La "compra permanente" se refiere a una licencia perpetua
+              de uso personal, no a la propiedad del copyright del contenido.
+            </div>
+          </div>
+
+          <!-- 5. Contenido por Suscripción -->
+          <div class="license-card" id="suscripcion">
+            <h3 class="text-primary fw-bold mb-4">5. Licencia de Contenido por Suscripción</h3>
+
+            <div class="license-type">
+              <h5><i class="bi bi-infinity me-2"></i>Características de la Suscripción</h5>
+              <ul class="mb-3">
+                <li>Acceso ilimitado durante la vigencia de la suscripción</li>
+                <li>Catálogo rotativo con nuevas adiciones mensuales</li>
+                <li>Funciones premium (offline, múltiples perfiles)</li>
+                <li>Recomendaciones personalizadas basadas en IA</li>
+                <li>Acceso prioritario a nuevos lanzamientos</li>
+              </ul>
+            </div>
+
+            <div class="permissions-grid">
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Lectura Ilimitada</h6>
+                <p class="small mb-0">Sin límites en el número de libros</p>
+              </div>
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Perfiles Familiares</h6>
+                <p class="small mb-0">Hasta 6 perfiles por cuenta (plan familiar)</p>
+              </div>
+              <div class="permission-item">
+                <i class="bi bi-check-circle permission-icon"></i>
+                <h6 class="fw-bold">Contenido Exclusivo</h6>
+                <p class="small mb-0">Acceso a contenido exclusivo para suscriptores</p>
+              </div>
+            </div>
+
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Importante:</strong> El acceso al contenido termina al cancelar la suscripción,
+              pero sus notas y progreso se conservan por 12 meses.
+            </div>
+          </div>
+
+          <!-- 6. Acceso Abierto -->
+          <div class="license-card" id="acceso-abierto">
+            <h3 class="text-primary fw-bold mb-4">6. Contenido de Acceso Abierto</h3>
+
+            <div class="license-type">
+              <h5><i class="bi bi-unlock me-2"></i>Licencias de Acceso Abierto</h5>
+              <p>
+                Algunos contenidos están disponibles bajo licencias de acceso abierto como
+                Creative Commons, dominio público o licencias académicas específicas.
+              </p>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="border rounded p-3">
+                  <h6 class="text-success"><i class="bi bi-creative-commons me-2"></i>Creative Commons</h6>
+                  <p class="small text-muted mb-0">
+                    Contenido disponible bajo diferentes niveles de licencias CC
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="border rounded p-3">
+                  <h6 class="text-success"><i class="bi bi-globe me-2"></i>Dominio Público</h6>
+                  <p class="small text-muted mb-0">
+                    Obras clásicas sin restricciones de copyright
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="border rounded p-3">
+                  <h6 class="text-success"><i class="bi bi-mortarboard me-2"></i>Académico Abierto</h6>
+                  <p class="small text-muted mb-0">
+                    Contenido educativo de instituciones académicas
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="border rounded p-3">
+                  <h6 class="text-success"><i class="bi bi-government me-2"></i>Gubernamental</h6>
+                  <p class="small text-muted mb-0">
+                    Publicaciones de entidades gubernamentales
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Uso Académico -->
+          <div class="license-card" id="uso-academico">
+            <h3 class="text-primary fw-bold mb-4">7. Licencias para Uso Académico e Institucional</h3>
+
+            <div class="license-type">
+              <h5><i class="bi bi-mortarboard me-2"></i>Licencias Educativas</h5>
+              <p>
+                Las instituciones educativas pueden acceder a licencias especiales que permiten
+                el uso del contenido para fines educativos y de investigación.
+              </p>
+
+              <h6 class="mt-3">Permisos Institucionales:</h6>
+              <ul>
+                <li>Uso en cursos y programas académicos</li>
+                <li>Acceso para estudiantes matriculados</li>
+                <li>Reservas de curso electrónicas</li>
+                <li>Uso en investigación académica</li>
+                <li>Citación y referencia académica</li>
+              </ul>
+            </div>
+
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>Excepciones de Uso Justo:</strong> BiblioVirtual reconoce las excepciones
+              de "uso justo" para propósitos educativos de acuerdo con la legislación peruana.
+            </div>
+          </div>
+
+          <!-- 8. Restricciones Generales -->
+          <div class="license-card" id="restricciones">
+            <h3 class="text-primary fw-bold mb-4">8. Restricciones Generales para Todo Tipo de Contenido</h3>
+
+            <div class="restrictions-grid">
+              <div class="restriction-item">
+                <i class="bi bi-x-circle restriction-icon"></i>
+                <h6 class="fw-bold">Redistribución</h6>
+                <p class="small mb-0">Prohibido redistribuir o revender el contenido</p>
+              </div>
+
+              <div class="restriction-item">
+                <i class="bi bi-x-circle restriction-icon"></i>
+                <h6 class="fw-bold">Uso Comercial</h6>
+                <p class="small mb-0">No se permite uso comercial sin autorización</p>
+              </div>
+
+              <div class="restriction-item">
+                <i class="bi bi-x-circle restriction-icon"></i>
+                <h6 class="fw-bold">Ingeniería Inversa</h6>
+                <p class="small mb-0">Prohibida la extracción o copia masiva</p>
+              </div>
+
+              <div class="restriction-item">
+                <i class="bi bi-x-circle restriction-icon"></i>
+                <h6 class="fw-bold">Modificación</h6>
+                <p class="small mb-0">No alterar o modificar el contenido original</p>
+              </div>
+
+              <div class="restriction-item">
+                <i class="bi bi-x-circle restriction-icon"></i>
+                <h6 class="fw-bold">Compartir Cuentas</h6>
+                <p class="small mb-0">Prohibido compartir credenciales de acceso</p>
+              </div>
+
+              <div class="restriction-item">
+                <i class="bi bi-x-circle restriction-icon"></i>
+                <h6 class="fw-bold">Elusión de DRM</h6>
+                <p class="small mb-0">No eludir medidas de protección digital</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 9. Comparación de Licencias -->
+          <div class="license-card" id="comparacion">
+            <h3 class="text-primary fw-bold mb-4">9. Comparación de Tipos de Licencias</h3>
+
+            <div class="license-comparison">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Característica</th>
+                    <th>Préstamo</th>
+                    <th>Compra</th>
+                    <th>Suscripción</th>
+                    <th>Abierto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Duración de Acceso</strong></td>
+                    <td>7-21 días</td>
+                    <td>Permanente</td>
+                    <td>Durante suscripción</td>
+                    <td>Permanente</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Acceso Offline</strong></td>
+                    <td><i class="bi bi-check-lg check-mark"></i></td>
+                    <td><i class="bi bi-check-lg check-mark"></i></td>
+                    <td><i class="bi bi-check-lg check-mark"></i></td>
+                    <td><i class="bi bi-check-lg check-mark"></i></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Múltiples Dispositivos</strong></td>
+                    <td>Limitado</td>
+                    <td><i class="bi bi-check-lg check-mark"></i></td>
+                    <td><i class="bi bi-check-lg check-mark"></i></td>
+                    <td><i class="bi bi-check-lg check-mark"></i></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Impresión</strong></td>
+                    <td><i class="bi bi-x-lg x-mark"></i></td>
+                    <td>Limitada</td>
+                    <td><i class="bi bi-x-lg x-mark"></i></td>
+                    <td>Depende de licencia</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Compartir</strong></td>
+                    <td><i class="bi bi-x-lg x-mark"></i></td>
+                    <td><i class="bi bi-x-lg x-mark"></i></td>
+                    <td><i class="bi bi-x-lg x-mark"></i></td>
+                    <td>Depende de licencia</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Uso Comercial</strong></td>
+                    <td><i class="bi bi-x-lg x-mark"></i></td>
+                    <td><i class="bi bi-x-lg x-mark"></i></td>
+                    <td><i class="bi bi-x-lg x-mark"></i></td>
+                    <td>Depende de licencia</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 10. Contacto Legal -->
+          <div class="contact-licenses" id="contacto-licenses">
+            <div class="row align-items-center">
+              <div class="col-lg-8">
+                <h3 class="fw-bold mb-3">¿Preguntas sobre Licencias?</h3>
+                <p class="mb-4">
+                  Si tiene dudas sobre los términos de licenciamiento o necesita permisos especiales
+                  para uso institucional, nuestro equipo legal está aquí para ayudarle.
+                </p>
+              </div>
+              <div class="col-lg-4 text-center">
+                <a href="mailto:legal@bibliovirtual.com" class="btn btn-light btn-lg">
+                  <i class="bi bi-envelope me-2"></i>Contactar Equipo Legal
+                </a>
+              </div>
+            </div>
+
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.3);">
+
+            <div class="row g-3 text-center">
+              <div class="col-md-4">
+                <i class="bi bi-envelope fs-4 mb-2 d-block"></i>
+                <strong>Email Legal</strong><br>
+                <small>legal@bibliovirtual.com</small>
+              </div>
+              <div class="col-md-4">
+                <i class="bi bi-building fs-4 mb-2 d-block"></i>
+                <strong>Licencias Institucionales</strong><br>
+                <small>institucional@bibliovirtual.com</small>
+              </div>
+              <div class="col-md-4">
+                <i class="bi bi-mortarboard fs-4 mb-2 d-block"></i>
+                <strong>Licencias Académicas</strong><br>
+                <small>academico@bibliovirtual.com</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="licenciasScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Smooth scroll para enlaces del índice
+        document.querySelectorAll('.license-toc a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          });
+        });
+
+        // Highlight de sección activa
+        const sections = document.querySelectorAll('.license-card');
+        const tocLinks = document.querySelectorAll('.license-toc a');
+
+        function highlightActiveSection() {
+          let current = '';
+          sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 200) {
+              current = section.getAttribute('id');
+            }
+          });
+
+          tocLinks.forEach(link => {
+            link.style.fontWeight = 'normal';
+            if (link.getAttribute('href') === '#' + current) {
+              link.style.fontWeight = 'bold';
+            }
+          });
+        }
+
+        window.addEventListener('scroll', highlightActiveSection);
+
+        // Animación para las tarjetas de licencia
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function (entries) {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = '1';
+              entry.target.style.transform = 'translateY(0)';
+            }
+          });
+        }, observerOptions);
+
+        // Aplicar animación inicial
+        document.querySelectorAll('.license-card').forEach(card => {
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(30px)';
+          card.style.transition = 'all 0.6s ease';
+          observer.observe(card);
+        });
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

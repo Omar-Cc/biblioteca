@@ -1,0 +1,37 @@
+[
+  {
+    "tipo": "TARJETA_CREDITO",
+    "nombre": "Tarjeta de Crédito",
+    "descripcion": "Pago con tarjeta de crédito Visa, MasterCard, American Express",
+    "requiereAutorizacion": true,
+    "activo": true
+  },
+  {
+    "tipo": "TARJETA_DEBITO",
+    "nombre": "Tarjeta de Débito",
+    "descripcion": "Pago con tarjeta de débito bancaria",
+    "requiereAutorizacion": true,
+    "activo": true
+  },
+  {
+    "tipo": "PAYPAL",
+    "nombre": "PayPal",
+    "descripcion": "Pago a través de la plataforma PayPal",
+    "requiereAutorizacion": true,
+    "activo": true
+  },
+  {
+    "tipo": "TRANSFERENCIA_BANCARIA",
+    "nombre": "Transferencia Bancaria",
+    "descripcion": "Pago mediante transferencia bancaria. Se procesará una vez confirmado el pago.",
+    "requiereAutorizacion": false,
+    "activo": true
+  },
+  {
+    "tipo": "SIMULADO",
+    "nombre": "Pago Simulado",
+    "descripcion": "Método de pago simulado para pruebas y demostraciones",
+    "requiereAutorizacion": false,
+    "activo": true
+  }
+]

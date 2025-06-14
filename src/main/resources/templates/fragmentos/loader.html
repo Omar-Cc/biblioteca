@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <th:block th:fragment="loaderCss">
+    <style>
+      .page-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 50%, var(--bs-dark) 100%);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+      }
+
+      .page-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      /* Partículas flotantes de fondo */
+      .floating-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .floating-particle {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.1);
+        animation: float 10s ease-in-out infinite;
+      }
+
+      .floating-particle:nth-child(1) {
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .floating-particle:nth-child(2) {
+        top: 20%;
+        right: 15%;
+        animation-delay: 1s;
+      }
+
+      .floating-particle:nth-child(3) {
+        bottom: 30%;
+        left: 20%;
+        animation-delay: 2s;
+      }
+
+      .floating-particle:nth-child(4) {
+        bottom: 40%;
+        right: 25%;
+        animation-delay: 3s;
+      }
+
+      .floating-particle:nth-child(5) {
+        top: 60%;
+        left: 5%;
+        animation-delay: 4s;
+      }
+
+      .floating-particle:nth-child(6) {
+        top: 40%;
+        right: 5%;
+        animation-delay: 5s;
+      }
+
+      @keyframes float {
+
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+
+        33% {
+          transform: translateY(-30px) rotate(10deg);
+        }
+
+        66% {
+          transform: translateY(15px) rotate(-5deg);
+        }
+      }
+
+      /* Contenedor principal del loader */
+      .loader-container {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        padding: 3rem 2rem;
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: fadeIn 0.8s ease-out;
+        max-width: 400px;
+        width: 90%;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px) scale(0.9);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      /* Loader principal - Libros girando */
+      .main-loader {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 2rem;
+      }
+
+      .book-loader {
+        position: absolute;
+        width: 30px;
+        height: 40px;
+        border-radius: 3px;
+        animation: bookSpin 2s linear infinite;
+        top: 50%;
+        left: 50%;
+        transform-origin: 50% 50%;
+        margin-top: -20px;
+        margin-left: -15px;
+      }
+
+      .book-loader:nth-child(1) {
+        background: linear-gradient(45deg, var(--bs-danger), var(--bs-warning));
+        animation-delay: 0s;
+      }
+
+      .book-loader:nth-child(2) {
+        background: linear-gradient(45deg, var(--bs-success), var(--bs-info));
+        animation-delay: 0.2s;
+      }
+
+      .book-loader:nth-child(3) {
+        background: linear-gradient(45deg, var(--bs-primary), var(--bs-secondary));
+        animation-delay: 0.4s;
+      }
+
+      .book-loader:nth-child(4) {
+        background: linear-gradient(45deg, var(--bs-warning), var(--bs-secondary));
+        animation-delay: 0.6s;
+      }
+
+      @keyframes bookSpin {
+        0% {
+          transform: rotate(0deg) translateX(45px) rotate(0deg);
+          opacity: 1;
+        }
+
+        50% {
+          transform: rotate(180deg) translateX(45px) rotate(-180deg);
+          opacity: 0.7;
+        }
+
+        100% {
+          transform: rotate(360deg) translateX(45px) rotate(-360deg);
+          opacity: 1;
+        }
+      }
+
+      /* Loader secundario - Barras de progreso */
+      .progress-loader {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 2rem 0 1rem;
+        position: relative;
+      }
+
+      .progress-bar-animated {
+        height: 100%;
+        background: linear-gradient(90deg, var(--bs-primary), var(--bs-secondary), var(--bs-primary));
+        background-size: 200% 100%;
+        border-radius: 10px;
+        animation: progressMove 2s ease-in-out infinite;
+        width: 0%;
+      }
+
+      @keyframes progressMove {
+        0% {
+          width: 0%;
+          background-position: 200% 0;
+        }
+
+        50% {
+          width: 100%;
+          background-position: 0% 0;
+        }
+
+        100% {
+          width: 0%;
+          background-position: -200% 0;
+        }
+      }
+
+      /* Texto y tipografía */
+      .loader-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .loader-subtitle {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 1rem;
+        font-weight: 300;
+      }
+
+      /* Texto de carga dinámico */
+      .loading-text {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 1rem;
+        min-height: 1.2rem;
+      }
+
+      .loading-dots::after {
+        content: '';
+        animation: dots 1.5s steps(4, end) infinite;
+      }
+
+      @keyframes dots {
+
+        0%,
+        20% {
+          content: '';
+        }
+
+        40% {
+          content: '.';
+        }
+
+        60% {
+          content: '..';
+        }
+
+        80%,
+        100% {
+          content: '...';
+        }
+      }
+
+      /* Pulse en el icono central */
+      .center-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+        color: white;
+        animation: centerPulse 2s ease-in-out infinite;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      }
+
+      @keyframes centerPulse {
+
+        0%,
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 0.8;
+        }
+
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+          opacity: 1;
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .loader-container {
+          padding: 2rem 1.5rem;
+          margin: 1rem;
+        }
+
+        .main-loader {
+          width: 100px;
+          height: 100px;
+        }
+
+        .book-loader {
+          width: 25px;
+          height: 35px;
+          margin-top: -17.5px;
+          margin-left: -12.5px;
+        }
+
+        .floating-elements {
+          display: none;
+        }
+
+        @keyframes bookSpin {
+          0% {
+            transform: rotate(0deg) translateX(37px) rotate(0deg);
+          }
+
+          50% {
+            transform: rotate(180deg) translateX(37px) rotate(-180deg);
+          }
+
+          100% {
+            transform: rotate(360deg) translateX(37px) rotate(-360deg);
+          }
+        }
+
+        .floating-elements {
+          display: none;
+        }
+      }
+
+      /* Animación de entrada */
+      .loader-container>* {
+        animation: slideUp 0.6s ease-out both;
+      }
+
+      .loader-container>*:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+
+      .loader-container>*:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .loader-container>*:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .loader-container>*:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="loader" class="page-loader" id="pageLoader">
+    <!-- Elementos flotantes de fondo -->
+    <div class="floating-elements">
+      <i class="bi bi-book floating-particle" style="font-size: 1.5rem;"></i>
+      <i class="bi bi-journal-bookmark floating-particle" style="font-size: 1.2rem;"></i>
+      <i class="bi bi-book-half floating-particle" style="font-size: 1.8rem;"></i>
+      <i class="bi bi-bookshelf floating-particle" style="font-size: 1.4rem;"></i>
+      <i class="bi bi-bookmark floating-particle" style="font-size: 1rem;"></i>
+      <i class="bi bi-journals floating-particle" style="font-size: 1.6rem;"></i>
+    </div>
+
+    <div class="loader-container">
+      <!-- Título -->
+      <h1 class="loader-title">Biblioteca Digital</h1>
+      <p class="loader-subtitle">Preparando tu experiencia de lectura</p>
+
+      <!-- Loader principal -->
+      <div class="main-loader">
+        <div class="book-loader"></div>
+        <div class="book-loader"></div>
+        <div class="book-loader"></div>
+        <div class="book-loader"></div>
+        <i class="bi bi-book-half center-icon"></i>
+      </div>
+
+      <!-- Barra de progreso -->
+      <div class="progress-loader">
+        <div class="progress-bar-animated" id="progressBar"></div>
+      </div>
+
+      <!-- Texto de carga dinámico -->
+      <div class="loading-text">
+        <span id="loadingMessage" class="loading-dots">Cargando contenido</span>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="loaderJs">
+    <script>
+      // Mensajes de carga dinámicos
+      const BibliotecaLoader = {
+        messages: [
+          'Organizando los estantes',
+          'Catalogando nuevos títulos',
+          'Preparando recomendaciones',
+          'Conectando con la base de datos',
+          'Optimizando la búsqueda',
+          'Cargando tu biblioteca personal',
+          'Actualizando el inventario',
+          'Preparando la experiencia de lectura'
+        ],
+
+        messageIndex: 0,
+        progress: 0,
+        intervals: [],
+
+        show() {
+          const loader = document.getElementById('pageLoader');
+          if (loader) {
+            loader.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            this.startAnimations();
+          }
+        },
+
+        hide() {
+          const loader = document.getElementById('pageLoader');
+          if (loader) {
+            this.stopAnimations();
+            loader.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+
+            // Remover completamente después de la animación
+            setTimeout(() => {
+              if (loader.parentNode) {
+                loader.parentNode.removeChild(loader);
+              }
+            }, 500);
+          }
+        },
+
+        startAnimations() {
+          // Limpiar intervalos previos
+          this.stopAnimations();
+          
+          // Resetear progreso
+          this.progress = 0;
+          this.messageIndex = 0;
+          
+          // Establecer mensaje inicial
+          const messageElement = document.getElementById('loadingMessage');
+          if (messageElement) {
+            messageElement.textContent = this.messages[0];
+          }
+          
+          // Cambiar mensaje cada 800ms
+          const messageInterval = setInterval(() => {
+            const messageElement = document.getElementById('loadingMessage');
+            if (messageElement) {
+              this.messageIndex = (this.messageIndex + 1) % this.messages.length;
+              messageElement.textContent = this.messages[this.messageIndex];
+            }
+          }, 500);
+
+          // Simular progreso
+          const progressBar = document.getElementById('progressBar');
+          const progressInterval = setInterval(() => {
+            this.progress += Math.random() * 15;
+            if (this.progress >= 100) {
+              this.progress = 100;
+              clearInterval(progressInterval);
+            }
+            if (progressBar) {
+              progressBar.style.width = this.progress + '%';
+            }
+          }, 300);
+
+          this.intervals.push(messageInterval, progressInterval);
+        },
+
+        stopAnimations() {
+          this.intervals.forEach(interval => clearInterval(interval));
+          this.intervals = [];
+          this.progress = 0;
+          this.messageIndex = 0;
+        },
+
+        // Mostrar loader durante llamadas AJAX
+        showForAjax() {
+          this.show();
+          return this;
+        },
+
+        // Auto-ocultar después de un tiempo
+        autoHide(delay = 1000) {
+          setTimeout(() => this.hide(), delay);
+          return this;
+        }
+      };
+
+      // Auto-ocultar loader cuando la página termine de cargar
+      document.addEventListener('DOMContentLoaded', () => {
+        // Simular carga inicial
+        setTimeout(() => {
+          BibliotecaLoader.hide();
+        }, 1500);
+      });
+
+      // Mostrar loader en navegación
+      document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href]');
+        if (link && !link.getAttribute('href').startsWith('#') &&
+          !link.getAttribute('href').startsWith('mailto:') &&
+          !link.hasAttribute('download') &&
+          !link.getAttribute('target')) {
+          BibliotecaLoader.show();
+        }
+      });
+
+      // Mostrar loader en envío de formularios
+      document.addEventListener('submit', (e) => {
+        if (e.target.tagName === 'FORM') {
+          BibliotecaLoader.show();
+        }
+      });
+
+      // Exponer globalmente para uso manual
+      window.BibliotecaLoader = BibliotecaLoader;
+    </script>
+  </th:block>
+</body>
+
+</html>

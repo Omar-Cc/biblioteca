@@ -18,10 +18,19 @@ public class PagoRequestDTO {
     
     private String referenciaPago;
     private String estado;
+    private String motivoRechazo; // Solo si el estado es Rechazado
+    private String referenciaExterna; // Para integraciones con pasarelas de pago
     
-    @NotNull(message = "El ID de la orden es obligatorio")
-    private Long ordenId;
+    private Long ordenId; // Opcional - para pagos de órdenes
+    
+    private Long suscripcionId; // Opcional - para pagos de suscripciones
     
     @NotNull(message = "El ID del método de pago es obligatorio")
     private Long metodoPagoId;
+    
+    // Campos para simulación (heredados de PagoSimulado)
+    private Boolean esSimulado;
+    private Boolean simularFallo;
+    private String tipoError;
+    private String periodo; // Para pagos de suscripciones
 }

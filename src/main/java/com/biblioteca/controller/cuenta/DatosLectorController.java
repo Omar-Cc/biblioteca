@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/mi-cuenta/lector")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER', 'LECTOR')")
+@PreAuthorize("hasRole('LECTOR')")
 public class DatosLectorController {
 
   private final LectorService lectorService;

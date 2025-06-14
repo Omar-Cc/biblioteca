@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Factura Adjunta</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      background-color: #2d6e7e;
+      color: white;
+      padding: 20px;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .content {
+      background-color: #f8f9fa;
+      padding: 30px;
+      border: 1px solid #dee2e6;
+    }
+
+    .factura-info {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #2d6e7e;
+    }
+
+    .info-row {
+      margin: 10px 0;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #2d6e7e;
+      display: inline-block;
+      width: 140px;
+    }
+
+    .footer {
+      text-align: center;
+      background-color: #6c757d;
+      color: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+      font-size: 12px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #2d6e7e;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+
+    .alert {
+      background-color: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="logo">BIBLIOTECA DIGITAL</div>
+    <h2>Su factura está adjunta</h2>
+  </div>
+
+  <div class="content">
+    <p>Estimado/a <strong th:text="${perfil.nombreVisible}">Cliente</strong>,</p>
+
+    <p>Le enviamos adjunta su factura electrónica con los siguientes detalles:</p>
+
+    <div class="factura-info">
+      <div class="info-row">
+        <span class="label">Número de Factura:</span>
+        <span th:text="${factura.numeroFactura}">F001-00000001</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Fecha de Emisión:</span>
+        <span th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}">01/01/2025</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Total:</span>
+        <span th:text="'S/. ' + ${#numbers.formatDecimal(factura.total / 100.0, 1, 2)}">S/. 25.00</span>
+      </div>
+    </div>
+
+    <div class="alert">
+      <strong>📎 Archivo Adjunto:</strong> Su factura en formato PDF se encuentra adjunta a este correo.
+      Puede descargarla e imprimirla para sus registros contables.
+    </div>
+
+    <p>Este documento tiene validez fiscal y puede ser utilizado para:</p>
+    <ul>
+      <li>Sustentar gastos deducibles</li>
+      <li>Registros contables</li>
+      <li>Solicitar reembolsos</li>
+      <li>Comprobante de compra</li>
+    </ul>
+
+    <p style="text-align: center;">
+      <a href="http://localhost:8080/mi-cuenta/facturas" class="btn">Ver Todas mis Facturas</a>
+    </p>
+
+    <p><strong>Importante:</strong></p>
+    <ul>
+      <li>Conserve este documento para sus registros</li>
+      <li>Si tiene alguna consulta, contáctenos a: <strong>facturacion@biblioteca-digital.com</strong></li>
+      <li>Este es un documento generado automáticamente</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <p><strong>Biblioteca Digital S.A.C.</strong></p>
+    <p>RUC: 20123456789 | Teléfono: (01) 123-4567</p>
+    <p>Email: contacto@biblioteca.com | Web: www.biblioteca-digital.com</p>
+    <p>© <span th:text="${#dates.year(#dates.createNow())}">2025</span> Biblioteca Digital - Todos los derechos
+      reservados</p>
+  </div>
+</body>
+
+</html>

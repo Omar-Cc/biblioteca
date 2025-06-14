@@ -1,7 +1,7 @@
 package com.biblioteca.controller.cuenta;
 
 import com.biblioteca.dto.SessionInfo;
-import com.biblioteca.models.Usuario;
+import com.biblioteca.models.acceso.Usuario;
 import com.biblioteca.service.SessionManagementService;
 import com.biblioteca.service.UsuarioService;
 
@@ -23,7 +23,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/mi-cuenta/seguridad")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER', 'LECTOR')")
+@PreAuthorize("hasRole('LECTOR')")
 public class SeguridadController {
 
   private final UsuarioService usuarioService;

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Factura Suscripción</title>
+  <style>
+    @page {
+      size: A4;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #333333;
+      background-color: white;
+    }
+
+    .invoice-container {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #2d6e7e, #1d4b55);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .invoice-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .company-info {
+      background-color: #f5f5f0;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      border-left: 4px solid #2d6e7e;
+    }
+
+    .company-info h4 {
+      margin: 0 0 15px 0;
+      color: #2d6e7e;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .company-info p {
+      margin: 5px 0;
+      font-size: 11px;
+      color: #333333;
+    }
+
+    .subscription-info {
+      background: linear-gradient(135deg, rgba(45, 110, 126, 0.05), rgba(45, 110, 126, 0.1));
+      border: 2px solid rgba(45, 110, 126, 0.2);
+      border-radius: 10px;
+      padding: 25px;
+      margin: 25px 0;
+    }
+
+    .subscription-info h3 {
+      margin: 0 0 20px 0;
+      color: #2d6e7e;
+      font-size: 18px;
+      font-weight: 700;
+      border-bottom: 2px solid rgba(45, 110, 126, 0.2);
+      padding-bottom: 10px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .info-item {
+      background-color: white;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(45, 110, 126, 0.1);
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #5b7d87;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      color: #333333;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .highlight-value {
+      color: #2d6e7e;
+      font-weight: 600;
+    }
+
+    .tabla {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      border: 2px solid #2d6e7e;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tabla th {
+      background: linear-gradient(135deg, #2d6e7e, #1d4b55);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 11px;
+      padding: 15px 12px;
+      text-align: left;
+    }
+
+    .tabla td {
+      padding: 15px 12px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 12px;
+    }
+
+    .tabla tbody tr:nth-child(even) {
+      background-color: rgba(245, 245, 240, 0.5);
+    }
+
+    .tabla tbody tr:hover {
+      background-color: rgba(45, 110, 126, 0.05);
+    }
+
+    .tabla .price-cell {
+      text-align: right;
+      font-weight: 600;
+      color: #2d6e7e;
+    }
+
+    .total-row {
+      background: linear-gradient(135deg, #d9a566, #b38444) !important;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .total-row td {
+      padding: 18px 12px;
+      border: none;
+      color: #333333;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-activa {
+      background-color: rgba(42, 98, 70, 0.15);
+      color: #2a6246;
+      border: 1px solid rgba(42, 98, 70, 0.3);
+    }
+
+    .status-inactiva {
+      background-color: rgba(192, 107, 62, 0.15);
+      color: #c06b3e;
+      border: 1px solid rgba(192, 107, 62, 0.3);
+    }
+
+    .status-pendiente {
+      background-color: rgba(221, 164, 72, 0.15);
+      color: #dda448;
+      border: 1px solid rgba(221, 164, 72, 0.3);
+    }
+
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+      border-top: 2px solid #2d6e7e;
+      padding-top: 20px;
+    }
+
+    .footer p {
+      margin: 5px 0;
+    }
+
+    .footer .generated-date {
+      font-weight: 600;
+      color: #2d6e7e;
+    }
+
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 120px;
+      font-weight: 100;
+      color: rgba(45, 110, 126, 0.03);
+      z-index: -1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="invoice-container">
+    <div class="header">
+      <div class="header-content">
+        <div class="logo">BIBLIOTECA DIGITAL</div>
+        <h2 class="invoice-title">FACTURA DE SUSCRIPCIÓN</h2>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="company-info">
+        <h4>Información de la Empresa</h4>
+        <p><strong>Biblioteca Digital S.A.C.</strong></p>
+        <p>RUC: 20123456789 | Dirección: Av. Bibliotecarios 123, Lima, Perú</p>
+        <p>Teléfono: (01) 123-4567 | Email: contacto@biblioteca.com</p>
+        <p>Web: www.biblioteca-digital.com</p>
+      </div>
+
+      <div class="subscription-info">
+        <h3>Información de Suscripción</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Plan</div>
+            <div class="info-value highlight-value" th:text="${suscripcion.plan.nombre}">Plan Premium</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Modalidad</div>
+            <div class="info-value" th:text="${suscripcion.modalidadPago}">Mensual</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Periodo</div>
+            <div class="info-value" th:text="${periodo}">Enero 2025</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Estado</div>
+            <div class="info-value">
+              <span class="status-badge" 
+                    th:classappend="${suscripcion.estado == 'ACTIVA' ? 'status-activa' : 
+                                   (suscripcion.estado == 'PENDIENTE' ? 'status-pendiente' : 'status-inactiva')}"
+                    th:text="${suscripcion.estado}">ACTIVA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th style="width: 50%;">Concepto</th>
+            <th style="width: 25%;">Periodo</th>
+            <th style="width: 25%; text-align: right;">Precio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong th:text="${suscripcion.plan.nombre + ' - ' + suscripcion.modalidadPago}">Plan Premium - Mensual</strong>
+              <br>
+              <small style="color: #666;" th:text="${suscripcion.plan.descripcionCorta ?: 'Acceso completo a la biblioteca'}">
+                Acceso completo a la biblioteca digital
+              </small>
+            </td>
+            <td th:text="${periodo}">Enero 2025</td>
+            <td class="price-cell" th:text="'S/. ' + ${#numbers.formatDecimal(suscripcion.plan.precio / 100.0, 1, 2)}">S/. 19.99</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="2" style="text-align: right; font-weight: 700;">TOTAL A PAGAR:</td>
+            <td style="text-align: right; font-weight: 700;" 
+                th:text="'S/. ' + ${#numbers.formatDecimal(suscripcion.plan.precio / 100.0, 1, 2)}">S/. 19.99</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="footer">
+        <p class="generated-date">
+          Factura de suscripción generada el <span th:text="${fechaGeneracion}">12/06/2025 15:30</span>
+        </p>
+        <p>Este documento es válido como comprobante de suscripción</p>
+        <p>© <span th:text="${año}">2025</span> Biblioteca Digital S.A.C. - Todos los derechos reservados</p>
+        <p style="margin-top: 10px; font-style: italic;">
+          Sistema de Biblioteca Virtual - Documento generado automáticamente
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

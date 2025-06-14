@@ -53,8 +53,8 @@
               <tr th:each="plan : ${planes}">
                 <td th:text="${plan.id}"></td>
                 <td th:text="${plan.nombre}"></td>
-                <td th:text="${'$' + #numbers.formatDecimal(plan.precioMensual, 1, 2)}"></td>
-                <td th:text="${'$' + #numbers.formatDecimal(plan.precioAnual, 1, 2)}"></td>
+                <td th:text="${'S/. ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 2)}"></td>
+                <td th:text="${'S/. ' + #numbers.formatDecimal(plan.precioAnual/100, 1, 2)}"></td>
                 <td th:text="${plan.diasPrueba}"></td>
                 <td>
                   <span th:if="${plan.activo}" class="badge bg-success">Activo</span>

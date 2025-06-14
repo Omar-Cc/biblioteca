@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.biblioteca.dto.comercial.PagoRequestDTO;
 import com.biblioteca.dto.comercial.PagoResponseDTO;
-import com.biblioteca.models.Perfil;
+import com.biblioteca.models.acceso.Perfil;
 import com.biblioteca.service.MetodoPagoService;
 import com.biblioteca.service.OrdenService;
 import com.biblioteca.service.PagoService;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/mi-cuenta/pago")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER', 'LECTOR')")
+@PreAuthorize("hasRole('LECTOR')")
 public class MiPagoController {
 
   private final PagoService pagoService;
@@ -272,7 +272,7 @@ public class MiPagoController {
     }
 
     // Obtener el perfil desde la base de datos usando el ID
-    return perfilService.obtenerPerfilPorId(perfilActivoId)
+    return perfilService.obtenerEntidadPerfilPorId(perfilActivoId)
         .orElse(null);
   }
   

@@ -1,91 +1,71 @@
 package com.biblioteca.service.impl;
 
-import com.biblioteca.models.Rol;
+import com.biblioteca.models.acceso.Rol;
+import com.biblioteca.repositories.RolRepository;
 import com.biblioteca.service.RolService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.PostConstruct;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class RolServiceImpl implements RolService {
-  private final Map<Long, Rol> roles = new ConcurrentHashMap<>();
-  private final Map<String, Rol> rolesPorNombre = new ConcurrentHashMap<>();
-  private final AtomicLong rolIdCounter = new AtomicLong(0); // Iniciar en 0 para el primer ID ser 1
 
-  public static final String ROLE_USER = "ROLE_USER";
+  private final RolRepository rolRepository;
+
   public static final String ROLE_ADMIN = "ROLE_ADMIN";
-  public static final String ROLE_LIBRARIAN = "ROLE_LIBRARIAN";
-  public static final String ROLE_MEMBER = "ROLE_MEMBER";
-  public static final String ROLE_GUEST = "ROLE_GUEST";
-  public static final String ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
-  public static final String ROLE_MODERATOR = "ROLE_MODERATOR";
-  public static final String ROLE_EDITOR = "ROLE_EDITOR";
-  public static final String ROLE_VIEWER = "ROLE_VIEWER";
-  public static final String ROLE_CONTRIBUTOR = "ROLE_CONTRIBUTOR";
-  public static final String ROLE_EMPLOYEE = "ROLE_EMPLOYEE";
+  public static final String ROLE_LECTOR = "ROLE_LECTOR";
+  public static final String ROLE_EMPLEADO = "ROLE_EMPLEADO";
 
   @Override
   @PostConstruct
+  @Transactional
   public void inicializarRoles() {
-    if (buscarPorNombre(ROLE_USER).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_USER).build());
+    crearRolSiNoExiste(ROLE_ADMIN);
+    crearRolSiNoExiste(ROLE_LECTOR);
+    crearRolSiNoExiste(ROLE_EMPLEADO);
+    System.out.println("Roles verificados/inicializados en la base de datos.");
+  }
+
+  private void crearRolSiNoExiste(String nombreRol) {
+    if (rolRepository.findByNombre(nombreRol).isEmpty()) {
+      Rol nuevoRol = Rol.builder().nombre(nombreRol).build();
+      rolRepository.save(nuevoRol);
+      System.out.println("Rol creado: " + nombreRol);
     }
-    if (buscarPorNombre(ROLE_ADMIN).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_ADMIN).build());
-    }
-    if (buscarPorNombre(ROLE_LIBRARIAN).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_LIBRARIAN).build());
-    }
-    if (buscarPorNombre(ROLE_MEMBER).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_MEMBER).build());
-    }
-    if (buscarPorNombre(ROLE_GUEST).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_GUEST).build());
-    }
-    if (buscarPorNombre(ROLE_SUPER_ADMIN).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_SUPER_ADMIN).build());
-    }
-    if (buscarPorNombre(ROLE_MODERATOR).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_MODERATOR).build());
-    }
-    if (buscarPorNombre(ROLE_EDITOR).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_EDITOR).build());
-    }
-    if (buscarPorNombre(ROLE_VIEWER).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_VIEWER).build());
-    }
-    if (buscarPorNombre(ROLE_CONTRIBUTOR).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_CONTRIBUTOR).build());
-    }
-    if (buscarPorNombre(ROLE_EMPLOYEE).isEmpty()) {
-      guardarRol(Rol.builder().nombre(ROLE_EMPLOYEE).build());
-    }
-    System.out.println("Roles inicializados: " + rolesPorNombre.keySet());
   }
 
   @Override
+  @Transactional
   public Rol guardarRol(Rol rol) {
-    if (rol.getId() == null) {
-      rol.setId(rolIdCounter.incrementAndGet());
+    // Verificar si ya existe un rol con ese nombre para evitar duplicados si es
+    // necesario
+    // Aunque la inicialización ya lo maneja, este método podría ser llamado
+    // externamente.
+    Optional<Rol> existente = rolRepository.findByNombre(rol.getNombre());
+    if (existente.isPresent() && (rol.getId() == null || !rol.getId().equals(existente.get().getId()))) {
+      throw new IllegalArgumentException("Un rol con el nombre '" + rol.getNombre() + "' ya existe.");
     }
-    roles.put(rol.getId(), rol);
-    rolesPorNombre.put(rol.getNombre(), rol);
-    return rol;
+    // El ID será generado por la base de datos si es nuevo, o se usará el existente
+    // si se actualiza.
+    return rolRepository.save(rol);
   }
 
   @Override
+  @Transactional(readOnly = true) // Las operaciones de solo lectura pueden marcarse así
   public Optional<Rol> buscarPorNombre(String nombre) {
-    return Optional.ofNullable(rolesPorNombre.get(nombre));
+    return rolRepository.findByNombre(nombre);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Rol> obtenerTodosLosRoles() {
-    return new ArrayList<>(roles.values());
+    return rolRepository.findAll();
   }
 }

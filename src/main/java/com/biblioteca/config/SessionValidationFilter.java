@@ -24,6 +24,20 @@ public class SessionValidationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
+    String requestURI = request.getRequestURI();
+    
+    // Excluir completamente las solicitudes de login, logout, registro y recursos estáticos
+    if (requestURI.equals("/login") || requestURI.startsWith("/login/") ||
+        requestURI.equals("/logout") || requestURI.startsWith("/logout/") ||
+        requestURI.equals("/registro") || requestURI.startsWith("/registro/") ||
+        requestURI.startsWith("/css/") || requestURI.startsWith("/js/") ||
+        requestURI.startsWith("/images/") || requestURI.startsWith("/webjars/") ||
+        requestURI.equals("/error") || requestURI.startsWith("/error/") ||
+        requestURI.equals("/favicon.ico")) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
     HttpSession session = request.getSession(false);
 
     if (session != null) {

@@ -14,11 +14,14 @@
   <link rel="stylesheet" th:href="@{/css/custom-theme.css}" />
   <link rel="stylesheet" th:href="@{/css/style.css}" />
 
+  <th:block th:replace="~{fragmentos/loader :: loaderCss}"></th:block>
   <!-- CSS adicional específico de la página -->
   <th:block th:if="${pageAdditionalCss != null}" th:insert="${pageAdditionalCss}"></th:block>
 </head>
 
 <body>
+  <!-- Loader (se muestra al cargar la página) -->
+  <!-- <th:block th:replace="~{fragmentos/loader :: loader}"></th:block> -->
   <!-- Navbar -->
   <nav th:replace="~{fragmentos/componentes/navbar :: navbar}"></nav>
 
@@ -34,6 +37,9 @@
 
   <!-- Scripts base -->
   <div th:replace="~{fragmentos/componentes/scripts :: scripts} ?: ~{}"></div>
+
+  <!-- Scripts del loader -->
+  <th:block th:replace="~{fragmentos/loader :: loaderJs}"></th:block>
 
   <!-- Scripts adicionales específicos de la página -->
   <th:block th:if="${pageAdditionalScripts != null}" th:insert="${pageAdditionalScripts}"></th:block>

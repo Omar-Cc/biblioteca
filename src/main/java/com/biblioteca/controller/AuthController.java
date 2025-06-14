@@ -1,5 +1,7 @@
 package com.biblioteca.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.biblioteca.dto.UsuarioRegistroDTO;
+import com.biblioteca.models.acceso.Usuario;
 import com.biblioteca.service.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -27,27 +30,34 @@ public class AuthController {
   public String mostrarPaginaLogin(Model model,
       @RequestParam(value = "error", required = false) String error,
       @RequestParam(value = "logout", required = false) String logout,
-      @ModelAttribute("exito") String exito) { // Para flash attribute de registro
+      @ModelAttribute("exito") String exito) {
+
+    // Verificar si el usuario ya está autenticado
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+      return "redirect:/mi-cuenta/perfiles/seleccionar";
+    }
+
     if (error != null) {
-      // Usar un atributo específico para no colisionar
       model.addAttribute("loginError", "Usuario o contraseña incorrectos.");
     }
     if (logout != null) {
       model.addAttribute("logoutMessage", "Has cerrado sesión correctamente.");
     }
-    if (exito != null && !exito.isEmpty()) { // Mostrar mensaje de éxito de registro
+    if (exito != null && !exito.isEmpty()) {
       model.addAttribute("registroExitoso", exito);
     }
     return "auth/login";
   }
 
-  @GetMapping("/login-success")
-  public String loginSuccess() {
-    return "redirect:/mi-cuenta/perfiles/seleccionar";
-  }
-
   @GetMapping("/registro")
   public String mostrarPaginaRegistro(Model model) {
+    // Verificar si el usuario ya está autenticado
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+      return "redirect:/mi-cuenta/perfiles/seleccionar";
+    }
+
     if (!model.containsAttribute("usuarioRegistroDTO")) {
       model.addAttribute("usuarioRegistroDTO", new UsuarioRegistroDTO());
     }
@@ -60,6 +70,11 @@ public class AuthController {
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes,
       Model model) {
+
+    System.out.println("=== PROCESANDO REGISTRO ===");
+    System.out.println("Username: " + registroDTO.getUsername());
+    System.out.println("Email: " + registroDTO.getEmail());
+    System.out.println("Errores de binding: " + bindingResult.hasErrors());
 
     if (!registroDTO.getPassword().equals(registroDTO.getConfirmPassword())) {
       bindingResult.rejectValue("confirmPassword", "password.mismatch", "Las contraseñas no coinciden.");
@@ -74,44 +89,44 @@ public class AuthController {
     }
 
     if (bindingResult.hasErrors()) {
+      System.out.println("❌ Errores de validación:");
+      bindingResult.getAllErrors().forEach(error -> System.out.println("  - " + error.getDefaultMessage()));
       model.addAttribute("usuarioRegistroDTO", registroDTO);
-      return "registro";
+      return "auth/registro";
     }
 
     try {
-      usuarioService.registrarUsuario(registroDTO);
+      Usuario usuario = usuarioService.registrarUsuario(registroDTO);
+      System.out.println("✅ Usuario registrado exitosamente: " + usuario.getUsername());
       redirectAttributes.addFlashAttribute("exito", "¡Registro exitoso! Ahora puedes iniciar sesión.");
       return "redirect:/login";
-    } catch (IllegalArgumentException e) {
-      model.addAttribute("usuarioRegistroDTO", registroDTO);
-      model.addAttribute("registroError", e.getMessage());
-      return "registro";
     } catch (Exception e) {
-      model.addAttribute("usuarioRegistroDTO", registroDTO);
-      model.addAttribute("registroError", "Ocurrió un error inesperado durante el registro.");
+      System.out.println("❌ Error en registro: " + e.getMessage());
       e.printStackTrace();
-      return "registro";
+      model.addAttribute("usuarioRegistroDTO", registroDTO);
+      model.addAttribute("registroError", "Error al registrar usuario: " + e.getMessage());
+      return "auth/registro";
     }
   }
 
   @GetMapping("/403")
   public String mostrarPagina403() {
-    return "403";
+    return "error/403";
   }
 
   @GetMapping("/404")
   public String mostrarPagina404() {
-    return "404";
+    return "error/404";
   }
 
   @GetMapping("/500")
   public String mostrarPagina500() {
-    return "500";
+    return "error/500";
   }
 
   @GetMapping("/error")
   public String mostrarPaginaError() {
-    return "error";
+    return "error/error";
   }
 
 }

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Detalle de Pago',
+          pageAdditionalCss=~{::detallePageCss},
+          pageContent=~{::detallePageContent},
+          pageAdditionalScripts=~{::detallePageScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="detallePageCss">
+    <!-- CSS específico para la página de detalle -->
+    <style>
+      .info-item {
+        margin-bottom: 1.5rem;
+      }
+
+      .info-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+      .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #212529;
+      }
+
+      .info-value.destacado {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .avatar-lg {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+      }
+
+      .badge-estado {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+      }
+
+      .timeline-item {
+        padding: 1rem 0;
+        border-left: 2px solid #e9ecef;
+        padding-left: 1.5rem;
+        margin-left: 1rem;
+        position: relative;
+      }
+
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 1.5rem;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #6c757d;
+      }
+
+      .timeline-item.success::before {
+        background: #198754;
+      }
+
+      .timeline-item.warning::before {
+        background: #ffc107;
+      }
+
+      .timeline-item.danger::before {
+        background: #dc3545;
+      }
+
+      .copy-button {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .copy-button:hover {
+        background-color: #e9ecef;
+      }
+
+      .btn-action {
+        min-width: 120px;
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="detallePageContent" class="container-fluid py-4">
+
+    <!-- Header con breadcrumb -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="h3 mb-0 fw-bold">
+          <i class="fas fa-receipt text-primary me-2"></i>
+          Detalle de Pago #<span th:text="${pago.id}"></span>
+          <span th:class="|badge badge-estado ms-3 ${pago.estado == 'EXITOSO' ? 'bg-success' : 
+                            pago.estado == 'PENDIENTE' ? 'bg-warning text-dark' : 
+                            pago.estado == 'FALLIDO' ? 'bg-danger' : 
+                            pago.estado == 'CANCELADO' ? 'bg-secondary' : 
+                            pago.estado == 'REEMBOLSADO' ? 'bg-info' : 'bg-secondary'}|" th:text="${pago.estado}">
+          </span>
+        </h1>
+      </div>
+      <div>
+        <a th:href="@{/admin/pagos}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+        </a>
+      </div>
+    </div>
+
+    <!-- Alertas -->
+    <div th:replace="~{fragmentos/componentes/alerts :: alerts}"></div>
+
+    <div class="row g-4">
+      <!-- Información principal del pago -->
+      <div class="col-lg-8">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-info-circle me-2"></i>
+              Información del Pago
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+
+              <!-- ID y Monto -->
+              <div class="col-md-6">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-hashtag me-2"></i>ID de Pago
+                  </span>
+                  <div class="info-value fw-bold" th:text="${pago.id}"></div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-dollar-sign me-2"></i>Monto
+                  </span>
+                  <div class="info-value destacado text-success">
+                    S/. <span th:text="${#numbers.formatDecimal(pago.monto/100.0, 0, 'COMMA', 2, 'POINT')}"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fechas -->
+              <div class="col-md-6">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-calendar-plus me-2"></i>Fecha de Creación
+                  </span>
+                  <div class="info-value" th:text="${#temporals.format(pago.fechaCreacion, 'dd/MM/yyyy HH:mm:ss')}">
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6" th:if="${pago.fechaPago != null}">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-calendar-check me-2"></i>Fecha de Pago
+                  </span>
+                  <div class="info-value text-success"
+                    th:text="${#temporals.format(pago.fechaPago, 'dd/MM/yyyy HH:mm:ss')}"></div>
+                </div>
+              </div>
+
+              <div class="col-md-6" th:if="${pago.fechaProcesamiento != null}">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-cogs me-2"></i>Fecha de Procesamiento
+                  </span>
+                  <div class="info-value"
+                    th:text="${#temporals.format(pago.fechaProcesamiento, 'dd/MM/yyyy HH:mm:ss')}"></div>
+                </div>
+              </div>
+
+              <!-- Método de pago -->
+              <div class="col-md-6">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-credit-card me-2"></i>Método de Pago
+                  </span>
+                  <div class="info-value">
+                    <span class="badge bg-secondary fs-6" th:text="${pago.metodoPagoNombre} ?: 'No definido'"></span>
+                    <small class="text-muted d-block mt-1">ID: <span th:text="${pago.metodoPagoId}"></span></small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Referencias y transacciones -->
+              <div class="col-md-6" th:if="${pago.referenciaPago != null}">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-link me-2"></i>Referencia de Pago
+                  </span>
+                  <div class="info-value">
+                    <div class="input-group">
+                      <input type="text" class="form-control" th:value="${pago.referenciaPago}" readonly>
+                      <button class="btn btn-outline-secondary copy-button" type="button"
+                        th:data-texto="${pago.referenciaPago}" onclick="copiarTexto(this.dataset.texto)"
+                        data-bs-toggle="tooltip" title="Copiar referencia">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6" th:if="${pago.transaccionId != null}">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-receipt me-2"></i>ID de Transacción
+                  </span>
+                  <div class="info-value">
+                    <div class="input-group">
+                      <input type="text" class="form-control" th:value="${pago.transaccionId}" readonly>
+                      <button class="btn btn-outline-secondary copy-button" type="button"
+                        th:data-texto="${pago.transaccionId}" onclick="copiarTexto(this.dataset.texto)"
+                        data-bs-toggle="tooltip" title="Copiar ID de transacción">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Códigos y mensajes -->
+              <div class="col-md-6" th:if="${pago.codigoRespuesta != null}">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-code me-2"></i>Código de Respuesta
+                  </span>
+                  <div class="info-value">
+                    <span class="badge bg-info" th:text="${pago.codigoRespuesta}"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12" th:if="${pago.mensaje != null}">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-comment me-2"></i>Mensaje del Sistema
+                  </span>
+                  <div class="info-value">
+                    <div class="alert alert-info mb-0" th:text="${pago.mensaje}"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Período para suscripciones -->
+              <div class="col-md-6" th:if="${pago.periodo != null}">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-calendar-alt me-2"></i>Período de Suscripción
+                  </span>
+                  <div class="info-value">
+                    <span class="badge bg-info" th:text="${pago.periodo}"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Indicador de simulación -->
+              <div class="col-md-6" th:if="${pago.esSimulado != null and pago.esSimulado}">
+                <div class="info-item">
+                  <span class="info-label">
+                    <i class="fas fa-flask me-2"></i>Tipo de Pago
+                  </span>
+                  <div class="info-value">
+                    <span class="badge bg-warning text-dark">
+                      <i class="fas fa-flask me-1"></i>Pago Simulado
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del contexto (Orden/Suscripción) -->
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-link me-2"></i>
+              Información Relacionada
+            </h5>
+          </div>
+          <div class="card-body">
+
+            <!-- Información de Suscripción -->
+            <div th:if="${pago.suscripcionId != null}" class="mb-4">
+              <div class="text-center mb-3">
+                <div
+                  class="avatar-lg bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                  <i class="fas fa-crown fa-2x"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Pago de Suscripción</h6>
+                <p class="text-muted">ID: <span th:text="${pago.suscripcionId}"></span></p>
+              </div>
+
+              <div class="d-grid">
+                <a th:href="@{/admin/suscripciones/{id}(id=${pago.suscripcionId})}" class="btn btn-outline-primary">
+                  <i class="fas fa-external-link-alt me-2"></i>
+                  Ver Suscripción
+                </a>
+              </div>
+            </div>
+
+            <!-- Información de Orden -->
+            <div th:if="${pago.ordenId != null}" class="mb-4">
+              <div class="text-center mb-3">
+                <div
+                  class="avatar-lg bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                  <i class="fas fa-shopping-cart fa-2x"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Pago de Orden</h6>
+                <p class="text-muted">ID: <span th:text="${pago.ordenId}"></span></p>
+              </div>
+
+              <div class="d-grid">
+                <a th:href="@{/admin/ordenes/{id}(id=${pago.ordenId})}" class="btn btn-outline-secondary">
+                  <i class="fas fa-external-link-alt me-2"></i>
+                  Ver Orden
+                </a>
+              </div>
+            </div>
+
+            <!-- Pago independiente -->
+            <div th:if="${pago.suscripcionId == null and pago.ordenId == null}" class="mb-4">
+              <div class="text-center mb-3">
+                <div
+                  class="avatar-lg bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                  <i class="fas fa-question fa-2x"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Pago Independiente</h6>
+                <p class="text-muted">Sin orden o suscripción asociada</p>
+              </div>
+            </div>
+
+            <!-- Acciones rápidas -->
+            <div class="border-top pt-3">
+              <h6 class="fw-bold mb-3">
+                <i class="fas fa-tools me-2"></i>Acciones Rápidas
+              </h6>
+
+              <div class="d-grid gap-2">
+                <button th:if="${pago.estado == 'PENDIENTE'}" class="btn btn-outline-success btn-sm"
+                  onclick="mostrarFormularioAprobacion()">
+                  <i class="fas fa-check me-2"></i>Aprobar
+                </button>
+
+                <button th:if="${pago.estado == 'PENDIENTE'}" class="btn btn-outline-danger btn-sm"
+                  onclick="mostrarFormularioRechazo()">
+                  <i class="fas fa-times me-2"></i>Rechazar
+                </button>
+
+                <a th:href="@{/admin/pagos/suscripcion/{id}(id=${pago.suscripcionId})}"
+                  th:if="${pago.suscripcionId != null}" class="btn btn-outline-info btn-sm">
+                  <i class="fas fa-list me-2"></i>Ver Todos los Pagos
+                </a>
+
+                <button class="btn btn-outline-secondary btn-sm" onclick="imprimirDetalle()">
+                  <i class="fas fa-print me-2"></i>Imprimir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formularios de acción (ocultos por defecto) -->
+    <div class="row g-4 mt-2" th:if="${pago.estado == 'PENDIENTE'}">
+      <div class="col-12">
+        <div class="card" id="formularios-accion" style="display: none;">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+              <i class="fas fa-cogs me-2"></i>
+              Acciones Administrativas
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+
+              <!-- Formulario de aprobación -->
+              <div class="col-md-6" id="form-aprobacion" style="display: none;">
+                <form th:action="@{/admin/pagos/{id}/aprobar(id=${pago.id})}" method="post">
+                  <h6 class="text-success mb-3">
+                    <i class="fas fa-check-circle me-2"></i>Aprobar Pago
+                  </h6>
+                  <div class="mb-3">
+                    <label for="referencia" class="form-label fw-bold">
+                      <i class="fas fa-link me-2"></i>Referencia de Aprobación
+                    </label>
+                    <input type="text" class="form-control" id="referencia" name="referencia"
+                      placeholder="Ingrese número de referencia o comprobante">
+                    <div class="form-text">Opcional: Número de transacción, comprobante, etc.</div>
+                  </div>
+                  <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-success btn-action">
+                      <i class="fas fa-check me-2"></i>Aprobar
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-action" onclick="ocultarFormularios()">
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Formulario de rechazo -->
+              <div class="col-md-6" id="form-rechazo" style="display: none;">
+                <form th:action="@{/admin/pagos/{id}/rechazar(id=${pago.id})}" method="post">
+                  <h6 class="text-danger mb-3">
+                    <i class="fas fa-times-circle me-2"></i>Rechazar Pago
+                  </h6>
+                  <div class="mb-3">
+                    <label for="motivo" class="form-label fw-bold">
+                      <i class="fas fa-comment me-2"></i>Motivo del Rechazo
+                    </label>
+                    <textarea class="form-control" id="motivo" name="motivo" rows="3"
+                      placeholder="Explique el motivo del rechazo" required></textarea>
+                    <div class="form-text">Este motivo será notificado al usuario</div>
+                  </div>
+                  <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-danger btn-action">
+                      <i class="fas fa-times me-2"></i>Rechazar
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-action" onclick="ocultarFormularios()">
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <th:block th:fragment="detallePageScripts">
+    <!-- Scripts específicos para la página de detalle -->
+    <script>
+      function mostrarFormularioAprobacion() {
+        document.getElementById('formularios-accion').style.display = 'block';
+        document.getElementById('form-aprobacion').style.display = 'block';
+        document.getElementById('form-rechazo').style.display = 'none';
+        document.getElementById('referencia').focus();
+      }
+
+      function mostrarFormularioRechazo() {
+        document.getElementById('formularios-accion').style.display = 'block';
+        document.getElementById('form-rechazo').style.display = 'block';
+        document.getElementById('form-aprobacion').style.display = 'none';
+        document.getElementById('motivo').focus();
+      }
+
+      function ocultarFormularios() {
+        document.getElementById('formularios-accion').style.display = 'none';
+        document.getElementById('form-aprobacion').style.display = 'none';
+        document.getElementById('form-rechazo').style.display = 'none';
+      }
+
+      function copiarTexto(texto) {
+        navigator.clipboard.writeText(texto).then(function () {
+          // Mostrar tooltip de confirmación
+          const tooltip = document.createElement('div');
+          tooltip.textContent = 'Copiado al portapapeles!';
+          tooltip.className = 'position-fixed bg-success text-white px-3 py-2 rounded';
+          tooltip.style.top = '20px';
+          tooltip.style.right = '20px';
+          tooltip.style.zIndex = '9999';
+          document.body.appendChild(tooltip);
+
+          setTimeout(() => {
+            if (document.body.contains(tooltip)) {
+              document.body.removeChild(tooltip);
+            }
+          }, 2000);
+        }).catch(function (err) {
+          alert('Error al copiar: ' + err);
+        });
+      }
+
+      function imprimirDetalle() {
+        window.print();
+      }
+
+      // Confirmaciones para formularios
+      document.addEventListener('DOMContentLoaded', function () {
+        const formAprobacion = document.querySelector('#form-aprobacion form');
+        const formRechazo = document.querySelector('#form-rechazo form');
+
+        if (formAprobacion) {
+          formAprobacion.addEventListener('submit', function (e) {
+            if (!confirm('¿Está seguro de que desea aprobar este pago? Esta acción no se puede deshacer.')) {
+              e.preventDefault();
+            }
+          });
+        }
+
+        if (formRechazo) {
+          formRechazo.addEventListener('submit', function (e) {
+            const motivo = document.getElementById('motivo').value.trim();
+            if (!motivo) {
+              alert('Debe proporcionar un motivo para el rechazo.');
+              e.preventDefault();
+              return;
+            }
+            if (!confirm('¿Está seguro de que desea rechazar este pago? Esta acción no se puede deshacer.')) {
+              e.preventDefault();
+            }
+          });
+        }
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

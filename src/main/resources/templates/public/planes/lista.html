@@ -10,104 +10,111 @@
   <!-- Fragmento para CSS específico -->
   <th:block th:fragment="planesCss">
     <style>
-      .plan-card {
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        height: 100%;
-        border: none;
-      }
-
-      .plan-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-      }
-
-      .plan-header {
-        padding: 2rem 1.5rem;
-        border-radius: 0.5rem 0.5rem 0 0;
-      }
-
-      .plan-price {
-        font-size: 2.5rem;
-        font-weight: 700;
-      }
-
-      .plan-period {
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8);
-      }
-
-      .plan-feature {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      }
-
-      .plan-feature:last-child {
-        border-bottom: none;
-      }
-
-      .plan-badge {
-        position: absolute;
-        top: -10px;
-        right: 20px;
-        z-index: 10;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+      /* Variables CSS personalizadas */
+      :root {
+        --plan-basic-color: #6c757d;
+        --plan-lector-color: #2d6e7e;
+        --plan-premium-color: #6f42c1;
+        --plan-familiar-color: #e63946;
+        --gradient-primary: linear-gradient(135deg, var(--bs-primary), #2d6e7e);
+        --gradient-premium: linear-gradient(135deg, #6f42c1, #9d4edd);
+        --gradient-familiar: linear-gradient(135deg, #e63946, #f77f00);
+        --shadow-light: 0 8px 25px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
       }
 
       .hero-section {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+        background: linear-gradient(135deg, rgba(45, 110, 126, 0.95), rgba(111, 66, 193, 0.9)),
+          url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
         background-size: cover;
         background-position: center;
+        background-attachment: fixed;
         color: white;
-        padding: 5rem 0;
+        padding: 6rem 0 5rem 0;
+        position: relative;
+        overflow: hidden;
       }
 
-      .comparison-table th,
-      .comparison-table td {
-        text-align: center;
-        padding: 1rem;
+      .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.03) 50%, transparent 70%);
+        animation: shimmer 3s infinite;
       }
 
-      .comparison-table th:first-child,
-      .comparison-table td:first-child {
-        text-align: left;
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+
+        100% {
+          transform: translateX(100%);
+        }
       }
 
-      .feature-included {
-        color: #198754;
-        font-size: 1.25rem;
+      .hero-content {
+        position: relative;
+        z-index: 2;
       }
 
-      .feature-not-included {
-        color: #dc3545;
-        font-size: 1.25rem;
+      .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 1.5rem;
       }
 
-      .faq-card {
-        transition: transform 0.3s;
-        border: none;
+      .hero-subtitle {
+        font-size: 1.4rem;
+        font-weight: 300;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        opacity: 0.95;
       }
 
-      .faq-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+      .pricing-toggle-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 0 auto;
+        max-width: 600px;
+        box-shadow: var(--shadow-light);
+        position: relative;
+        z-index: 3;
       }
 
-      .toggle-price {
+      .price-toggle-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .toggle-label {
+        font-weight: 600;
+        font-size: 1.1rem;
         cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
       }
 
-      .toggle-price.active {
-        font-weight: bold;
-        color: var(--bs-primary);
+      .toggle-label.active {
+        background: var(--gradient-primary);
+        color: white;
+        transform: scale(1.05);
       }
 
       .price-switch {
         position: relative;
         display: inline-block;
-        width: 60px;
-        height: 34px;
+        width: 70px;
+        height: 40px;
       }
 
       .price-switch input {
@@ -123,29 +130,636 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: #ccc;
+        background: linear-gradient(45deg, #ddd, #bbb);
         transition: .4s;
-        border-radius: 34px;
+        border-radius: 40px;
+        box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
       }
 
       .price-slider:before {
         position: absolute;
         content: "";
-        height: 26px;
-        width: 26px;
+        height: 32px;
+        width: 32px;
         left: 4px;
         bottom: 4px;
-        background-color: white;
+        background: linear-gradient(145deg, #ffffff, #f0f0f0);
         transition: .4s;
         border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
 
       input:checked+.price-slider {
-        background-color: var(--bs-primary);
+        background: var(--gradient-primary);
       }
 
       input:checked+.price-slider:before {
-        transform: translateX(26px);
+        transform: translateX(30px);
+      }
+
+      .savings-badge {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+
+        0%,
+        100% {
+          transform: scale(1);
+        }
+
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* Contenedor para solucionar el problema del badge */
+      .plan-card-container {
+        position: relative;
+        padding-top: 20px;
+        /* Espacio para el badge */
+      }
+
+      /* Plan Cards rediseñadas */
+      .plan-card {
+        border: none;
+        border-radius: 25px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        box-shadow: var(--shadow-light);
+      }
+
+      .plan-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: var(--shadow-hover);
+      }
+
+      .plan-card.featured {
+        border: 3px solid transparent;
+        background: linear-gradient(145deg, #ffffff, #f8f9fa) padding-box,
+          var(--gradient-premium) border-box;
+        transform: scale(1.05);
+      }
+
+      .plan-card.featured:hover {
+        transform: translateY(-15px) scale(1.07);
+      }
+
+      .plan-badge {
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        z-index: 10;
+        padding: 0.7rem 1.5rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border-radius: 25px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .plan-badge.popular {
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        color: #333;
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+
+      .plan-badge.recommended {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+      }
+
+      @keyframes glow {
+        from {
+          box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        to {
+          box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+        }
+      }
+
+      .plan-header {
+        padding: 2.5rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .plan-header.plan-basic {
+        background: linear-gradient(135deg, var(--plan-basic-color), #495057);
+      }
+
+      .plan-header.plan-lector {
+        background: var(--gradient-primary);
+      }
+
+      .plan-header.plan-premium {
+        background: var(--gradient-premium);
+      }
+
+      .plan-header.plan-familiar {
+        background: var(--gradient-familiar);
+      }
+
+      .plan-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: rotate(45deg);
+        transition: all 0.6s ease;
+        opacity: 0;
+      }
+
+      .plan-card:hover .plan-header::before {
+        opacity: 1;
+        animation: shine 1.5s ease-in-out;
+      }
+
+      @keyframes shine {
+        0% {
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+
+        100% {
+          transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+      }
+
+      .plan-name {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .plan-price-container {
+        margin-bottom: 1.5rem;
+      }
+
+      .plan-price {
+        font-size: 3rem;
+        font-weight: 900;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .plan-period {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        font-weight: 500;
+      }
+
+      .plan-description {
+        font-size: 1rem;
+        opacity: 0.95;
+        line-height: 1.4;
+      }
+
+      /* Contenido del plan */
+      .plan-body {
+        padding: 2rem;
+      }
+
+      .benefits-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .benefits-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--gradient-primary);
+        border-radius: 2px;
+      }
+
+      .benefit-item {
+        padding: 0.8rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+
+      .benefit-item:last-child {
+        border-bottom: none;
+      }
+
+      .benefit-item:hover {
+        background: rgba(45, 110, 126, 0.05);
+        padding-left: 0.5rem;
+        border-radius: 8px;
+      }
+
+      .benefit-icon {
+        font-size: 1.2rem;
+        margin-right: 0.8rem;
+        width: 20px;
+        text-align: center;
+      }
+
+      .benefit-text {
+        flex: 1;
+        font-weight: 500;
+        color: #444;
+      }
+
+      .benefit-value {
+        font-size: 0.9rem;
+        color: #666;
+        font-style: italic;
+      }
+
+      /* Botones de acción */
+      .plan-footer {
+        padding: 2rem;
+        text-align: center;
+        background: rgba(248, 249, 250, 0.5);
+      }
+
+      .plan-cta-btn {
+        border-radius: 25px;
+        padding: 1rem 2.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .plan-cta-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      .plan-cta-btn:hover::before {
+        left: 100%;
+      }
+
+      .plan-cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn-plan-basic {
+        background: linear-gradient(45deg, var(--plan-basic-color), #495057);
+        color: white;
+      }
+
+      .btn-plan-lector {
+        background: var(--gradient-primary);
+        color: white;
+      }
+
+      .btn-plan-premium {
+        background: var(--gradient-premium);
+        color: white;
+      }
+
+      .btn-plan-familiar {
+        background: var(--gradient-familiar);
+        color: white;
+      }
+
+      .comparison-section {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        padding: 4rem 0;
+        margin-top: 4rem;
+      }
+
+      .comparison-table {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+        border: none;
+      }
+
+      .comparison-table thead th {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 1.5rem 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .comparison-table tbody tr {
+        transition: all 0.3s ease;
+      }
+
+      .comparison-table tbody tr:hover {
+        background: rgba(45, 110, 126, 0.05);
+        transform: scale(1.01);
+      }
+
+      .comparison-table td {
+        padding: 1.2rem 1rem;
+        border: none;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+        font-weight: 500;
+      }
+
+      .comparison-table td:first-child {
+        font-weight: 700;
+        color: #333;
+        background: rgba(248, 249, 250, 0.7);
+      }
+
+      .feature-included {
+        color: #28a745;
+        font-size: 1.4rem;
+        transition: all 0.3s ease;
+      }
+
+      .feature-included:hover {
+        transform: scale(1.2);
+      }
+
+      .feature-not-included {
+        color: #dc3545;
+        font-size: 1.4rem;
+        opacity: 0.6;
+      }
+
+      .feature-value {
+        font-weight: 700;
+        color: var(--bs-primary);
+        padding: 0.3rem 0.8rem;
+        background: rgba(45, 110, 126, 0.1);
+        border-radius: 15px;
+        display: inline-block;
+      }
+
+      .faq-section {
+        background: white;
+        padding: 4rem 0;
+      }
+
+      .faq-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #333;
+        margin-bottom: 3rem;
+        position: relative;
+      }
+
+      .faq-title::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--gradient-primary);
+        border-radius: 2px;
+      }
+
+      .faq-card {
+        border: none;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .faq-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .accordion-button {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border: none;
+        padding: 1.5rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #333;
+        box-shadow: none;
+      }
+
+      .accordion-button:not(.collapsed) {
+        background: var(--gradient-primary);
+        color: white;
+      }
+
+      .accordion-button:focus {
+        box-shadow: none;
+        border: none;
+      }
+
+      .accordion-body {
+        padding: 1.5rem 2rem;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #555;
+      }
+
+      .cta-section {
+        background: var(--gradient-premium);
+        color: white;
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .cta-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .cta-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .cta-subtitle {
+        font-size: 1.3rem;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+      }
+
+      .cta-btn {
+        background: white;
+        color: var(--bs-primary);
+        border: none;
+        padding: 1rem 3rem;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .cta-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        color: var(--bs-primary);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.2rem;
+        }
+
+        .pricing-toggle-section {
+          margin: -3rem 1rem 3rem 1rem;
+          padding: 1.5rem;
+        }
+
+        .price-toggle-container {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .plan-price {
+          font-size: 2.5rem;
+        }
+
+        .plan-name {
+          font-size: 1.5rem;
+        }
+
+        .plan-body,
+        .plan-footer {
+          padding: 1.5rem;
+        }
+
+        .comparison-table {
+          font-size: 0.9rem;
+        }
+
+        .comparison-table td,
+        .comparison-table th {
+          padding: 0.8rem 0.5rem;
+        }
+
+        .cta-title {
+          font-size: 2rem;
+        }
+
+        .cta-subtitle {
+          font-size: 1.1rem;
+        }
+
+        .plan-card-container {
+          padding-top: 15px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .hero-section {
+          padding: 4rem 0 4rem 0;
+        }
+
+        .plan-card.featured {
+          transform: none;
+        }
+
+        .plan-card.featured:hover {
+          transform: translateY(-10px) scale(1.02);
+        }
+
+        .accordion-button {
+          padding: 1rem 1.5rem;
+          font-size: 1rem;
+        }
+
+        .accordion-body {
+          padding: 1rem 1.5rem;
+        }
+
+        .plan-badge {
+          font-size: 0.8rem;
+          padding: 0.5rem 1rem;
+          right: 15px;
+        }
+      }
+
+      .animate-fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+      }
+
+      .animate-fade-in-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 10px;
+      }
+
+      @keyframes loading {
+        0% {
+          background-position: 200% 0;
+        }
+
+        100% {
+          background-position: -200% 0;
+        }
       }
     </style>
   </th:block>
@@ -155,213 +769,320 @@
   <!-- Contenido principal -->
   <th:block th:fragment="planesContent">
     <!-- Hero Section -->
-    <section class="hero-section text-center">
+    <section class="hero-section">
       <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <h1 class="display-4 fw-bold mb-4">Planes de Suscripción</h1>
-            <p class="lead fs-4 mb-5">Elige el plan que mejor se adapte a tus necesidades de lectura</p>
-          </div>
+        <div class="hero-content text-center">
+          <h1 class="hero-title animate-fade-in-up">Planes de Suscripción</h1>
+          <p class="hero-subtitle animate-fade-in-up">Descubre el plan perfecto para tu pasión por la lectura</p>
         </div>
       </div>
     </section>
 
     <!-- Selector de periodo -->
-    <section class="container py-4">
-      <div class="row justify-content-center">
-        <div class="col-lg-6 text-center">
-          <div class="d-flex justify-content-center align-items-center gap-3">
-            <span class="toggle-price active" id="mensual-toggle">Facturación Mensual</span>
-            <label class="price-switch mx-3">
+    <div class="container">
+      <div class="pricing-toggle-section animate-fade-in-up">
+        <div class="text-center mb-3">
+          <h3 class="fw-bold mb-3">Elige tu modalidad de pago</h3>
+          <div class="price-toggle-container">
+            <span class="toggle-label active" id="mensual-toggle">
+              <i class="bi bi-calendar me-2"></i>Mensual
+            </span>
+            <label class="price-switch">
               <input type="checkbox" id="precio-switch">
               <span class="price-slider"></span>
             </label>
-            <span class="toggle-price" id="anual-toggle">Facturación Anual</span>
+            <span class="toggle-label" id="anual-toggle">
+              <i class="bi bi-calendar-check me-2"></i>Anual
+            </span>
           </div>
-          <p class="text-muted mt-2 small">Ahorra hasta un 20% con facturación anual</p>
+          <div class="mt-3">
+            <span class="savings-badge">
+              <i class="bi bi-piggy-bank me-2"></i>¡Ahorra hasta 20% con facturación anual!
+            </span>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- Sección de Planes -->
-    <section class="container-fluid py-4">
-      <div class="row g-4">
-        <div th:if="${planes == null || planes.isEmpty()}" class="col-12 text-center">
-          <div class="alert alert-info">
-            <h4 class="alert-heading">¡Próximamente nuevos planes!</h4>
-            <p>Estamos trabajando en ofrecer planes de suscripción personalizados para ti. Vuelve pronto para conocer
-              todas las opciones.</p>
+    <section class="container py-5">
+      <div class="row g-4 justify-content-center">
+
+        <!-- Mensaje si no hay planes -->
+        <div th:if="${planes == null || planes.isEmpty()}" class="col-12">
+          <div class="text-center py-5">
+            <div class="loading-skeleton rounded-3 mx-auto mb-4" style="width: 200px; height: 200px;"></div>
+            <h3 class="text-muted">Próximamente nuevos planes</h3>
+            <p class="lead text-muted">Estamos preparando opciones increíbles para ti</p>
           </div>
         </div>
 
-        <!-- Tarjeta de plan (se repetirá para cada plan en planes) -->
-        <div th:each="plan : ${planes}" class="col-md-3">
-          <div class="card plan-card shadow-sm h-100">
-            <!-- Badge para destacar un plan -->
-            <div th:if="${plan.nombre.contains('Premium') || plan.nombre.contains('Familiar')}"
-              class="plan-badge badge bg-warning text-dark">Recomendado</div>
+        <!-- Tarjetas de Planes -->
+        <div th:each="plan, planStat : ${planes}" th:class="'col-lg-3 col-md-6 animate-fade-in-up'"
+          th:style="'animation-delay: ' + ${planStat.index * 0.2} + 's'">
 
-            <!-- Header del plan -->
-            <div
-              th:class="'plan-header text-white text-center ' + (${plan.nombre.contains('Premium')} ? 'bg-primary' : 'bg-dark')">
-              <h3 class="fw-bold" th:text="${plan.nombre}">Nombre del Plan</h3>
-              <!-- Precios con toggle -->
-              <div class="plan-price mb-2">
-                <span class="precio-mensual"
-                  th:text="${'S/ ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 2)}">S/ 9.99</span>
-                <span class="precio-anual d-none"
-                  th:text="${'S/ ' + #numbers.formatDecimal(plan.precioAnual/100, 1, 2)}">S/ 99.90</span>
-                <span class="plan-period">
-                  <span class="periodo-mensual">/mes</span>
-                  <span class="periodo-anual d-none">/año</span>
-                </span>
-              </div>
-              <!-- Días de prueba -->
-              <p class="mb-0" th:if="${plan.diasPrueba > 0}">
-                <span class="badge bg-light text-dark" th:text="${plan.diasPrueba + ' días de prueba gratis'}">7 días
-                  gratis</span>
-              </p>
-              <p class="mb-0" th:unless="${plan.diasPrueba > 0}">
-                <span class="badge bg-secondary">Sin período de prueba</span>
-              </p>
-              <p class="mb-0" th:unless="${plan.diasPrueba > 0}">
-                <span class="badge bg-light text-dark">
-                  <i class="bi bi-check-circle me-1"></i>
-                  Plan disponible
-                </span>
-              </p>
+          <!-- Contenedor para el badge -->
+          <div class="plan-card-container">
+
+            <!-- Badge del Plan - Ahora fuera del card -->
+            <div th:if="${plan.nombre.toLowerCase().contains('premium')}" class="plan-badge popular">
+              <i class="bi bi-star-fill me-1"></i>Más Popular
+            </div>
+            <div th:if="${plan.nombre.toLowerCase().contains('familiar')}" class="plan-badge recommended">
+              <i class="bi bi-heart-fill me-1"></i>Recomendado
             </div>
 
-            <!-- En la sección de cuerpo del plan con beneficios -->
-            <div class="card-body">
-              <h5 class="card-title text-center mb-4">Beneficios Destacados</h5>
-              <ul class="list-unstyled">
-                <th:block th:with="beneficiosActivosDelPlan = ${beneficiosPorPlan.get(plan.id)?.?[activo == true]}">
-                  <li th:if="${beneficiosActivosDelPlan == null || #lists.isEmpty(beneficiosActivosDelPlan)}"
-                    class="text-muted text-center plan-feature">
-                    <em>No hay beneficios destacados.</em>
-                  </li>
-                  <th:block th:each="pb, iterStat : ${beneficiosActivosDelPlan}">
-                    <li th:if="${iterStat.count <= 5}" class="plan-feature">
-                      <span th:if="${pb.beneficio.tipoDato == 'booleano'}">
-                        <span th:text="${pb.valor == 'true' ? '✓ ' : '✕ '}"
-                          th:class="${pb.valor == 'true' ? 'text-success fw-bold' : 'text-danger fw-bold'}"></span>
-                      </span>
-                      <span th:unless="${pb.beneficio.tipoDato == 'booleano'}">
-                        <span class="text-success fw-bold">✓ </span>
-                      </span>
-                      <span th:text="${pb.beneficio.nombre}">Nombre del beneficio</span>
-                      <span th:if="${pb.valor != null && pb.valor != '' && pb.valor != 'true' && pb.valor != 'false'}"
-                        th:text="${' (' + pb.valor + ')'}" class="text-muted"></span>
-                    </li>
+            <!-- Card del plan -->
+            <div class="card plan-card h-100"
+              th:classappend="${plan.nombre.toLowerCase().contains('premium') ? '' : ''}">
+
+              <!-- Header del Plan -->
+              <div class="plan-header"
+                th:classappend="'plan-' + ${#strings.toLowerCase(#strings.replace(plan.nombre, ' ', '-'))}">
+
+                <h3 class="plan-name" th:text="${plan.nombre}">Plan Premium</h3>
+
+                <div class="plan-price-container">
+                  <!-- Precio Mensual -->
+                  <div class="precio-mensual" th:classappend="${esModalidadAnual ? 'd-none' : ''}">
+                    <span class="plan-price"
+                      th:text="${plan.precioMensual == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 2)}">
+                      S/ 14.99
+                    </span>
+                    <div class="plan-period" th:if="${plan.precioMensual > 0}">/mes</div>
+                  </div>
+
+                  <!-- Precio Anual (oculto por defecto) -->
+                  <div class="precio-anual" th:classappend="${!esModalidadAnual ? 'd-none' : ''}">
+                    <span class="plan-price"
+                      th:text="${plan.precioAnual == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(plan.precioAnual/100, 1, 2)}">
+                      S/ 149.90
+                    </span>
+                    <div class="plan-period" th:if="${plan.precioAnual > 0}">/año</div>
+                  </div>
+                </div>
+
+                <!-- Descripción del Plan -->
+                <p class="plan-description" th:text="${plan.descripcionCorta ?: plan.descripcion}">
+                  Acceso ilimitado y funciones exclusivas
+                </p>
+
+                <!-- Información de Prueba -->
+                <div th:if="${plan.diasPrueba > 0}" class="mt-3">
+                  <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="bi bi-gift me-1"></i>
+                    <span th:text="${plan.diasPrueba + ' días gratis'}">14 días gratis</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Cuerpo del Plan - Beneficios -->
+              <div class="plan-body">
+                <h5 class="benefits-title">Beneficios Incluidos</h5>
+
+                <div class="benefits-list">
+                  <th:block th:with="beneficiosDelPlan = ${beneficiosPorPlan.get(plan.id)?.?[activo == true]}">
+
+                    <!-- Si no hay beneficios -->
+                    <div th:if="${beneficiosDelPlan == null || #lists.isEmpty(beneficiosDelPlan)}"
+                      class="text-center text-muted py-3">
+                      <i class="bi bi-info-circle fs-2 mb-2 d-block"></i>
+                      <em>Beneficios en configuración</em>
+                    </div>
+
+                    <!-- Lista de Beneficios -->
+                    <div th:each="pb, beneficioStat : ${beneficiosDelPlan}" th:if="${beneficioStat.count <= 6}"
+                      class="benefit-item">
+
+                      <!-- Icono del beneficio -->
+                      <div class="benefit-icon">
+                        <span th:switch="${pb.beneficio.tipoDato}">
+                          <i th:case="'booleano'"
+                            th:classappend="${pb.valor == 'true' ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}"></i>
+                          <i th:case="*" class="bi bi-check-circle-fill text-success"></i>
+                        </span>
+                      </div>
+
+                      <!-- Texto del beneficio -->
+                      <div class="benefit-text">
+                        <span th:text="${pb.beneficio.nombre}">Nombre del beneficio</span>
+                        <div th:if="${pb.valor != null && pb.valor != '' && pb.valor != 'true' && pb.valor != 'false'}"
+                          class="benefit-value">
+                          <span th:text="${pb.valor}">Valor</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Enlace a más beneficios -->
+                    <div th:if="${beneficiosDelPlan != null && #lists.size(beneficiosDelPlan) > 6}"
+                      class="text-center mt-3">
+                      <a th:href="@{/planes/{id}(id=${plan.id})}" class="text-decoration-none small">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Ver <span th:text="${#lists.size(beneficiosDelPlan) - 6}">3</span> beneficios más
+                      </a>
+                    </div>
                   </th:block>
-                  <li th:if="${beneficiosActivosDelPlan != null && #lists.size(beneficiosActivosDelPlan) > 5}"
-                    class="text-muted text-center mt-2 small">
-                    <a th:href="@{/planes/{id}(id=${plan.id})}" class="text-decoration-none">y más beneficios...</a>
-                  </li>
-                </th:block>
-              </ul>
-            </div>
-
-            <!-- Botón de acción -->
-            <div class="card-footer border-0 bg-transparent pb-4 text-center">
-              <a th:href="@{/planes/{id}(id=${plan.id})}" class="btn btn-lg w-75"
-                th:class="${'btn btn-lg w-75 ' + (plan.nombre.contains('Premium') ? 'btn-primary' : 'btn-outline-dark')}">
-                Ver detalles
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ejemplos de planes si no hay datos dinámicos - Esta sección se puede eliminar si siempre hay datos -->
-        <div th:if="${planes == null || planes.isEmpty()}" class="col-md-3">
-          <div class="card plan-card shadow-sm h-100">
-            <div class="plan-header text-white text-center bg-dark">
-              <h3 class="fw-bold">Plan Básico</h3>
-              <div class="plan-price mb-2">
-                <span>S/ 0.00</span>
-                <span>/mes</span>
+                </div>
               </div>
-              <p class="mb-0">Ideal para lectores ocasionales</p>
-            </div>
-            <div class="card-body">
-              <h5 class="card-title text-center mb-4">Beneficios</h5>
-              <ul class="list-unstyled">
-                <li class="plan-feature">
-                  <div class="d-flex align-items-center">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                    <span>Catálogo básico</span>
+
+              <!-- Footer del Plan - Botón CTA -->
+              <div class="plan-footer">
+                <!-- Botón para plan actual del usuario -->
+                <div th:if="${usuarioAutenticado && suscripcionActual != null && suscripcionActual.planId == plan.id}"
+                  class="text-center">
+                  <button class="btn btn-success w-100 mb-2" disabled>
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    Plan Actual
+                  </button>
+                  <a th:href="@{/mi-cuenta/suscripcion}" class="btn btn-outline-secondary btn-sm w-100">
+                    <i class="bi bi-gear me-1"></i>
+                    Gestionar Suscripción
+                  </a>
+                </div>
+
+                <!-- Botón para planes diferentes o usuarios sin suscripción -->
+                <div th:unless="${usuarioAutenticado && suscripcionActual != null && suscripcionActual.planId == plan.id}">
+                  <!-- Botón activo cuando es perfil principal -->
+                  <a th:if="${esPerfilPrincipal}"
+                    th:href="'/planes/' + ${plan.id} + '?modalidad=' + ${modalidadPago}" class="btn plan-cta-btn w-100"
+                    th:classappend="'btn-plan-' + ${#strings.toLowerCase(#strings.replace(plan.nombre, ' ', '-'))}">
+                    <i class="bi bi-arrow-right-circle me-2"></i>
+                    <span th:if="${!usuarioAutenticado}">Ver Detalles Completos</span>
+                    <span th:if="${usuarioAutenticado && suscripcionActual == null}">Ver Detalles y Suscribirse</span>
+                    <span
+                      th:if="${usuarioAutenticado && suscripcionActual != null && suscripcionActual.planId != plan.id}">
+                      <span th:if="${plan.precioMensual > (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Ver Detalles
+                        y Actualizar</span>
+                      <span th:if="${plan.precioMensual < (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Ver Detalles
+                        y Cambiar</span>
+                      <span th:if="${plan.precioMensual == (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Ver
+                        Detalles</span>
+                    </span>
+                  </a>
+
+                  <!-- Botón deshabilitado cuando NO es perfil principal -->
+                  <div th:unless="${esPerfilPrincipal}">
+                    <button class="btn plan-cta-btn w-100 disabled" disabled
+                      th:classappend="'btn-plan-' + ${#strings.toLowerCase(#strings.replace(plan.nombre, ' ', '-'))}"
+                      style="opacity: 0.6; cursor: not-allowed;">
+                      <i class="bi bi-lock me-2"></i>
+                      Solo Consulta
+                    </button>
+                    <small class="text-muted d-block mt-2 text-center">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Las suscripciones solo se pueden gestionar desde el perfil principal
+                    </small>
                   </div>
-                </li>
-                <li class="plan-feature">
-                  <div class="d-flex align-items-center">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                    <span>2 préstamos simultáneos</span>
-                  </div>
-                </li>
-              </ul>
+                </div>
+
+                <!-- Información adicional -->
+                <div class="mt-3">
+                  <small class="text-muted">
+                    <i class="bi bi-shield-check me-1"></i>
+                    Sin compromisos • Cancela cuando quieras
+                  </small>
+                </div>
+              </div>
             </div>
-            <div class="card-footer border-0 bg-transparent pb-4 text-center">
-              <a href="#" class="btn btn-outline-dark btn-lg w-75">Ver detalles</a>
-            </div>
-          </div>
+          </div> <!-- Fin del contenedor del badge -->
         </div>
       </div>
     </section>
 
     <!-- Tabla Comparativa -->
-    <section class="container-fluid py-5">
-      <h2 class="text-center fw-bold mb-5">Comparativa de Planes</h2>
-      <div class="table-responsive">
-        <table class="table comparison-table">
-          <thead class="table-light">
-            <tr>
-              <th scope="col">Características</th>
-              <!-- Encabezados de planes dinámicos -->
-              <th scope="col" th:each="plan : ${planes}" th:text="${plan.nombre}">Plan</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Contenido dinámico de la tabla comparativa -->
-            <th:block th:if="${planes != null && !planes.isEmpty()}">
+    <section class="comparison-section" th:if="${planes != null && !planes.isEmpty()}">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="faq-title">Comparativa Detallada de Planes</h2>
+          <p class="lead text-muted">Encuentra las diferencias y elige el plan ideal para ti</p>
+        </div>
+        <div class="table-responsive">
+          <table class="table comparison-table">
+            <thead>
+              <tr>
+                <th scope="col">
+                  <i class="bi bi-list-check me-2"></i>Características
+                </th>
+                <!-- Encabezados de planes dinámicos -->
+                <th scope="col" th:each="plan : ${planes}">
+                  <div class="text-center">
+                    <div th:text="${plan.nombre}" class="fw-bold"></div>
+                    <small class="opacity-75" th:text="${plan.descripcionCorta}"></small>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Contenido dinámico de la tabla comparativa -->
               <!-- Precio mensual -->
               <tr>
-                <td>Precio mensual</td>
-                <td th:each="plan : ${planes}"
-                  th:text="${plan.precioMensual != null ? 'S/ ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 'COMMA', 2, 'POINT') : 'N/A'}">
-                  S/ 9.99</td>
+                <td>
+                  <i class="bi bi-cash-stack me-2 text-success"></i>
+                  <strong>Precio Mensual</strong>
+                </td>
+                <td th:each="plan : ${planes}" class="text-center">
+                  <span class="feature-value"
+                    th:text="${plan.precioMensual == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(plan.precioMensual/100, 1, 2)}">
+                    S/ 14.99
+                  </span>
+                </td>
               </tr>
               <!-- Precio anual -->
               <tr>
-                <td>Precio anual</td>
-                <td th:each="plan : ${planes}"
-                  th:text="${plan.precioAnual != null ? 'S/ ' + #numbers.formatDecimal(plan.precioAnual/100, 1, 'COMMA', 2, 'POINT') : 'N/A'}">
-                  S/ 99.90</td>
+                <td>
+                  <i class="bi bi-calendar-check me-2 text-info"></i>
+                  <strong>Precio Anual</strong>
+                </td>
+                <td th:each="plan : ${planes}" class="text-center">
+                  <span class="feature-value"
+                    th:text="${plan.precioAnual == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(plan.precioAnual/100, 1, 2)}">
+                    S/ 149.90
+                  </span>
+                </td>
               </tr>
               <!-- Días de prueba -->
               <tr>
-                <td>Período de prueba</td>
-                <td th:each="plan : ${planes}"
-                  th:text="${plan.diasPrueba != null && plan.diasPrueba > 0 ? plan.diasPrueba + ' días' : 'N/A'}">7 días
+                <td>
+                  <i class="bi bi-gift me-2 text-warning"></i>
+                  <strong>Período de Prueba</strong>
+                </td>
+                <td th:each="plan : ${planes}" class="text-center">
+                  <span th:if="${plan.diasPrueba > 0}" class="feature-value" th:text="${plan.diasPrueba + ' días'}">14
+                    días</span>
+                  <span th:unless="${plan.diasPrueba > 0}" class="feature-not-included">
+                    <i class="bi bi-x-circle-fill"></i>
+                  </span>
                 </td>
               </tr>
 
               <!-- Filas para cada característica/beneficio desde la nueva estructura -->
               <tr th:each="fila : ${filasTablaComparativa}">
-                <td th:text="${fila.nombreCaracteristica}">Nombre del beneficio</td>
-                <td th:each="celda : ${fila.celdasPorPlan}">
+                <td>
+                  <strong th:text="${fila.nombreCaracteristica}">Característica</strong>
+                </td>
+                <td th:each="celda : ${fila.celdasPorPlan}" class="text-center">
                   <span th:if="${celda.incluido}">
-                    <span th:if="${#strings.equalsIgnoreCase(celda.tipoDatoBeneficio, 'booleano')}">
-                      <span th:if="${#strings.equalsIgnoreCase(celda.valor, 'true')}" class="feature-included"
-                        title="Incluido"><i class="bi bi-check-circle-fill"></i></span>
-                      <span th:unless="${#strings.equalsIgnoreCase(celda.valor, 'true')}" class="feature-not-included"
-                        title="No incluido"><i class="bi bi-x-circle-fill"></i></span>
-                    </span>
-                    <span th:unless="${#strings.equalsIgnoreCase(celda.tipoDatoBeneficio, 'booleano')}">
-                      <span th:if="${celda.valor != null && !#strings.isEmpty(celda.valor)}" th:text="${celda.valor}"
-                        class="fw-bold"></span>
-                      <span th:unless="${celda.valor != null && !#strings.isEmpty(celda.valor)}"
-                        class="feature-included" title="Incluido"><i class="bi bi-check-circle-fill"></i></span>
+                    <span th:switch="${celda.tipoDatoBeneficio}">
+                      <!-- Valores booleanos -->
+                      <span th:case="'booleano'">
+                        <span th:if="${#strings.equalsIgnoreCase(celda.valor, 'true')}" class="feature-included"
+                          title="Incluido">
+                          <i class="bi bi-check-circle-fill"></i>
+                        </span>
+                        <span th:unless="${#strings.equalsIgnoreCase(celda.valor, 'true')}" class="feature-not-included"
+                          title="No incluido">
+                          <i class="bi bi-x-circle-fill"></i>
+                        </span>
+                      </span>
+                      <!-- Otros valores -->
+                      <span th:case="*">
+                        <span th:if="${celda.valor != null && !#strings.isEmpty(celda.valor)}" class="feature-value"
+                          th:text="${celda.valor}">Valor</span>
+                        <span th:unless="${celda.valor != null && !#strings.isEmpty(celda.valor)}"
+                          class="feature-included" title="Incluido">
+                          <i class="bi bi-check-circle-fill"></i>
+                        </span>
+                      </span>
                     </span>
                   </span>
                   <span th:unless="${celda.incluido}" class="feature-not-included" title="No disponible">
@@ -371,81 +1092,160 @@
               </tr>
 
               <!-- Fila de botones -->
-              <tr class="table-light">
-                <td></td> <!-- Celda vacía para la columna de características -->
+              <tr class="bg-light">
+                <td class="fw-bold">
+                  <i class="bi bi-rocket-takeoff me-2 text-success"></i>
+                  <strong>Comenzar Ahora</strong>
+                </td>
                 <td th:each="plan : ${planes}" class="text-center">
-                  <a th:href="@{/planes/{id}(id=${plan.id})}" class="btn btn-sm"
-                    th:classappend="${plan.nombre != null && (plan.nombre.contains('Premium') || plan.nombre.contains('Familiar')) ? 'btn-primary' : 'btn-outline-dark'}">
-                    Seleccionar
-                  </a>
+                  <!-- Botón para plan actual del usuario -->
+                  <div
+                    th:if="${usuarioAutenticado && suscripcionActual != null && suscripcionActual.planId == plan.id}">
+                    <button class="btn btn-sm btn-success mb-1" disabled>
+                      <i class="bi bi-check-circle-fill me-1"></i>Plan Actual
+                    </button>
+                    <br>
+                    <a th:href="@{/mi-cuenta/suscripcion}" class="btn btn-outline-secondary btn-sm">
+                      <i class="bi bi-gear me-1"></i>Gestionar
+                    </a>
+                  </div>
+
+                  <!-- Botón para otros planes -->
+                  <div th:unless="${usuarioAutenticado && suscripcionActual != null && suscripcionActual.planId == plan.id}">
+                    <!-- Botón activo cuando es perfil principal -->
+                    <a th:if="${esPerfilPrincipal}"
+                      th:href="'/planes/' + ${plan.id} + '?modalidad=MENSUAL'" class="btn btn-sm plan-cta-btn"
+                      th:classappend="'btn-plan-' + ${#strings.toLowerCase(#strings.replace(plan.nombre, ' ', '-'))}">
+                      <i class="bi bi-arrow-right me-1"></i>
+                      <span th:if="${!usuarioAutenticado || suscripcionActual == null}">Ver Detalles</span>
+                      <span
+                        th:if="${usuarioAutenticado && suscripcionActual != null && suscripcionActual.planId != plan.id}">
+                        <span th:if="${plan.precioMensual > (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Ver y
+                          Actualizar</span>
+                        <span th:if="${plan.precioMensual <= (preciosPorPlanId[suscripcionActual.planId] ?: 0)}">Ver y
+                          Cambiar</span>
+                      </span>
+                    </a>
+
+                    <!-- Botón deshabilitado cuando NO es perfil principal -->
+                    <button th:unless="${esPerfilPrincipal}" class="btn btn-sm btn-secondary disabled" disabled
+                      style="opacity: 0.6; cursor: not-allowed;">
+                      <i class="bi bi-lock me-1"></i>Solo Consulta
+                    </button>
+                  </div>
                 </td>
               </tr>
-            </th:block>
-            <th:block th:unless="${planes != null && !planes.isEmpty()}">
-              <tr>
-                <td colspan="2" class="text-center text-muted p-4">
-                  <em>No hay planes disponibles para comparar en este momento.</em>
-                </td>
-              </tr>
-            </th:block>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
     <!-- Preguntas Frecuentes -->
-    <section class="container py-5">
-      <h2 class="text-center fw-bold mb-5">Preguntas Frecuentes</h2>
-      <div class="row justify-content-center">
-        <div class="col-lg-10">
-          <div class="accordion" id="accordionFAQ">
-            <div class="accordion-item shadow-sm mb-3 border-0 faq-card">
-              <h2 class="accordion-header" id="faqHeading1">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
-                  ¿Cómo funciona el período de prueba gratuita?
-                </button>
-              </h2>
-              <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1"
-                data-bs-parent="#accordionFAQ">
-                <div class="accordion-body">
-                  Al suscribirte a un plan con período de prueba, podrás disfrutar de todos los beneficios del plan sin
-                  costo durante el período indicado. Al finalizar, se realizará el cobro automático según el plan
-                  elegido, a menos que canceles antes.
+    <section class="faq-section">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="faq-title">Preguntas Frecuentes</h2>
+          <p class="lead text-muted">Resolvemos tus dudas sobre nuestros planes</p>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="accordion" id="accordionFAQ">
+
+              <!-- FAQ Items -->
+              <div class="accordion-item faq-card">
+                <h2 class="accordion-header" id="faqHeading1">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+                    <i class="bi bi-gift me-3 text-warning"></i>
+                    ¿Cómo funciona el período de prueba gratuita?
+                  </button>
+                </h2>
+                <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1"
+                  data-bs-parent="#accordionFAQ">
+                  <div class="accordion-body">
+                    Al suscribirte a un plan con período de prueba, tendrás acceso completo a todos los beneficios
+                    durante el tiempo indicado sin ningún costo. Puedes cancelar en cualquier momento durante la
+                    prueba sin penalizaciones. Si decides continuar, el cobro se realizará automáticamente al
+                    finalizar el período gratuito.
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="accordion-item shadow-sm mb-3 border-0 faq-card">
-              <h2 class="accordion-header" id="faqHeading2">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
-                  ¿Puedo cambiar de plan en cualquier momento?
-                </button>
-              </h2>
-              <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2"
-                data-bs-parent="#accordionFAQ">
-                <div class="accordion-body">
-                  Sí, puedes cambiar entre planes en cualquier momento. Si cambias a un plan de mayor valor, el cambio
-                  se aplica inmediatamente y se te cobrará la diferencia. Si cambias a un plan de menor valor, el cambio
-                  se aplicará al final de tu período de facturación actual.
+              <div class="accordion-item faq-card">
+                <h2 class="accordion-header" id="faqHeading2">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                    <i class="bi bi-arrow-repeat me-3 text-info"></i>
+                    ¿Puedo cambiar de plan en cualquier momento?
+                  </button>
+                </h2>
+                <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2"
+                  data-bs-parent="#accordionFAQ">
+                  <div class="accordion-body">
+                    ¡Por supuesto! Tienes total flexibilidad para cambiar entre planes. Si actualizas a un plan
+                    superior, el cambio es inmediato y solo pagas la diferencia prorrateada. Si cambias a un plan
+                    inferior, el cambio se aplicará en tu próximo período de facturación para que no pierdas los
+                    beneficios ya pagados.
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="accordion-item shadow-sm mb-3 border-0 faq-card">
-              <h2 class="accordion-header" id="faqHeading3">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
-                  ¿Cómo se manejan los préstamos simultáneos?
-                </button>
-              </h2>
-              <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3"
-                data-bs-parent="#accordionFAQ">
-                <div class="accordion-body">
-                  Los préstamos simultáneos indican cuántos libros puedes tener prestados al mismo tiempo. Una vez
-                  alcanzado ese límite, deberás devolver alguno de los títulos para poder solicitar uno nuevo. Los
-                  planes superiores te permiten tener más títulos a la vez.
+              <div class="accordion-item faq-card">
+                <h2 class="accordion-header" id="faqHeading3">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                    <i class="bi bi-books me-3 text-success"></i>
+                    ¿Qué significa "préstamos simultáneos"?
+                  </button>
+                </h2>
+                <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3"
+                  data-bs-parent="#accordionFAQ">
+                  <div class="accordion-body">
+                    Los préstamos simultáneos son la cantidad de libros que puedes tener "prestados" al mismo tiempo
+                    en tu biblioteca personal. Por ejemplo, con 5 préstamos simultáneos, puedes tener 5 libros
+                    diferentes en tu colección activa. Para agregar un sexto libro, necesitarías "devolver"
+                    uno de los actuales, liberando espacio en tu límite.
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item faq-card">
+                <h2 class="accordion-header" id="faqHeading4">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                    <i class="bi bi-shield-check me-3 text-primary"></i>
+                    ¿Es seguro proporcionar mi información de pago?
+                  </button>
+                </h2>
+                <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4"
+                  data-bs-parent="#accordionFAQ">
+                  <div class="accordion-body">
+                    Absolutamente. Utilizamos encriptación de nivel bancario (SSL 256-bit) para proteger toda tu
+                    información. No almacenamos datos de tarjetas de crédito en nuestros servidores; trabajamos
+                    con procesadores de pago certificados PCI DSS que cumplen con los más altos estándares de
+                    seguridad internacionales.
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item faq-card">
+                <h2 class="accordion-header" id="faqHeading5">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#faqCollapse5" aria-expanded="false" aria-controls="faqCollapse5">
+                    <i class="bi bi-people me-3 text-danger"></i>
+                    ¿Cómo funciona el Plan Familiar?
+                  </button>
+                </h2>
+                <div id="faqCollapse5" class="accordion-collapse collapse" aria-labelledby="faqHeading5"
+                  data-bs-parent="#accordionFAQ">
+                  <div class="accordion-body">
+                    El Plan Familiar te permite crear hasta 5 perfiles independientes bajo una sola suscripción.
+                    Cada perfil mantiene sus propias preferencias, historial de lectura, marcadores y recomendaciones
+                    personalizadas. Perfecto para compartir el amor por la lectura con toda tu familia mientras
+                    cada miembro disfruta de una experiencia personalizada.
+                  </div>
                 </div>
               </div>
             </div>
@@ -455,15 +1255,39 @@
     </section>
 
     <!-- Call to Action -->
-    <section class="bg-primary text-white py-5 mb-5">
+    <section class="cta-section">
       <div class="container">
         <div class="row align-items-center">
-          <div class="col-lg-9 text-center text-lg-start">
-            <h2 class="fw-bold mb-3">¿Listo para empezar tu viaje de lectura?</h2>
-            <p class="lead mb-0">Elige ahora tu plan ideal y comienza a disfrutar de miles de libros</p>
+          <div class="col-lg-8">
+            <div class="cta-content">
+              <h2 class="cta-title">¿Listo para transformar tu experiencia de lectura?</h2>
+              <p class="cta-subtitle">
+                Únete a miles de lectores que ya han descubierto una nueva forma de disfrutar los libros.
+                Tu próxima gran lectura te está esperando.
+              </p>
+              <div class="d-flex flex-wrap gap-3 align-items-center">
+                <a href="#planes" class="cta-btn">
+                  <i class="bi bi-rocket-takeoff me-2"></i>Comenzar Mi Viaje
+                </a>
+                <div class="text-white-50">
+                  <i class="bi bi-check-circle me-2"></i>Sin compromisos
+                  <span class="mx-2">•</span>
+                  <i class="bi bi-shield-check me-2"></i>Cancela cuando quieras
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="col-lg-3 text-center text-lg-end mt-4 mt-lg-0">
-            <a th:href="@{/planes}" class="btn btn-light btn-lg">¡Comenzar ahora!</a>
+          <div class="col-lg-4 text-center d-none d-lg-block">
+            <div class="position-relative">
+              <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop&crop=center"
+                alt="Lectura digital" class="img-fluid rounded-3 shadow-lg" style="transform: rotate(-5deg);">
+              <div class="position-absolute top-0 start-0">
+                <div class="badge bg-warning text-dark p-3 rounded-pill shadow">
+                  <i class="bi bi-star-fill me-1"></i>
+                  <strong>4.8/5</strong> estrellas
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -473,62 +1297,199 @@
   <th:block th:fragment="planesScripts">
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        // Toggle para cambiar entre precios mensuales y anuales
+        // Obtener modalidad actual desde el modelo
+        const modalidadActual = /*[[${modalidadPago}]]*/ 'mensual';
+        const esAnual = /*[[${esModalidadAnual}]]*/ false;
+
+        // Inicialización de elementos
         const precioSwitch = document.getElementById('precio-switch');
         const mensualToggle = document.getElementById('mensual-toggle');
         const anualToggle = document.getElementById('anual-toggle');
 
+        // Establecer estado inicial basado en la modalidad del servidor
+        if (precioSwitch) {
+          precioSwitch.checked = esAnual;
+          mensualToggle.classList.toggle('active', !esAnual);
+          anualToggle.classList.toggle('active', esAnual);
+        }
+
+        // Toggle para cambiar entre precios mensuales y anuales
         if (precioSwitch && mensualToggle && anualToggle) {
           const preciosMensuales = document.querySelectorAll('.precio-mensual');
           const preciosAnuales = document.querySelectorAll('.precio-anual');
-          const periodosMensuales = document.querySelectorAll('.periodo-mensual');
-          const periodosAnuales = document.querySelectorAll('.periodo-anual');
 
-          // Función para cambiar los precios mostrados
-          const cambiarPrecios = function () {
+          function cambiarPrecios() {
             const isAnual = precioSwitch.checked;
+            const nuevaModalidad = isAnual ? 'anual' : 'mensual';
 
-            // Actualizar toggle de texto
+            // Actualizar clases activas en los toggles
             mensualToggle.classList.toggle('active', !isAnual);
             anualToggle.classList.toggle('active', isAnual);
 
-            // Actualizar precios visibles
-            preciosMensuales.forEach(p => p.classList.toggle('d-none', isAnual));
-            preciosAnuales.forEach(p => p.classList.toggle('d-none', !isAnual));
+            // Cambiar visibilidad de precios con animación
+            preciosMensuales.forEach(p => {
+              p.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+              p.style.opacity = isAnual ? '0' : '1';
+              p.style.transform = isAnual ? 'translateY(-10px)' : 'translateY(0)';
+              setTimeout(() => {
+                p.classList.toggle('d-none', isAnual);
+              }, isAnual ? 150 : 0);
+            });
 
-            // Actualizar periodos visibles
-            periodosMensuales.forEach(p => p.classList.toggle('d-none', isAnual));
-            periodosAnuales.forEach(p => p.classList.toggle('d-none', !isAnual));
-          };
+            preciosAnuales.forEach(p => {
+              p.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+              p.style.opacity = !isAnual ? '0' : '1';
+              p.style.transform = !isAnual ? 'translateY(-10px)' : 'translateY(0)';
+              setTimeout(() => {
+                p.classList.toggle('d-none', !isAnual);
+              }, !isAnual ? 150 : 0);
+            });
 
-          // Evento de switch
+            // Actualizar URL sin recargar la página
+            const url = new URL(window.location);
+            url.searchParams.set('modalidad', nuevaModalidad);
+            window.history.pushState({}, '', url);
+
+            // Actualizar enlaces de "Ver Detalles" para mantener la modalidad
+            document.querySelectorAll('a[href*="/planes/"]').forEach(link => {
+              if (link.href.includes('/planes/') && !link.href.includes('modalidad=')) {
+                const linkUrl = new URL(link.href);
+                linkUrl.searchParams.set('modalidad', nuevaModalidad);
+                link.href = linkUrl.toString();
+              } else if (link.href.includes('modalidad=')) {
+                const linkUrl = new URL(link.href);
+                linkUrl.searchParams.set('modalidad', nuevaModalidad);
+                link.href = linkUrl.toString();
+              }
+            });
+          }
+
+          // Event listeners
           precioSwitch.addEventListener('change', cambiarPrecios);
 
-          // Eventos de texto
           mensualToggle.addEventListener('click', function () {
-            precioSwitch.checked = false;
-            cambiarPrecios();
+            if (precioSwitch.checked) {
+              precioSwitch.checked = false;
+              cambiarPrecios();
+            }
           });
 
           anualToggle.addEventListener('click', function () {
-            precioSwitch.checked = true;
-            cambiarPrecios();
+            if (!precioSwitch.checked) {
+              precioSwitch.checked = true;
+              cambiarPrecios();
+            }
+          });
+
+          // Inicializar enlaces con la modalidad correcta
+          document.querySelectorAll('a[href*="/planes/"]').forEach(link => {
+            if (link.href.includes('/planes/') && !link.href.includes('modalidad=')) {
+              const linkUrl = new URL(link.href);
+              linkUrl.searchParams.set('modalidad', modalidadActual);
+              link.href = linkUrl.toString();
+            }
           });
         }
 
-        // Efectos visuales al hacer scroll
+        // Animaciones al hacer scroll
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        };
+
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
-              entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.1 });
+        }, observerOptions);
 
-        document.querySelectorAll('.plan-card').forEach(card => {
-          observer.observe(card);
+        // Observar elementos para animación
+        document.querySelectorAll('.animate-fade-in-up').forEach(el => {
+          observer.observe(el);
         });
+
+        // Smooth scroll para anclas internas
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          });
+        });
+
+        // Preloader para imágenes
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+          if (img.complete) {
+            img.classList.add('loaded');
+          } else {
+            img.addEventListener('load', () => {
+              img.classList.add('loaded');
+            });
+          }
+        });
+
+        // Mejorar accesibilidad de botones
+        document.querySelectorAll('.plan-cta-btn').forEach(btn => {
+          btn.addEventListener('focus', function () {
+            this.style.outline = '3px solid rgba(45, 110, 126, 0.5)';
+            this.style.outlineOffset = '2px';
+          });
+
+          btn.addEventListener('blur', function () {
+            this.style.outline = 'none';
+          });
+        });
+
+        // Animación de contador (si hay estadísticas)
+        const counters = document.querySelectorAll('[data-count]');
+        counters.forEach(counter => {
+          const target = parseInt(counter.getAttribute('data-count'));
+          const duration = 2000;
+          const increment = target / (duration / 16);
+          let current = 0;
+
+          const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+              counter.textContent = Math.floor(current);
+              requestAnimationFrame(updateCounter);
+            } else {
+              counter.textContent = target;
+            }
+          };
+
+          // Iniciar contador cuando sea visible
+          const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                updateCounter();
+                counterObserver.unobserve(entry.target);
+              }
+            });
+          });
+
+          counterObserver.observe(counter);
+        });
+
+        // Console.log para debug (eliminar en producción)
+        console.log('✅ Página de planes cargada correctamente');
+        console.log('📊 Planes disponibles:', document.querySelectorAll('.plan-card').length);
       });
+
+      // Función para manejar errores de imagen
+      function handleImageError(img) {
+        img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f8f9fa"/><text x="200" y="150" text-anchor="middle" fill="%236c757d" font-family="Arial" font-size="16">Imagen no disponible</text></svg>';
+        img.alt = 'Imagen no disponible';
+      }
     </script>
   </th:block>
 </body>

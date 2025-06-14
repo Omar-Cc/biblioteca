@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Mis Órdenes | Biblioteca Virtual',
+        paramCss=~{mi-cuenta/ordenes/lista-mis-ordenes :: pageSpecificCss},
+        paramScripts=~{mi-cuenta/ordenes/lista-mis-ordenes :: pageSpecificScripts},
+        activeMenu='pedidos', 
+        pageSpecificContent=~{mi-cuenta/ordenes/lista-mis-ordenes :: pageContent}
+      )}">
+
+<head>
+	<th:block th:fragment="pageSpecificCss">
+		<style>
+			/* ========================================
+         VARIABLES ESPECÍFICAS DE ÓRDENES
+         ======================================== */
+			:root {
+				--ordenes-shadow-card: 0 8px 32px rgba(0, 0, 0, 0.12);
+				--ordenes-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.18);
+				--ordenes-gradient-primary: linear-gradient(135deg, var(--bs-primary) 0%, #1e5f6f 100%);
+				--ordenes-gradient-pendiente: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+				--ordenes-gradient-completada: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+				--ordenes-gradient-cancelada: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+				--ordenes-gradient-procesando: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+				--ordenes-border-radius: 16px;
+				--ordenes-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+
+			/* ========================================
+         HEADER DE PÁGINA
+         ======================================== */
+			.page-header-ordenes {
+				background: var(--ordenes-gradient-primary);
+				margin: 0 0 2rem 0;
+				padding: 2rem 1.5rem;
+				border-radius: var(--ordenes-border-radius);
+				color: white;
+				position: relative;
+				overflow: hidden;
+			}
+
+			.page-header-ordenes::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+				opacity: 0.3;
+			}
+
+			.page-header-content-ordenes {
+				position: relative;
+				z-index: 2;
+			}
+
+			.page-title-ordenes {
+				font-size: 2.5rem;
+				font-weight: 700;
+				margin-bottom: 0.5rem;
+				text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+			}
+
+			.page-subtitle-ordenes {
+				font-size: 1.1rem;
+				opacity: 0.9;
+				margin-bottom: 0;
+			}
+
+			/* ========================================
+         ESTADÍSTICAS GENERALES
+         ======================================== */
+			.stats-grid-ordenes {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				gap: 1.5rem;
+				margin-bottom: 2rem;
+			}
+
+			.stat-card-ordenes {
+				background: white;
+				border-radius: var(--ordenes-border-radius);
+				box-shadow: var(--ordenes-shadow-card);
+				border: none;
+				overflow: hidden;
+				transition: var(--ordenes-transition);
+				position: relative;
+			}
+
+			.stat-card-ordenes:hover {
+				transform: translateY(-5px);
+				box-shadow: var(--ordenes-shadow-hover);
+			}
+
+			.stat-header-ordenes {
+				padding: 1.5rem;
+				color: white;
+				position: relative;
+				overflow: hidden;
+			}
+
+			.stat-header-ordenes.stat-total {
+				background: var(--ordenes-gradient-primary);
+			}
+
+			.stat-header-ordenes.stat-pendiente {
+				background: var(--ordenes-gradient-pendiente);
+			}
+
+			.stat-header-ordenes.stat-completada {
+				background: var(--ordenes-gradient-completada);
+			}
+
+			.stat-header-ordenes.stat-cancelada {
+				background: var(--ordenes-gradient-cancelada);
+			}
+
+			.stat-content-ordenes {
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+				position: relative;
+				z-index: 2;
+			}
+
+			.stat-icon-ordenes {
+				font-size: 2.5rem;
+				opacity: 0.9;
+			}
+
+			.stat-info-ordenes {
+				flex: 1;
+			}
+
+			.stat-number-ordenes {
+				font-size: 2rem;
+				font-weight: 800;
+				line-height: 1;
+				margin-bottom: 0.25rem;
+			}
+
+			.stat-label-ordenes {
+				font-size: 0.9rem;
+				opacity: 0.8;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			/* ========================================
+         FILTROS Y BÚSQUEDA
+         ======================================== */
+			.filters-section-ordenes {
+				background: white;
+				border-radius: var(--ordenes-border-radius);
+				box-shadow: var(--ordenes-shadow-card);
+				padding: 1.5rem;
+				margin-bottom: 2rem;
+				border: 1px solid rgba(0, 0, 0, 0.05);
+			}
+
+			.filters-header-ordenes {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 1.5rem;
+			}
+
+			.filters-title-ordenes {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				font-size: 1.2rem;
+				font-weight: 600;
+				color: var(--bs-dark);
+			}
+
+			.filters-actions-ordenes {
+				display: flex;
+				gap: 0.75rem;
+			}
+
+			.badge-filters-active {
+				background: var(--bs-primary);
+				color: white;
+				padding: 0.5rem 1rem;
+				border-radius: 25px;
+				font-size: 0.8rem;
+				font-weight: 600;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.filters-grid-ordenes {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				gap: 1rem;
+				align-items: end;
+			}
+
+			.filter-group-ordenes {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+
+			.filter-label-ordenes {
+				font-weight: 500;
+				color: var(--bs-dark);
+				font-size: 0.9rem;
+			}
+
+			.form-control-ordenes,
+			.form-select-ordenes {
+				border-radius: 8px;
+				border: 1px solid rgba(45, 110, 126, 0.3);
+				padding: 0.75rem 1rem;
+				transition: var(--ordenes-transition);
+			}
+
+			.form-control-ordenes:focus,
+			.form-select-ordenes:focus {
+				border-color: var(--bs-primary);
+				box-shadow: 0 0 0 0.25rem rgba(45, 110, 126, 0.25);
+			}
+
+			.btn-filter-ordenes {
+				background: var(--bs-primary);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				padding: 0.75rem 1.5rem;
+				font-weight: 600;
+				transition: var(--ordenes-transition);
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				height: fit-content;
+			}
+
+			.btn-filter-ordenes:hover {
+				background: #225b6a;
+				transform: translateY(-2px);
+				box-shadow: var(--ordenes-shadow-card);
+			}
+
+			.btn-clear-filters {
+				background: #6c757d;
+				color: white;
+				border: none;
+				border-radius: 8px;
+				padding: 0.75rem 1.5rem;
+				font-weight: 600;
+				transition: var(--ordenes-transition);
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				height: fit-content;
+				text-decoration: none;
+			}
+
+			.btn-clear-filters:hover {
+				background: #5a6268;
+				transform: translateY(-2px);
+				box-shadow: var(--ordenes-shadow-card);
+				color: white;
+			}
+
+			/* ========================================
+         LISTA DE ÓRDENES - DISEÑO EN GRID
+         ======================================== */
+			.ordenes-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+				gap: 1.5rem;
+				margin-bottom: 2rem;
+			}
+
+			.orden-card {
+				background: white;
+				border-radius: var(--ordenes-border-radius);
+				box-shadow: var(--ordenes-shadow-card);
+				border: 1px solid rgba(0, 0, 0, 0.05);
+				overflow: hidden;
+				transition: var(--ordenes-transition);
+				position: relative;
+				height: fit-content;
+			}
+
+			.orden-card:hover {
+				transform: translateY(-3px);
+				box-shadow: var(--ordenes-shadow-hover);
+			}
+
+			.orden-header {
+				background: rgba(45, 110, 126, 0.05);
+				padding: 1.25rem;
+				border-bottom: 1px solid rgba(45, 110, 126, 0.1);
+			}
+
+			.orden-header-content {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				gap: 1rem;
+			}
+
+			.orden-info-principal {
+				flex: 1;
+			}
+
+			.orden-numero {
+				font-size: 1.3rem;
+				font-weight: 700;
+				color: var(--bs-primary);
+				margin-bottom: 0.5rem;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.orden-meta {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+
+			.meta-item-ordenes {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				font-size: 0.85rem;
+				color: #666;
+			}
+
+			.meta-item-ordenes i {
+				color: var(--bs-primary);
+				width: 14px;
+				text-align: center;
+			}
+
+			.estado-badge-ordenes {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.6rem 1.2rem;
+				border-radius: 25px;
+				font-weight: 600;
+				font-size: 0.8rem;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				transition: var(--ordenes-transition);
+				position: relative;
+				overflow: hidden;
+				white-space: nowrap;
+			}
+
+			.estado-badge-ordenes::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: -100%;
+				width: 100%;
+				height: 100%;
+				background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+				transition: left 0.5s;
+			}
+
+			.estado-badge-ordenes:hover::before {
+				left: 100%;
+			}
+
+			.estado-pendiente {
+				background: var(--ordenes-gradient-pendiente);
+				color: #856404;
+			}
+
+			.estado-procesando {
+				background: var(--ordenes-gradient-procesando);
+				color: white;
+			}
+
+			.estado-completada {
+				background: var(--ordenes-gradient-completada);
+				color: white;
+			}
+
+			.estado-cancelada {
+				background: var(--ordenes-gradient-cancelada);
+				color: white;
+			}
+
+			.estado-fallida {
+				background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+				color: white;
+			}
+
+			.orden-body {
+				padding: 1.25rem;
+			}
+
+			.orden-items-compact {
+				margin-bottom: 1rem;
+			}
+
+			.items-header-compact {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				margin-bottom: 0.75rem;
+				font-weight: 600;
+				color: var(--bs-dark);
+				font-size: 0.9rem;
+			}
+
+			.items-preview-compact {
+				display: flex;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+			}
+
+			.item-preview-compact {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				padding: 0.5rem;
+				background: rgba(45, 110, 126, 0.03);
+				border-radius: 6px;
+				border-left: 2px solid var(--bs-primary);
+				flex: 1;
+				min-width: 0;
+			}
+
+			.item-cover-compact {
+				width: 30px;
+				height: 38px;
+				object-fit: cover;
+				border-radius: 3px;
+				flex-shrink: 0;
+			}
+
+			.item-info-compact {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.item-title-compact {
+				font-weight: 600;
+				color: var(--bs-dark);
+				font-size: 0.8rem;
+				line-height: 1.2;
+				margin-bottom: 0.1rem;
+				display: -webkit-box;
+				-webkit-line-clamp: 1;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+			}
+
+			.item-details-compact {
+				font-size: 0.7rem;
+				color: #666;
+			}
+
+			.items-more-compact {
+				background: rgba(var(--bs-primary-rgb), 0.1);
+				color: var(--bs-primary);
+				border: 1px dashed var(--bs-primary);
+				padding: 0.5rem;
+				border-radius: 6px;
+				text-align: center;
+				font-size: 0.8rem;
+				font-weight: 600;
+				flex: 0 0 auto;
+				min-width: 100px;
+			}
+
+			.orden-summary-compact {
+				background: rgba(45, 110, 126, 0.05);
+				border-radius: 8px;
+				padding: 1rem;
+				margin-bottom: 1rem;
+			}
+
+			.summary-row-compact {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 0.5rem;
+				font-size: 0.85rem;
+			}
+
+			.summary-row-compact:last-child {
+				margin-bottom: 0;
+			}
+
+			.summary-row-compact.total {
+				border-top: 1px solid rgba(45, 110, 126, 0.2);
+				padding-top: 0.5rem;
+				margin-top: 0.5rem;
+				font-weight: 700;
+				font-size: 0.95rem;
+				color: var(--bs-primary);
+			}
+
+			.summary-label-compact {
+				color: #666;
+			}
+
+			.summary-value-compact {
+				font-weight: 600;
+				color: var(--bs-dark);
+			}
+
+			.orden-actions-compact {
+				display: flex;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+			}
+
+			.btn-orden-action-compact {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				padding: 0.5rem 1rem;
+				border-radius: 6px;
+				text-decoration: none;
+				font-weight: 600;
+				font-size: 0.8rem;
+				transition: var(--ordenes-transition);
+				border: 1px solid transparent;
+				position: relative;
+				overflow: hidden;
+				flex: 1;
+				justify-content: center;
+				min-width: 100px;
+			}
+
+			.btn-orden-action-compact::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: -100%;
+				width: 100%;
+				height: 100%;
+				background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+				transition: left 0.5s;
+			}
+
+			.btn-orden-action-compact:hover::before {
+				left: 100%;
+			}
+
+			.btn-orden-action-compact.primary {
+				background: var(--bs-primary);
+				color: white;
+			}
+
+			.btn-orden-action-compact.primary:hover {
+				background: #225b6a;
+				transform: translateY(-1px);
+				box-shadow: var(--ordenes-shadow-card);
+				color: white;
+			}
+
+			.btn-orden-action-compact.secondary {
+				background: transparent;
+				color: var(--bs-primary);
+				border-color: var(--bs-primary);
+			}
+
+			.btn-orden-action-compact.secondary:hover {
+				background: var(--bs-primary);
+				color: white;
+				transform: translateY(-1px);
+			}
+
+			.btn-orden-action-compact.danger {
+				background: transparent;
+				color: var(--bs-danger);
+				border-color: var(--bs-danger);
+			}
+
+			.btn-orden-action-compact.danger:hover {
+				background: var(--bs-danger);
+				color: white;
+				transform: translateY(-1px);
+			}
+
+			/* ========================================
+         ESTADO VACÍO
+         ======================================== */
+			.empty-state-ordenes {
+				text-align: center;
+				padding: 4rem 2rem;
+				background: white;
+				border-radius: var(--ordenes-border-radius);
+				box-shadow: var(--ordenes-shadow-card);
+				border: 1px solid rgba(0, 0, 0, 0.05);
+				grid-column: 1 / -1;
+			}
+
+			.empty-icon-ordenes {
+				font-size: 4rem;
+				color: rgba(45, 110, 126, 0.3);
+				margin-bottom: 1.5rem;
+			}
+
+			.empty-title-ordenes {
+				font-size: 1.5rem;
+				font-weight: 600;
+				color: var(--bs-dark);
+				margin-bottom: 1rem;
+			}
+
+			.empty-description-ordenes {
+				color: #666;
+				margin-bottom: 2rem;
+				max-width: 400px;
+				margin-left: auto;
+				margin-right: auto;
+				line-height: 1.6;
+			}
+
+			.btn-empty-action {
+				background: var(--bs-primary);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				padding: 1rem 2rem;
+				font-weight: 600;
+				text-decoration: none;
+				transition: var(--ordenes-transition);
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.btn-empty-action:hover {
+				background: #225b6a;
+				transform: translateY(-2px);
+				box-shadow: var(--ordenes-shadow-card);
+				color: white;
+			}
+
+			/* ========================================
+         RESPONSIVE DESIGN
+         ======================================== */
+			@media (max-width: 1200px) {
+				.ordenes-grid {
+					grid-template-columns: 1fr;
+				}
+			}
+
+			@media (max-width: 991.98px) {
+				.stats-grid-ordenes {
+					grid-template-columns: repeat(2, 1fr);
+				}
+
+				.filters-grid-ordenes {
+					grid-template-columns: 1fr;
+				}
+
+				.ordenes-grid {
+					gap: 1rem;
+				}
+			}
+
+			@media (max-width: 767.98px) {
+				.page-title-ordenes {
+					font-size: 2rem;
+				}
+
+				.stats-grid-ordenes {
+					grid-template-columns: 1fr;
+					gap: 1rem;
+				}
+
+				.stat-content-ordenes {
+					flex-direction: column;
+					text-align: center;
+					gap: 0.75rem;
+				}
+
+				.orden-card {
+					margin: 0 -0.5rem;
+				}
+
+				.orden-header {
+					padding: 1rem;
+				}
+
+				.orden-body {
+					padding: 1rem;
+				}
+
+				.orden-header-content {
+					flex-direction: column;
+					align-items: stretch;
+					gap: 0.75rem;
+				}
+
+				.btn-orden-action-compact {
+					flex: 1 1 100%;
+					min-width: auto;
+				}
+
+				.filters-actions-ordenes {
+					flex-direction: column;
+					width: 100%;
+				}
+
+				.filters-header-ordenes {
+					flex-direction: column;
+					gap: 1rem;
+					align-items: stretch;
+				}
+			}
+
+			@media (max-width: 575.98px) {
+				.page-header-ordenes {
+					margin: 0 0 1.5rem 0;
+					padding: 1.5rem 1rem;
+				}
+
+				.filters-section-ordenes {
+					margin: 0 -0.5rem 1.5rem -0.5rem;
+					border-radius: 12px;
+				}
+
+				.ordenes-grid {
+					grid-template-columns: 1fr;
+					gap: 1rem;
+					margin: 0 -0.5rem;
+				}
+
+				.empty-state-ordenes {
+					padding: 3rem 1.5rem;
+					margin: 0 -0.5rem;
+				}
+
+				.empty-icon-ordenes {
+					font-size: 3rem;
+				}
+			}
+
+			/* ========================================
+         ANIMACIONES
+         ======================================== */
+			@keyframes slideInUp {
+				from {
+					opacity: 0;
+					transform: translateY(30px);
+				}
+
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+				}
+
+				to {
+					opacity: 1;
+				}
+			}
+
+			.orden-card {
+				animation: slideInUp 0.6s ease-out backwards;
+			}
+
+			.orden-card:nth-child(odd) {
+				animation-delay: 0.1s;
+			}
+
+			.orden-card:nth-child(even) {
+				animation-delay: 0.2s;
+			}
+
+			.stat-card-ordenes {
+				animation: fadeIn 0.6s ease-out backwards;
+			}
+
+			.stat-card-ordenes:nth-child(1) {
+				animation-delay: 0.1s;
+			}
+
+			.stat-card-ordenes:nth-child(2) {
+				animation-delay: 0.2s;
+			}
+
+			.stat-card-ordenes:nth-child(3) {
+				animation-delay: 0.3s;
+			}
+
+			.stat-card-ordenes:nth-child(4) {
+				animation-delay: 0.4s;
+			}
+
+			/* ========================================
+   ITEMS DE LA ORDEN - DISEÑO VERTICAL CON SCROLL
+   ======================================== */
+			.orden-items-compact {
+				margin-bottom: 1rem;
+			}
+
+			.items-header-compact {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 0.75rem;
+				font-weight: 600;
+				color: var(--bs-dark);
+				font-size: 0.9rem;
+			}
+
+			.items-count-badge {
+				background: rgba(45, 110, 126, 0.1);
+				color: var(--bs-primary);
+				padding: 0.25rem 0.75rem;
+				border-radius: 12px;
+				font-size: 0.75rem;
+				font-weight: 600;
+			}
+
+			.items-container-compact {
+				background: rgba(45, 110, 126, 0.02);
+				border-radius: 8px;
+				border: 1px solid rgba(45, 110, 126, 0.1);
+				position: relative;
+				overflow: hidden;
+			}
+
+			.items-list-compact {
+				max-height: 180px;
+				/* Altura fija para máximo ~3 items */
+				overflow-y: auto;
+				overflow-x: hidden;
+				/* Estilos personalizados para el scrollbar */
+				scrollbar-width: thin;
+				scrollbar-color: rgba(45, 110, 126, 0.3) transparent;
+			}
+
+			.items-list-compact::-webkit-scrollbar {
+				width: 4px;
+			}
+
+			.items-list-compact::-webkit-scrollbar-track {
+				background: transparent;
+			}
+
+			.items-list-compact::-webkit-scrollbar-thumb {
+				background: rgba(45, 110, 126, 0.3);
+				border-radius: 2px;
+			}
+
+			.items-list-compact::-webkit-scrollbar-thumb:hover {
+				background: rgba(45, 110, 126, 0.5);
+			}
+
+			.item-preview-compact {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				padding: 0.75rem;
+				border-bottom: 1px solid rgba(45, 110, 126, 0.08);
+				transition: var(--ordenes-transition);
+				position: relative;
+			}
+
+			.item-preview-compact:last-child {
+				border-bottom: none;
+			}
+
+			.item-preview-compact:hover {
+				background: rgba(45, 110, 126, 0.05);
+			}
+
+			.item-cover-compact {
+				width: 35px;
+				height: 45px;
+				object-fit: cover;
+				border-radius: 4px;
+				flex-shrink: 0;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				transition: var(--ordenes-transition);
+			}
+
+			.item-preview-compact:hover .item-cover-compact {
+				transform: scale(1.05);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			}
+
+			.item-info-compact {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.item-title-compact {
+				font-weight: 600;
+				color: var(--bs-dark);
+				font-size: 0.8rem;
+				line-height: 1.3;
+				margin-bottom: 0.25rem;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+			}
+
+			.item-details-compact {
+				font-size: 0.7rem;
+				color: #666;
+				display: flex;
+				gap: 0.5rem;
+				align-items: center;
+				flex-wrap: wrap;
+			}
+
+			.item-quantity-badge {
+				background: rgba(45, 110, 126, 0.1);
+				color: var(--bs-primary);
+				padding: 0.1rem 0.4rem;
+				border-radius: 10px;
+				font-size: 0.65rem;
+				font-weight: 600;
+			}
+
+			.item-price-compact {
+				font-weight: 700;
+				color: var(--bs-primary);
+				font-size: 0.75rem;
+			}
+
+			/* Indicador de scroll */
+			.scroll-indicator {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				height: 20px;
+				background: linear-gradient(transparent, rgba(45, 110, 126, 0.1));
+				pointer-events: none;
+				opacity: 0;
+				transition: opacity 0.3s ease;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.scroll-indicator.show {
+				opacity: 1;
+			}
+
+			.scroll-indicator i {
+				font-size: 0.7rem;
+				color: var(--bs-primary);
+				animation: bounce 2s infinite;
+			}
+
+			@keyframes bounce {
+
+				0%,
+				20%,
+				50%,
+				80%,
+				100% {
+					transform: translateY(0);
+				}
+
+				40% {
+					transform: translateY(-3px);
+				}
+
+				60% {
+					transform: translateY(-2px);
+				}
+			}
+
+			/* Estados especiales para pocos items */
+			.items-container-compact.single-item .items-list-compact,
+			.items-container-compact.few-items .items-list-compact {
+				max-height: none;
+			}
+
+			.items-container-compact.few-items {
+				background: rgba(45, 110, 126, 0.03);
+			}
+
+			/* Responsive para items */
+			@media (max-width: 575.98px) {
+				.items-list-compact {
+					max-height: 150px;
+				}
+
+				.item-preview-compact {
+					padding: 0.5rem;
+					gap: 0.5rem;
+				}
+
+				.item-cover-compact {
+					width: 30px;
+					height: 38px;
+				}
+
+				.item-details-compact {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 0.25rem;
+				}
+			}
+		</style>
+	</th:block>
+</head>
+
+<body>
+	<div th:fragment="pageContent">
+		<!-- Header de página -->
+		<div class="page-header-ordenes">
+			<div class="page-header-content-ordenes">
+				<h1 class="page-title-ordenes">
+					<i class="fas fa-shopping-cart me-3"></i>
+					Mis Órdenes
+				</h1>
+				<p class="page-subtitle-ordenes">
+					Administra y consulta el historial de todas tus órdenes
+				</p>
+			</div>
+		</div>
+
+		<!-- Estadísticas -->
+		<div class="stats-grid-ordenes" th:if="${ordenes != null and !ordenes.isEmpty()}">
+			<div class="stat-card-ordenes">
+				<div class="stat-header-ordenes stat-total">
+					<div class="stat-content-ordenes">
+						<i class="fas fa-shopping-cart stat-icon-ordenes"></i>
+						<div class="stat-info-ordenes">
+							<div class="stat-number-ordenes" th:text="${totalOrdenes}">0</div>
+							<div class="stat-label-ordenes">Total de Órdenes</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="stat-card-ordenes">
+				<div class="stat-header-ordenes stat-pendiente">
+					<div class="stat-content-ordenes">
+						<i class="fas fa-clock stat-icon-ordenes"></i>
+						<div class="stat-info-ordenes">
+							<div class="stat-number-ordenes" th:text="${ordenesPendientes}">0</div>
+							<div class="stat-label-ordenes">Pendientes</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="stat-card-ordenes">
+				<div class="stat-header-ordenes stat-completada">
+					<div class="stat-content-ordenes">
+						<i class="fas fa-check-circle stat-icon-ordenes"></i>
+						<div class="stat-info-ordenes">
+							<div class="stat-number-ordenes" th:text="${ordenesCompletadas}">0</div>
+							<div class="stat-label-ordenes">Completadas</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="stat-card-ordenes">
+				<div class="stat-header-ordenes stat-cancelada">
+					<div class="stat-content-ordenes">
+						<i class="fas fa-times-circle stat-icon-ordenes"></i>
+						<div class="stat-info-ordenes">
+							<div class="stat-number-ordenes" th:text="${ordenesCanceladas}">0</div>
+							<div class="stat-label-ordenes">Canceladas</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Filtros y búsqueda -->
+		<div class="filters-section-ordenes">
+			<div class="filters-header-ordenes">
+				<div class="filters-title-ordenes">
+					<i class="fas fa-filter"></i>
+					Filtrar Órdenes
+					<div th:if="${filtrosActivos}" class="badge-filters-active">
+						<i class="fas fa-check-circle"></i>
+						Filtros activos
+					</div>
+				</div>
+				<div class="filters-actions-ordenes">
+					<a th:href="@{/mi-cuenta/orden}" class="btn-clear-filters" th:if="${filtrosActivos}">
+						<i class="fas fa-times"></i>
+						Limpiar Filtros
+					</a>
+				</div>
+			</div>
+
+			<form method="get" th:action="@{/mi-cuenta/orden}">
+				<div class="filters-grid-ordenes">
+					<div class="filter-group-ordenes">
+						<label class="filter-label-ordenes">Estado de la Orden</label>
+						<select name="estado" class="form-select-ordenes" th:value="${filtroEstado}">
+							<option value="">Todos los estados</option>
+							<option value="Pendiente" th:selected="${filtroEstado == 'Pendiente'}">Pendiente</option>
+							<option value="Procesando" th:selected="${filtroEstado == 'Procesando'}">Procesando</option>
+							<option value="Completada" th:selected="${filtroEstado == 'Completada'}">Completada</option>
+							<option value="Cancelada" th:selected="${filtroEstado == 'Cancelada'}">Cancelada</option>
+							<option value="Fallida" th:selected="${filtroEstado == 'Fallida'}">Fallida</option>
+						</select>
+					</div>
+
+					<div class="filter-group-ordenes">
+						<label class="filter-label-ordenes">Fecha Desde</label>
+						<input type="date" name="fechaDesde" class="form-control-ordenes"
+							th:value="${filtroFechaDesde != null ? #temporals.format(filtroFechaDesde, 'yyyy-MM-dd') : ''}">
+					</div>
+
+					<div class="filter-group-ordenes">
+						<label class="filter-label-ordenes">Fecha Hasta</label>
+						<input type="date" name="fechaHasta" class="form-control-ordenes"
+							th:value="${filtroFechaHasta != null ? #temporals.format(filtroFechaHasta, 'yyyy-MM-dd') : ''}">
+					</div>
+
+					<div class="filter-group-ordenes">
+						<button type="submit" class="btn-filter-ordenes">
+							<i class="fas fa-search"></i>
+							Filtrar
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<!-- Lista de órdenes en grid (2 por fila) -->
+		<div class="ordenes-grid" th:if="${ordenes != null and !ordenes.isEmpty()}">
+			<div class="orden-card" th:each="orden : ${ordenes}">
+				<!-- Header de la orden -->
+				<div class="orden-header">
+					<div class="orden-header-content">
+						<div class="orden-info-principal">
+							<div class="orden-numero">
+								<i class="fas fa-receipt"></i>
+								Orden #<span th:text="${orden.id}">12345</span>
+							</div>
+
+							<div class="orden-meta">
+								<div class="meta-item-ordenes">
+									<i class="fas fa-calendar-alt"></i>
+									<span th:text="${#temporals.format(orden.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/06/2025 14:30</span>
+								</div>
+
+								<div class="meta-item-ordenes">
+									<i class="fas fa-user"></i>
+									<span th:text="${orden.perfilNombre}">Perfil Principal</span>
+								</div>
+
+								<div class="meta-item-ordenes">
+									<i class="fas fa-book"></i>
+									<span th:text="${orden.cantidadItems}">3</span>
+									<span th:text="${orden.cantidadItems == 1 ? 'artículo' : 'artículos'}">artículos</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="estado-badge-ordenes" th:classappend="${'estado-' + #strings.toLowerCase(orden.estadoOrden)}">
+							<i class="fas fa-circle" th:if="${orden.estadoOrden == 'Pendiente'}"></i>
+							<i class="fas fa-clock" th:if="${orden.estadoOrden == 'Procesando'}"></i>
+							<i class="fas fa-check-circle" th:if="${orden.estadoOrden == 'Completada'}"></i>
+							<i class="fas fa-times-circle" th:if="${orden.estadoOrden == 'Cancelada'}"></i>
+							<i class="fas fa-exclamation-triangle" th:if="${orden.estadoOrden == 'Fallida'}"></i>
+							<span th:text="${orden.estadoOrden}">Pendiente</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Cuerpo de la orden -->
+				<div class="orden-body">
+					<!-- Vista previa compacta de artículos -->
+					<div class="orden-items-compact">
+						<div class="items-header-compact">
+							<div style="display: flex; align-items: center; gap: 0.5rem;">
+								<i class="fas fa-list"></i>
+								Artículos
+							</div>
+							<span class="items-count-badge"
+								th:text="${#lists.size(orden.items)} + ' item' + (${#lists.size(orden.items)} == 1 ? '' : 's')">
+								3 items
+							</span>
+						</div>
+
+						<div class="items-container-compact"
+							th:classappend="${#lists.size(orden.items) == 1} ? 'single-item' : (${#lists.size(orden.items) <= 2} ? 'few-items' : '')">
+
+							<div class="items-list-compact" th:data-items-count="${#lists.size(orden.items)}">
+								<div class="item-preview-compact" th:each="item : ${orden.items}">
+									<img class="item-cover-compact"
+										th:src="${item.contenidoImagen != null ? item.contenidoImagen : '/images/default-book.jpg'}"
+										th:alt="${item.contenidoTitulo ?: 'Contenido'}" onerror="this.src='/images/default-book.jpg'">
+
+									<div class="item-info-compact">
+										<div class="item-title-compact" th:text="${item.contenidoTitulo ?: 'Contenido no disponible'}">
+											Título del contenido
+										</div>
+										<div class="item-details-compact">
+											<span class="item-quantity-badge" th:text="'Cant: ' + ${item.cantidad}">Cant: 1</span>
+											<span class="item-price-compact"
+												th:text="${'$' + #numbers.formatDecimal(item.precioAlComprar/100.0, 1, 2)}">$19.99</span>
+											<span th:if="${item.descuentoAplicado != null and item.descuentoAplicado > 0}"
+												class="text-success" style="font-size: 0.65rem; font-weight: 600;">
+												<i class="fas fa-tag"></i> Descuento
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Indicador de scroll (solo se muestra si hay scroll) -->
+							<div class="scroll-indicator">
+								<i class="fas fa-chevron-down"></i>
+							</div>
+						</div>
+					</div>
+
+					<!-- Resumen compacto -->
+					<div class="orden-summary-compact">
+						<div class="summary-row-compact" th:if="${orden.subtotal != null and orden.subtotal > 0}">
+							<span class="summary-label-compact">Subtotal:</span>
+							<span class="summary-value-compact"
+								th:text="${'$' + #numbers.formatDecimal((orden.subtotal ?: 0)/100.0, 1, 2)}">$59.97</span>
+						</div>
+
+						<div class="summary-row-compact" th:if="${orden.totalDescuentos != null and orden.totalDescuentos > 0}">
+							<span class="summary-label-compact">Descuentos:</span>
+							<span class="summary-value-compact text-success"
+								th:text="${'-$' + #numbers.formatDecimal(orden.totalDescuentos/100.0, 1, 2)}">-$5.00</span>
+						</div>
+
+						<div class="summary-row-compact total">
+							<span class="summary-label-compact">Total:</span>
+							<span class="summary-value-compact"
+								th:text="${'$' + #numbers.formatDecimal((orden.totalOrden ?: 0)/100.0, 1, 2)}">$54.97</span>
+						</div>
+					</div>
+
+					<!-- Acciones compactas -->
+					<div class="orden-actions-compact">
+						<a th:href="@{/mi-cuenta/orden/{id}(id=${orden.id})}" class="btn-orden-action-compact primary">
+							<i class="fas fa-eye"></i>
+							Detalles
+						</a>
+
+						<a th:href="@{/mi-cuenta/orden/{id}/factura(id=${orden.id})}" class="btn-orden-action-compact secondary"
+							th:if="${orden.factura != null and orden.factura.id != null}">
+							<i class="fas fa-file-invoice"></i>
+							Factura
+						</a>
+
+						<button type="button" class="btn-orden-action-compact secondary btn-generar-factura"
+							th:if="${orden.estadoOrden == 'Completada' and (orden.factura == null or orden.factura.id == null)}"
+							th:data-orden-id="${orden.id}">
+							<i class="fas fa-file-plus"></i>
+							Generar
+						</button>
+
+						<button type="button" class="btn-orden-action-compact danger btn-cancelar-orden"
+							th:if="${orden.estadoOrden == 'Pendiente'}" th:data-orden-id="${orden.id}"
+							th:data-perfil-nombre="${orden.perfilNombre}">
+							<i class="fas fa-times"></i>
+							Cancelar
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Estado vacío -->
+		<div class="ordenes-grid" th:if="${ordenes == null or ordenes.isEmpty()}">
+			<div class="empty-state-ordenes">
+				<i class="fas fa-shopping-cart empty-icon-ordenes"></i>
+				<h3 class="empty-title-ordenes"
+					th:text="${filtrosActivos} ? 'No se encontraron órdenes' : 'No tienes órdenes aún'">
+					No tienes órdenes aún
+				</h3>
+				<p class="empty-description-ordenes"
+					th:text="${filtrosActivos} ? 'No hay órdenes que coincidan con los filtros seleccionados. Intenta modificar los criterios de búsqueda.' : 'Cuando realices tu primera compra, aparecerá aquí. Explora nuestro catálogo y encuentra contenido increíble para agregar a tu biblioteca.'">
+					Cuando realices tu primera compra, aparecerá aquí...
+				</p>
+				<a th:href="@{/contenidos}" class="btn-empty-action" th:unless="${filtrosActivos}">
+					<i class="fas fa-search"></i>
+					Explorar Contenido
+				</a>
+				<a th:href="@{/mi-cuenta/orden}" class="btn-empty-action" th:if="${filtrosActivos}">
+					<i class="fas fa-times"></i>
+					Limpiar Filtros
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<th:block th:fragment="pageSpecificScripts">
+		<script>
+			function cancelarOrden(ordenId, perfilNombre) {
+				if (confirm(`¿Estás seguro de que deseas cancelar esta orden?\n\nEsta acción no se puede deshacer.`)) {
+					const motivo = prompt('Opcional: Indica el motivo de la cancelación:');
+
+					const form = document.createElement('form');
+					form.method = 'POST';
+					form.action = `/mi-cuenta/orden/${ordenId}/cancelar`;
+
+					if (motivo && motivo.trim()) {
+						const motivoInput = document.createElement('input');
+						motivoInput.type = 'hidden';
+						motivoInput.name = 'motivo';
+						motivoInput.value = motivo.trim();
+						form.appendChild(motivoInput);
+					}
+
+					// Token CSRF si es necesario
+					const csrfToken = document.querySelector('meta[name="_csrf"]');
+					if (csrfToken) {
+						const csrfInput = document.createElement('input');
+						csrfInput.type = 'hidden';
+						csrfInput.name = '_csrf';
+						csrfInput.value = csrfToken.content;
+						form.appendChild(csrfInput);
+					}
+
+					document.body.appendChild(form);
+					form.submit();
+				}
+			}
+
+			function generarFactura(ordenId) {
+				if (confirm('¿Deseas generar la factura para esta orden?')) {
+					window.location.href = `/mi-cuenta/orden/${ordenId}/factura`;
+				}
+			}
+
+			// Event listeners
+			document.addEventListener('DOMContentLoaded', function () {
+				// Botones de generar factura
+				document.querySelectorAll('.btn-generar-factura').forEach(button => {
+					button.addEventListener('click', function () {
+						const ordenId = this.dataset.ordenId;
+						generarFactura(ordenId);
+					});
+				});
+
+				// Botones de cancelar orden
+				document.querySelectorAll('.btn-cancelar-orden').forEach(button => {
+					button.addEventListener('click', function () {
+						const ordenId = this.dataset.ordenId;
+						const perfilNombre = this.dataset.perfilNombre;
+						cancelarOrden(ordenId, perfilNombre);
+					});
+				});
+
+				// Animar las tarjetas cuando se cargan
+				const ordenCards = document.querySelectorAll('.orden-card');
+				const observer = new IntersectionObserver((entries) => {
+					entries.forEach(entry => {
+						if (entry.isIntersecting) {
+							entry.target.style.animationPlayState = 'running';
+						}
+					});
+				}, {
+					threshold: 0.1
+				});
+
+				ordenCards.forEach(card => {
+					observer.observe(card);
+				});
+
+				console.log('Lista de órdenes cargada correctamente');
+
+				// Manejar indicadores de scroll para las listas de items
+				function setupScrollIndicators() {
+					const itemsLists = document.querySelectorAll('.items-list-compact');
+
+					itemsLists.forEach(list => {
+						const container = list.closest('.items-container-compact');
+						const indicator = container.querySelector('.scroll-indicator');
+						const itemsCount = parseInt(list.dataset.itemsCount) || 0;
+
+						// Solo mostrar indicador si hay más de 3 items
+						if (itemsCount > 3) {
+							function updateScrollIndicator() {
+								const { scrollTop, scrollHeight, clientHeight } = list;
+								const isScrollable = scrollHeight > clientHeight;
+								const isAtBottom = scrollTop + clientHeight >= scrollHeight - 5;
+
+								if (isScrollable && !isAtBottom) {
+									indicator.classList.add('show');
+								} else {
+									indicator.classList.remove('show');
+								}
+							}
+
+							// Verificar inicialmente
+							updateScrollIndicator();
+
+							// Actualizar en scroll
+							list.addEventListener('scroll', updateScrollIndicator);
+
+							// Actualizar en resize
+							window.addEventListener('resize', updateScrollIndicator);
+
+							// Auto-scroll suave al hacer hover en el indicador
+							indicator.addEventListener('click', () => {
+								list.scrollTo({
+									top: list.scrollHeight,
+									behavior: 'smooth'
+								});
+							});
+						}
+					});
+				}
+
+				// Inicializar indicadores de scroll
+				setupScrollIndicators();
+
+				document.querySelectorAll('.item-preview-compact').forEach(item => {
+					item.addEventListener('mouseenter', function () {
+						this.style.transform = 'translateX(3px)';
+					});
+
+					item.addEventListener('mouseleave', function () {
+						this.style.transform = 'translateX(0)';
+					});
+				});
+
+				// Mostrar tooltip con información completa del item al hacer hover
+				document.querySelectorAll('.item-title-compact').forEach(title => {
+					const fullTitle = title.textContent.trim();
+					if (title.scrollWidth > title.clientWidth) {
+						title.setAttribute('title', fullTitle);
+					}
+				});
+
+				console.log('Lista de órdenes con scroll vertical cargada correctamente');
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

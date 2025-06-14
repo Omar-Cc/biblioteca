@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Orden Confirmada - Biblioteca Virtual',
+          pageAdditionalCss=~{::confirmacionCss},
+          pageContent=~{::confirmacionContent},
+          pageAdditionalScripts=~{::confirmacionScripts}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico -->
+  <th:block th:fragment="confirmacionCss">
+    <style>
+      .confirmacion-container {
+        background: linear-gradient(135deg, rgba(25, 135, 84, 0.1) 0%, rgba(25, 135, 84, 0.05) 100%);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(25, 135, 84, 0.2);
+      }
+
+      .confirmacion-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .confirmacion-icon {
+        font-size: 4rem;
+        color: var(--bs-success);
+        margin-bottom: 1rem;
+        animation: checkmark 0.6s ease-out;
+      }
+
+      @keyframes checkmark {
+        0% {
+          transform: scale(0);
+          opacity: 0;
+        }
+
+        50% {
+          transform: scale(1.2);
+          opacity: 0.8;
+        }
+
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .orden-numero {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--bs-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .orden-estado {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        background: var(--bs-success);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .detalle-orden {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+      }
+
+      .detalle-header {
+        background: rgba(45, 110, 126, 0.1);
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .item-confirmacion {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(45, 110, 126, 0.05);
+      }
+
+      .item-confirmacion:last-child {
+        border-bottom: none;
+      }
+
+      .item-img {
+        width: 60px;
+        height: 75px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        margin-right: 1rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .item-info {
+        flex: 1;
+      }
+
+      .item-titulo {
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin-bottom: 0.25rem;
+      }
+
+      .item-precio {
+        color: var(--bs-primary);
+        font-weight: 600;
+      }
+
+      .resumen-final {
+        background: rgba(45, 110, 126, 0.05);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .resumen-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+      }
+
+      .resumen-row.total {
+        border-top: 1px solid rgba(45, 110, 126, 0.2);
+        padding-top: 0.75rem;
+        margin-top: 1rem;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: var(--bs-primary);
+      }
+
+      .informacion-adicional {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+      }
+
+      .info-item {
+        display: flex;
+        margin-bottom: 1rem;
+      }
+
+      .info-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .info-icon {
+        color: var(--bs-primary);
+        margin-right: 0.75rem;
+        width: 20px;
+        text-align: center;
+      }
+
+      .acciones-orden {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 2rem;
+      }
+
+      .btn-accion {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+      }
+
+      .btn-accion.primary {
+        background: var(--bs-primary);
+        color: white;
+      }
+
+      .btn-accion.primary:hover {
+        background: #225b6a;
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.3);
+        color: white;
+      }
+
+      .btn-accion.secondary {
+        background: transparent;
+        color: var(--bs-primary);
+        border: 2px solid var(--bs-primary);
+      }
+
+      .btn-accion.secondary:hover {
+        background: var(--bs-primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.3);
+      }
+
+      .btn-accion.success {
+        background: var(--bs-success);
+        color: white;
+      }
+
+      .btn-accion.success:hover {
+        background: #1e7e34;
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(25, 135, 84, 0.3);
+        color: white;
+      }
+
+      .pasos-siguientes {
+        background: linear-gradient(135deg, rgba(13, 202, 240, 0.1) 0%, rgba(13, 202, 240, 0.05) 100%);
+        border: 1px solid rgba(13, 202, 240, 0.2);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .paso-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .paso-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .paso-numero {
+        background: var(--bs-info);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-right: 0.75rem;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+      }
+
+      .paso-content {
+        flex: 1;
+      }
+
+      .paso-titulo {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .paso-descripcion {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 767.98px) {
+        .confirmacion-container {
+          padding: 1.5rem;
+          margin: 0 -0.5rem 1.5rem -0.5rem;
+        }
+
+        .acciones-orden {
+          flex-direction: column;
+        }
+
+        .btn-accion {
+          text-align: center;
+          justify-content: center;
+        }
+
+        .item-confirmacion {
+          flex-direction: column;
+          text-align: center;
+          gap: 0.75rem;
+        }
+
+        .orden-numero {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido principal -->
+  <th:block th:fragment="confirmacionContent">
+    <div class="container py-3">
+      <!-- Header de confirmación -->
+      <div class="confirmacion-container">
+        <div class="confirmacion-header">
+          <i class="fas fa-check-circle confirmacion-icon"></i>
+          <h1 class="orden-numero">Orden #<span th:text="${orden.id}">12345</span></h1>
+          <h2 class="h4 text-success mb-3">¡Tu orden ha sido confirmada!</h2>
+          <span class="orden-estado" th:text="${orden.estadoOrden}">Procesando</span>
+        </div>
+
+        <div class="text-center">
+          <p class="lead text-muted">
+            Gracias por tu compra. Te hemos enviado un email de confirmación con todos los detalles.
+          </p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Detalles de la orden -->
+          <div class="detalle-orden">
+            <div class="detalle-header">
+              <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>
+                Artículos comprados
+              </h5>
+            </div>
+
+            <!-- Items de la orden -->
+            <div th:each="item : ${items}" class="item-confirmacion">
+              <img th:src="${item.contenido?.portada ?: '/img/portada-default.jpg'}"
+                th:alt="${item.contenido?.titulo ?: 'Contenido'}" class="item-img">
+              <div class="item-info">
+                <div class="item-titulo" th:text="${item.contenido?.titulo ?: 'Título no disponible'}">
+                  Título del contenido
+                </div>
+                <div class="text-muted small mb-1">
+                  Cantidad: <span th:text="${item.cantidad}">1</span>
+                </div>
+                <div class="item-precio"
+                  th:text="${'S/ ' + #numbers.formatDecimal((item.precioAlComprar ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT')}">
+                  S/ 0.00
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información adicional -->
+          <div class="informacion-adicional">
+            <h5 class="mb-3">
+              <i class="fas fa-info-circle me-2"></i>
+              Información de la orden
+            </h5>
+
+            <div class="info-item">
+              <i class="fas fa-calendar-alt info-icon"></i>
+              <div>
+                <strong>Fecha de compra:</strong><br>
+                <span th:text="${#temporals.format(orden.fechaCreacion, 'dd/MM/yyyy HH:mm')}">
+                  01/06/2025 14:30
+                </span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="fas fa-user info-icon"></i>
+              <div>
+                <strong>Perfil:</strong><br>
+                <span th:text="${orden.perfilNombre}">Perfil Principal</span>
+              </div>
+            </div>
+
+            <div class="info-item" th:if="${pago}">
+              <i class="fas fa-credit-card info-icon"></i>
+              <div>
+                <strong>Método de pago:</strong><br>
+                <span th:text="${pago.metodoPagoNombre ?: 'Método de pago'}">Tarjeta de crédito</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="fas fa-clock info-icon"></i>
+              <div>
+                <strong>Tiempo estimado de entrega:</strong><br>
+                Los contenidos digitales están disponibles inmediatamente en tu biblioteca.
+              </div>
+            </div>
+          </div>
+
+          <!-- Próximos pasos -->
+          <div class="pasos-siguientes">
+            <h5 class="mb-3">
+              <i class="fas fa-route me-2"></i>
+              Próximos pasos
+            </h5>
+
+            <div class="paso-item">
+              <div class="paso-numero">1</div>
+              <div class="paso-content">
+                <div class="paso-titulo">Confirmación por email</div>
+                <div class="paso-descripcion">
+                  Recibirás un email con todos los detalles de tu compra y enlaces de descarga.
+                </div>
+              </div>
+            </div>
+
+            <div class="paso-item">
+              <div class="paso-numero">2</div>
+              <div class="paso-content">
+                <div class="paso-titulo">Acceso inmediato</div>
+                <div class="paso-descripcion">
+                  Los contenidos digitales ya están disponibles en tu biblioteca personal.
+                </div>
+              </div>
+            </div>
+
+            <div class="paso-item">
+              <div class="paso-numero">3</div>
+              <div class="paso-content">
+                <div class="paso-titulo">Soporte disponible</div>
+                <div class="paso-descripcion">
+                  Si tienes alguna pregunta, nuestro equipo de soporte está aquí para ayudarte.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen final -->
+        <div class="col-lg-4">
+          <div class="resumen-final">
+            <h5 class="mb-3">
+              <i class="fas fa-calculator me-2"></i>
+              Resumen del pago
+            </h5>
+
+            <div class="resumen-row">
+              <span>Subtotal:</span>
+              <span th:text="${'S/ ' + #numbers.formatDecimal((orden.subtotal ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT')}">
+                S/ 0.00
+              </span>
+            </div>
+
+            <div class="resumen-row" th:if="${orden.totalDescuentos != null and orden.totalDescuentos > 0}">
+              <span class="text-success">Descuentos:</span>
+              <span class="text-success">
+                - <span
+                  th:text="${'S/ ' + #numbers.formatDecimal(orden.totalDescuentos / 100.0, 1, 'COMMA', 2, 'POINT')}">
+                  S/ 0.00
+                </span>
+              </span>
+            </div>
+
+            <div class="resumen-row">
+              <span>Envío:</span>
+              <span class="text-success">GRATIS</span>
+            </div>
+
+            <div class="resumen-row total">
+              <span>Total pagado:</span>
+              <span
+                th:text="${'S/ ' + #numbers.formatDecimal((orden.totalOrden ?: 0) / 100.0, 1, 'COMMA', 2, 'POINT')}">
+                S/ 0.00
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="acciones-orden">
+        <a th:href="@{/mi-cuenta/orden/{id}(id=${orden.id})}" class="btn-accion primary">
+          <i class="fas fa-eye"></i>
+          Ver detalles completos
+        </a>
+
+        <a th:href="@{/mi-cuenta/biblioteca}" class="btn-accion success">
+          <i class="fas fa-book"></i>
+          Ir a mi biblioteca
+        </a>
+
+        <a th:href="@{/contenidos}" class="btn-accion secondary">
+          <i class="fas fa-shopping-cart"></i>
+          Seguir comprando
+        </a>
+
+        <button type="button" class="btn-accion secondary" onclick="window.print()">
+          <i class="fas fa-print"></i>
+          Imprimir confirmación
+        </button>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="confirmacionScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Auto-scroll suave al contenido principal
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Limpiar el carrito del localStorage si se usa
+        if (localStorage.getItem('carrito')) {
+          localStorage.removeItem('carrito');
+        }
+
+        // Mostrar notificación de éxito después de un momento
+        setTimeout(() => {
+          // Puedes agregar aquí lógica adicional como analytics, etc.
+          console.log('Orden confirmada exitosamente');
+        }, 1000);
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

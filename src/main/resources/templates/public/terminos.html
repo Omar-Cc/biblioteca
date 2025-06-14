@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Términos y Condiciones - Biblioteca Virtual',
+          pageAdditionalCss=~{::terminosCss},
+          pageContent=~{::terminosContent},
+          pageAdditionalScripts=~{::terminosScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="terminosCss">
+    <style>
+      .legal-hero {
+        background: linear-gradient(135deg, rgba(45, 110, 126, 0.9), rgba(91, 125, 135, 0.8)),
+          url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 6rem 0 4rem 0;
+      }
+
+      .legal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+      }
+
+      .legal-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .legal-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .section-number {
+        background: var(--bs-primary);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+      }
+
+      .toc {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 3rem;
+        position: sticky;
+        top: 100px;
+      }
+
+      .toc a {
+        text-decoration: none;
+        color: var(--bs-primary);
+        display: block;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+      }
+
+      .toc a:hover {
+        color: var(--bs-primary-darker);
+        padding-left: 10px;
+      }
+
+      .toc a:last-child {
+        border-bottom: none;
+      }
+
+      .highlight-box {
+        background: rgba(45, 110, 126, 0.1);
+        border-left: 4px solid var(--bs-primary);
+        padding: 1.5rem;
+        border-radius: 0 15px 15px 0;
+        margin: 1.5rem 0;
+      }
+
+      .update-badge {
+        background: var(--bs-warning);
+        color: var(--bs-dark);
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      @media (max-width: 991px) {
+        .toc {
+          position: static;
+          margin-bottom: 2rem;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <th:block th:fragment="terminosContent">
+    <!-- Hero Section -->
+    <section class="legal-hero">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <h1 class="display-4 fw-bold mb-4">Términos y Condiciones</h1>
+            <p class="lead mb-4">
+              Condiciones de uso de la plataforma BiblioVirtual
+            </p>
+            <div class="d-flex justify-content-center align-items-center gap-3">
+              <span class="update-badge">Última actualización: 15 de Noviembre, 2023</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container py-5">
+      <div class="row">
+        <!-- Tabla de Contenidos -->
+        <div class="col-lg-4">
+          <div class="toc">
+            <h5 class="fw-bold mb-3">Tabla de Contenidos</h5>
+            <a href="#aceptacion">1. Aceptación de Términos</a>
+            <a href="#definiciones">2. Definiciones</a>
+            <a href="#cuenta">3. Cuenta de Usuario</a>
+            <a href="#suscripcion">4. Suscripciones y Pagos</a>
+            <a href="#contenido">5. Uso del Contenido</a>
+            <a href="#propiedad">6. Propiedad Intelectual</a>
+            <a href="#prohibido">7. Uso Prohibido</a>
+            <a href="#privacidad">8. Privacidad y Datos</a>
+            <a href="#modificaciones">9. Modificaciones</a>
+            <a href="#cancelacion">10. Cancelación</a>
+            <a href="#limitaciones">11. Limitaciones</a>
+            <a href="#contacto">12. Contacto</a>
+          </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="col-lg-8">
+          <div class="legal-content">
+            <!-- Introducción -->
+            <div class="mb-4">
+              <p class="lead">
+                Bienvenido a BiblioVirtual. Estos términos y condiciones rigen el uso de nuestra
+                plataforma de biblioteca digital. Al acceder y utilizar nuestros servicios,
+                usted acepta cumplir con estos términos.
+              </p>
+            </div>
+
+            <!-- 1. Aceptación de Términos -->
+            <div class="legal-section" id="aceptacion">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">1</span>
+                Aceptación de Términos
+              </h3>
+              <p>
+                Al crear una cuenta, acceder o utilizar cualquier servicio de BiblioVirtual,
+                usted confirma que ha leído, entendido y acepta estar vinculado por estos
+                Términos y Condiciones, así como por nuestra Política de Privacidad.
+              </p>
+              <div class="highlight-box">
+                <strong>Importante:</strong> Si no está de acuerdo con alguno de estos términos,
+                no debe utilizar nuestros servicios.
+              </div>
+            </div>
+
+            <!-- 2. Definiciones -->
+            <div class="legal-section" id="definiciones">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">2</span>
+                Definiciones
+              </h3>
+              <ul>
+                <li><strong>"Plataforma":</strong> Se refiere al sitio web y aplicaciones móviles de BiblioVirtual.</li>
+                <li><strong>"Usuario":</strong> Cualquier persona que acceda o utilice nuestros servicios.</li>
+                <li><strong>"Contenido":</strong> Libros digitales, audiolibros, artículos y material educativo
+                  disponible.</li>
+                <li><strong>"Suscripción":</strong> Plan de pago que otorga acceso a contenido premium.</li>
+                <li><strong>"Cuenta":</strong> Perfil de usuario registrado en la plataforma.</li>
+              </ul>
+            </div>
+
+            <!-- 3. Cuenta de Usuario -->
+            <div class="legal-section" id="cuenta">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">3</span>
+                Cuenta de Usuario
+              </h3>
+              <h5>3.1 Registro</h5>
+              <p>
+                Para acceder a ciertos servicios, debe crear una cuenta proporcionando información
+                precisa y actualizada. Es responsable de mantener la confidencialidad de sus credenciales.
+              </p>
+
+              <h5>3.2 Responsabilidades</h5>
+              <ul>
+                <li>Proporcionar información veraz y actualizada</li>
+                <li>Mantener seguras sus credenciales de acceso</li>
+                <li>Notificar inmediatamente cualquier uso no autorizado</li>
+                <li>Ser responsable de toda actividad en su cuenta</li>
+              </ul>
+
+              <h5>3.3 Perfiles Familiares</h5>
+              <p>
+                Los planes familiares permiten crear múltiples perfiles. El titular de la cuenta
+                es responsable de todo el contenido accedido a través de estos perfiles.
+              </p>
+            </div>
+
+            <!-- 4. Suscripciones y Pagos -->
+            <div class="legal-section" id="suscripcion">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">4</span>
+                Suscripciones y Pagos
+              </h3>
+              <h5>4.1 Planes de Suscripción</h5>
+              <p>
+                Ofrecemos diferentes planes de suscripción con diversos niveles de acceso.
+                Los precios y características están disponibles en nuestra página de planes.
+              </p>
+
+              <h5>4.2 Facturación</h5>
+              <ul>
+                <li>Las suscripciones se renuevan automáticamente</li>
+                <li>Los pagos se procesan según el ciclo seleccionado (mensual/anual)</li>
+                <li>Los precios pueden cambiar con notificación previa de 30 días</li>
+                <li>No ofrecemos reembolsos por períodos parcialmente utilizados</li>
+              </ul>
+
+              <div class="highlight-box">
+                <strong>Renovación Automática:</strong> Su suscripción se renovará automáticamente
+                hasta que cancele. Puede cancelar en cualquier momento desde su perfil de usuario.
+              </div>
+            </div>
+
+            <!-- 5. Uso del Contenido -->
+            <div class="legal-section" id="contenido">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">5</span>
+                Uso del Contenido
+              </h3>
+              <h5>5.1 Licencia de Uso</h5>
+              <p>
+                Le otorgamos una licencia limitada, no exclusiva y revocable para acceder y
+                utilizar el contenido únicamente para uso personal y no comercial.
+              </p>
+
+              <h5>5.2 Restricciones</h5>
+              <ul>
+                <li>No puede copiar, distribuir o compartir el contenido</li>
+                <li>Prohibido el uso comercial del material</li>
+                <li>No se permite la ingeniería inversa o extracción de contenido</li>
+                <li>El acceso simultáneo está limitado según su plan</li>
+              </ul>
+            </div>
+
+            <!-- 6. Propiedad Intelectual -->
+            <div class="legal-section" id="propiedad">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">6</span>
+                Propiedad Intelectual
+              </h3>
+              <p>
+                Todo el contenido disponible en BiblioVirtual está protegido por derechos de autor
+                y otras leyes de propiedad intelectual. Los derechos pertenecen a BiblioVirtual
+                o a los propietarios originales del contenido.
+              </p>
+            </div>
+
+            <!-- 7. Uso Prohibido -->
+            <div class="legal-section" id="prohibido">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">7</span>
+                Uso Prohibido
+              </h3>
+              <p>Está prohibido:</p>
+              <ul>
+                <li>Compartir credenciales de acceso con terceros</li>
+                <li>Utilizar software automatizado para acceder al contenido</li>
+                <li>Intentar eludir medidas de seguridad</li>
+                <li>Realizar actividades que interfieran con el servicio</li>
+                <li>Violar derechos de propiedad intelectual</li>
+              </ul>
+            </div>
+
+            <!-- 8. Privacidad y Datos -->
+            <div class="legal-section" id="privacidad">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">8</span>
+                Privacidad y Protección de Datos
+              </h3>
+              <p>
+                El manejo de sus datos personales se rige por nuestra
+                <a th:href="@{/privacidad}">Política de Privacidad</a>.
+                Al utilizar nuestros servicios, acepta nuestras prácticas de recopilación
+                y uso de datos.
+              </p>
+            </div>
+
+            <!-- 9. Modificaciones -->
+            <div class="legal-section" id="modificaciones">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">9</span>
+                Modificaciones del Servicio
+              </h3>
+              <p>
+                Nos reservamos el derecho de modificar, suspender o discontinuar cualquier
+                aspecto del servicio en cualquier momento. Las modificaciones significativas
+                se notificarán con al menos 30 días de anticipación.
+              </p>
+            </div>
+
+            <!-- 10. Cancelación -->
+            <div class="legal-section" id="cancelacion">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">10</span>
+                Cancelación y Terminación
+              </h3>
+              <h5>10.1 Cancelación por el Usuario</h5>
+              <p>
+                Puede cancelar su suscripción en cualquier momento. El acceso continuará
+                hasta el final del período pagado.
+              </p>
+
+              <h5>10.2 Terminación por BiblioVirtual</h5>
+              <p>
+                Podemos suspender o terminar su cuenta por violación de estos términos,
+                actividad fraudulenta o uso indebido del servicio.
+              </p>
+            </div>
+
+            <!-- 11. Limitaciones de Responsabilidad -->
+            <div class="legal-section" id="limitaciones">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">11</span>
+                Limitaciones de Responsabilidad
+              </h3>
+              <p>
+                BiblioVirtual se proporciona "tal como está". No garantizamos la disponibilidad
+                ininterrumpida del servicio ni la exactitud del contenido. Nuestra responsabilidad
+                se limita al monto pagado por el servicio en los últimos 12 meses.
+              </p>
+            </div>
+
+            <!-- 12. Contacto -->
+            <div class="legal-section" id="contacto">
+              <h3 class="d-flex align-items-center mb-3">
+                <span class="section-number">12</span>
+                Información de Contacto
+              </h3>
+              <p>
+                Para preguntas sobre estos términos y condiciones, puede contactarnos:
+              </p>
+              <ul>
+                <li><strong>Email:</strong> legal@bibliovirtual.com</li>
+                <li><strong>Dirección:</strong> Av. Tecnológica 123, Lima, Perú 15001</li>
+                <li><strong>Teléfono:</strong> +51 1 456 7890</li>
+              </ul>
+            </div>
+
+            <!-- Aceptación Final -->
+            <div class="highlight-box mt-4">
+              <h5 class="fw-bold">Aceptación y Vigencia</h5>
+              <p class="mb-0">
+                Estos términos entran en vigencia desde el momento en que crea su cuenta
+                o utiliza nuestros servicios. Se recomienda revisar periódicamente este
+                documento para estar informado sobre cualquier actualización.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <th:block th:fragment="terminosScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Smooth scroll para enlaces del índice
+        document.querySelectorAll('.toc a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          });
+        });
+
+        // Highlight activo en el índice
+        const sections = document.querySelectorAll('.legal-section');
+        const tocLinks = document.querySelectorAll('.toc a');
+
+        function highlightActiveSection() {
+          let current = '';
+          sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (pageYOffset >= sectionTop - 200) {
+              current = section.getAttribute('id');
+            }
+          });
+
+          tocLinks.forEach(link => {
+            link.style.fontWeight = 'normal';
+            link.style.color = 'var(--bs-primary)';
+            if (link.getAttribute('href') === '#' + current) {
+              link.style.fontWeight = 'bold';
+              link.style.color = 'var(--bs-primary-darker)';
+            }
+          });
+        }
+
+        window.addEventListener('scroll', highlightActiveSection);
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

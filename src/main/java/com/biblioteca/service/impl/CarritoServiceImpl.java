@@ -1,331 +1,542 @@
 package com.biblioteca.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.biblioteca.dto.ContenidoResponseDTO;
 import com.biblioteca.dto.comercial.CarritoResponseDTO;
 import com.biblioteca.dto.comercial.ItemCarritoRequestDTO;
 import com.biblioteca.dto.comercial.ItemCarritoResponseDTO;
-import com.biblioteca.enums.TipoContenido;
+import com.biblioteca.exceptions.ContenidoNoDisponibleException;
+import com.biblioteca.exceptions.RecursoNoEncontradoException;
 import com.biblioteca.mapper.comercial.CarritoMapper;
 import com.biblioteca.mapper.comercial.ItemCarritoMapper;
-import com.biblioteca.models.Obra;
-import com.biblioteca.models.Perfil;
+import com.biblioteca.models.acceso.Perfil;
 import com.biblioteca.models.comercial.Carrito;
+import com.biblioteca.models.comercial.EstadoCarrito;
 import com.biblioteca.models.comercial.ItemCarrito;
-import com.biblioteca.models.contenido.Comic;
 import com.biblioteca.models.contenido.Contenido;
-import com.biblioteca.models.contenido.LibroFisico;
-import com.biblioteca.models.contenido.Manga;
-import com.biblioteca.models.contenido.RevistaPeriodica;
+import com.biblioteca.models.contenido.ContenidoFisico;
+import com.biblioteca.repositories.comercial.CarritoRepository;
+import com.biblioteca.repositories.comercial.ItemCarritoRepository;
+import com.biblioteca.repositories.contenido.ContenidoRepository;
 import com.biblioteca.service.CarritoService;
-import com.biblioteca.service.ContenidoService;
 import com.biblioteca.service.PerfilService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CarritoServiceImpl implements CarritoService {
 
-  private final Map<Long, Carrito> carritosPorPerfil = new ConcurrentHashMap<>();
-  private final AtomicLong carritoIdCounter = new AtomicLong(0);
-  private final AtomicLong itemCarritoIdCounter = new AtomicLong(0);
-
+  private final CarritoRepository carritoRepository;
+  private final ItemCarritoRepository itemCarritoRepository;
+  private final PerfilService perfilService;
+  private final ContenidoRepository contenidoRepository;
   private final CarritoMapper carritoMapper;
   private final ItemCarritoMapper itemCarritoMapper;
-  private final PerfilService perfilService;
-  private final ContenidoService contenidoService;
+  
+  // ✅ CONSTANTES CONFIGURABLES
+  @Value("${carrito.max-items-per-carrito:50}")
+  private int maxItemsPorCarrito;
+  
+  @Value("${carrito.max-cantidad-por-item:10}")
+  private int maxCantidadPorItem;
+  
+  @Value("${carrito.dias-expiracion:30}")
+  private int diasExpiracion;
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<CarritoResponseDTO> obtenerCarritoPorPerfil(Long perfilId) {
-    return Optional.ofNullable(carritosPorPerfil.get(perfilId))
-        .map(carrito -> {
-          CarritoResponseDTO dto = carritoMapper.toResponseDTO(carrito);
-          actualizarCalculosCarrito(carrito, dto);
-
-          return dto;
-        });
+    return carritoRepository.findByPerfil_Id(perfilId)
+        .map(carritoMapper::toResponseDTO);
   }
 
   @Override
+  @Transactional
+  @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 100))
   public CarritoResponseDTO agregarItemAlCarritoPorPerfil(Long perfilId, ItemCarritoRequestDTO itemDTO) {
-    Carrito carrito = obtenerOCrearCarritoPorPerfil(perfilId);
-
-    ContenidoResponseDTO contenidoDto = contenidoService.obtenerContenidoPorId(itemDTO.getContenidoId())
-        .orElseThrow(() -> new IllegalArgumentException("Contenido no encontrado con ID: " + itemDTO.getContenidoId()));
-
-    System.out.println("\n\n[CarritoService] Contenido DTO recuperado: ID=" + contenidoDto.getId() +
-        ", enVenta=" + contenidoDto.isEnVenta() +
-        ", activo=" + contenidoDto.isActivo() +
-        ", precio=" + contenidoDto.getPrecio() +
-        ", tipo=" + contenidoDto.getTipo());
-
-    if (!contenidoDto.isActivo() || !contenidoDto.isEnVenta()) {
-      String mensajeError = "El contenido (ID: " + contenidoDto.getId() + ") no está disponible para compra.";
-      if (!contenidoDto.isActivo()) {
-        mensajeError += " No está activo.";
-      }
-      if (!contenidoDto.isEnVenta()) {
-        mensajeError += " No está marcado para venta.";
-      }
-      throw new IllegalArgumentException(mensajeError.trim());
-    }
-
-    Contenido contenidoParaAsociarAlItem;
-    TipoContenido tipoDelContenido = contenidoDto.getTipo();
-
-    // Instanciar la subclase concreta basada en el tipo
-    switch (tipoDelContenido) {
-      case LIBRO_FISICO:
-        contenidoParaAsociarAlItem = new LibroFisico();
-        break;
-      case COMIC_FISICO:
-        contenidoParaAsociarAlItem = new Comic();
-        break;
-      case REVISTA_FISICA:
-        contenidoParaAsociarAlItem = new RevistaPeriodica();
-        break;
-      case MANGA_FISICO:
-        contenidoParaAsociarAlItem = new Manga();
-        break;
-      default:
-        throw new IllegalArgumentException("Tipo de contenido no manejado para instanciación: " + tipoDelContenido);
-    }
-
-    contenidoParaAsociarAlItem.setId(contenidoDto.getId());
-    contenidoParaAsociarAlItem.setPrecio(contenidoDto.getPrecio());
-    contenidoParaAsociarAlItem.setTipo(tipoDelContenido);
-
-    if (contenidoDto.getPortadaUrl() != null) {
-      contenidoParaAsociarAlItem.setPortadaUrl(contenidoDto.getPortadaUrl());
-    }
-
-    if (contenidoDto.getObra() != null && contenidoDto.getObra().getTitulo() != null) {
-      Obra obraEntidad = new Obra();
-      
-      obraEntidad.setTitulo(contenidoDto.getObra().getTitulo());
-      contenidoParaAsociarAlItem.setObra(obraEntidad);
-    }
+    log.info("Agregando item al carrito - Perfil: {}, Contenido: {}, Cantidad: {}", 
+        perfilId, itemDTO.getContenidoId(), itemDTO.getCantidad());
     
-    else if (contenidoDto.getObra().getTitulo() != null) {
-      Obra obraEntidad = new Obra();
-      obraEntidad.setTitulo(contenidoDto.getObra().getTitulo());
-      contenidoParaAsociarAlItem.setObra(obraEntidad);
-    }
+    Carrito carrito = obtenerOCrearCarritoPorPerfilId(perfilId);
+    Contenido contenido = validarYObtenerContenido(itemDTO.getContenidoId());
+    
+    // Validar cantidad solicitada
+    validarCantidadSolicitada(contenido, itemDTO.getCantidad());
+    
+    // Buscar item existente de manera más eficiente
+    Optional<ItemCarrito> itemExistenteOpt = itemCarritoRepository
+        .findByCarritoIdAndContenidoId(carrito.getId(), contenido.getId());
 
-    Optional<ItemCarrito> itemExistente = carrito.getItems().stream()
-        .filter(item -> item.getContenido() != null && item.getContenido().getId().equals(contenidoDto.getId()))
-        .findFirst();
-
-    if (itemExistente.isPresent()) {
-      ItemCarrito item = itemExistente.get();
-      item.setCantidad(item.getCantidad() + itemDTO.getCantidad());
-      
+    if (itemExistenteOpt.isPresent()) {
+      actualizarItemExistente(itemExistenteOpt.get(), itemDTO.getCantidad(), contenido);
     } else {
-      ItemCarrito nuevoItem = itemCarritoMapper.toEntity(itemDTO);
-      nuevoItem.setId(itemCarritoIdCounter.incrementAndGet());
-      nuevoItem.setContenido(contenidoParaAsociarAlItem); // Asocia la instancia de la subclase concreta
-      nuevoItem.setPrecio(contenidoDto.getPrecio()); // Precio del contenido en el momento de agregarlo
-      nuevoItem.setDescuento(0);
-
-      carrito.addItem(nuevoItem);
+      crearNuevoItem(carrito, contenido, itemDTO);
     }
 
-    CarritoResponseDTO dto = carritoMapper.toResponseDTO(carrito);
-    actualizarCalculosCarrito(carrito, dto);
-    return dto;
+    Carrito carritoGuardado = carritoRepository.save(carrito);
+    log.info("Item agregado exitosamente al carrito {}", carrito.getId());
+    return carritoMapper.toResponseDTO(carritoGuardado);
   }
 
   @Override
-  public Optional<ItemCarritoResponseDTO> actualizarCantidadItemPorPerfil(Long perfilId, Long itemId, int cantidad) {
+  @Transactional
+  public Optional<ItemCarritoResponseDTO> actualizarCantidadItemPorPerfil(Long perfilId, Long itemCarritoId, int cantidad) {
     if (cantidad <= 0) {
-      throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
+      throw new IllegalArgumentException("La cantidad debe ser mayor que cero.");
     }
-
-    return obtenerEntidadCarritoPorPerfil(perfilId)
+    return carritoRepository.findByPerfil_Id(perfilId)
         .flatMap(carrito -> carrito.getItems().stream()
-            .filter(item -> item.getId().equals(itemId))
+            .filter(item -> item.getId().equals(itemCarritoId))
             .findFirst()
             .map(item -> {
               item.setCantidad(cantidad);
-              ItemCarritoResponseDTO dto = itemCarritoMapper.toResponseDTO(item);
-
-              // Asegurarse de actualizar los cálculos del item
-              Integer precio = item.getPrecio() != null ? item.getPrecio() : 0;
-              Integer descuento = item.getDescuento() != null ? item.getDescuento() : 0;
-
-              dto.setSubtotal(precio * cantidad);
-              dto.setTotal((precio - descuento) * cantidad);
-
-              return dto;
+              item.setFechaUltimaModificacion(LocalDateTime.now());
+              ItemCarrito itemGuardado = itemCarritoRepository.save(item);
+              return itemCarritoMapper.toResponseDTO(itemGuardado);
             }));
   }
 
   @Override
-  public boolean eliminarItemDelCarritoPorPerfil(Long perfilId, Long itemId) {
-    return obtenerEntidadCarritoPorPerfil(perfilId)
-        .map(carrito -> {
-          Optional<ItemCarrito> itemOpt = carrito.getItems().stream()
-              .filter(item -> item.getId() != null && item.getId().equals(itemId))
-              .findFirst();
+  @Transactional
+  public boolean eliminarItemDelCarritoPorPerfil(Long perfilId, Long itemCarritoId) {
+    Optional<Carrito> carritoOpt = carritoRepository.findByPerfil_Id(perfilId);
+    if (carritoOpt.isPresent()) {
+      Carrito carrito = carritoOpt.get();
+      Optional<ItemCarrito> itemOpt = carrito.getItems().stream()
+          .filter(item -> item.getId() != null && item.getId().equals(itemCarritoId))
+          .findFirst();
 
-          if (itemOpt.isPresent()) {
-            carrito.removeItem(itemOpt.get());
-            return true;
-          }
-          return false;
-        })
-        .orElse(false);
+      if (itemOpt.isPresent()) {
+        carrito.removeItem(itemOpt.get());
+        carritoRepository.save(carrito);
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
+  @Transactional
   public boolean vaciarCarritoPorPerfil(Long perfilId) {
-    return obtenerEntidadCarritoPorPerfil(perfilId)
-        .map(carrito -> {
-          if (carrito.getItems() == null || carrito.getItems().isEmpty()) {
-            return false;
-          }
-
-          List<ItemCarrito> itemsToRemove = new ArrayList<>(carrito.getItems());
-          itemsToRemove.forEach(carrito::removeItem);
-          return true;
-        })
-        .orElse(false);
+    Optional<Carrito> carritoOpt = carritoRepository.findByPerfil_Id(perfilId);
+    if (carritoOpt.isPresent()) {
+      Carrito carrito = carritoOpt.get();
+      if (carrito.getItems() == null || carrito.getItems().isEmpty()) {
+        return false;
+      }
+      carrito.getItems().clear();
+      carrito.setFechaUltimaModificacion(LocalDateTime.now());
+      carritoRepository.save(carrito);
+      return true;
+    }
+    return false;
   }
 
   @Override
-  public double calcularTotalCarritoPorPerfil(Long perfilId) {
-    return obtenerEntidadCarritoPorPerfil(perfilId)
-        .map(carrito -> {
-          int total = 0;
-          for (ItemCarrito item : carrito.getItems()) {
-            int precio = item.getPrecio() != null ? item.getPrecio() : 0;
-            int descuento = item.getDescuento() != null ? item.getDescuento() : 0;
-            int cantidad = item.getCantidad() != null ? item.getCantidad() : 1;
-
-            total += ((precio - descuento) * cantidad);
-          }
-          return total / 100.0; // Convertir centavos a unidades
-        })
-        .orElse(0.0);
-  }
-
-  @Override
+  @Transactional(readOnly = true)
   public Optional<Carrito> obtenerEntidadCarritoPorPerfil(Long perfilId) {
-    return Optional.ofNullable(carritosPorPerfil.get(perfilId));
+    return carritoRepository.findByPerfil_Id(perfilId);
   }
 
   @Override
-  public boolean aplicarCuponDescuentoPorPerfil(Long perfilId, String codigoCupon) {
-    if (codigoCupon == null || codigoCupon.isEmpty()) {
+  @Transactional(readOnly = true)
+  public int obtenerCantidadTotalItemsPorPerfil(Long perfilId) {
+    Optional<Carrito> carritoOpt = carritoRepository.findByPerfil_Id(perfilId);
+    if (carritoOpt.isEmpty()) {
+      return 0;
+    }
+    
+    return carritoOpt.get().getItems().stream()
+        .mapToInt(ItemCarrito::getCantidad)
+        .sum();
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Integer calcularSubtotalPorPerfil(Long perfilId) {
+    Optional<Carrito> carritoOpt = carritoRepository.findByPerfil_Id(perfilId);
+    if (carritoOpt.isEmpty()) {
+      return 0;
+    }
+    
+    return carritoOpt.get().getItems().stream()
+        .mapToInt(item -> item.getPrecio() * item.getCantidad())
+        .sum();
+  }
+
+  @Override
+  @Transactional
+  public int limpiarCarritosAbandonados(int diasInactividad) {
+    log.info("Iniciando limpieza de carritos abandonados con {} días de inactividad", diasInactividad);
+    
+    LocalDateTime fechaLimite = LocalDateTime.now().minusDays(diasInactividad);
+    List<Carrito> carritosAbandonados = carritoRepository.findCarritosAbandonados(fechaLimite);
+    
+    int carritoEliminados = 0;
+    for (Carrito carrito : carritosAbandonados) {
+      carrito.setEstado(EstadoCarrito.ABANDONADO);
+      carritoRepository.save(carrito);
+      carritoEliminados++;
+    }
+    
+    log.info("Limpieza completada: {} carritos marcados como abandonados", carritoEliminados);
+    return carritoEliminados;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public boolean validarLimiteCantidadItem(Long contenidoId, int cantidadSolicitada) {
+    log.debug("Validando límite de cantidad para contenido: {}, cantidad: {}", contenidoId, cantidadSolicitada);
+    
+    // Validar que la cantidad sea positiva
+    if (cantidadSolicitada <= 0) {
       return false;
     }
+    
+    // Validar límite máximo por item (configurable)
+    if (cantidadSolicitada > maxCantidadPorItem) {
+      log.warn("Cantidad solicitada {} excede el máximo permitido {}", cantidadSolicitada, maxCantidadPorItem);
+      return false;
+    }
+    
+    // Verificar stock disponible para contenido físico
+    Optional<Contenido> contenidoOpt = contenidoRepository.findById(contenidoId);
+    if (contenidoOpt.isEmpty()) {
+      log.warn("Contenido no encontrado: {}", contenidoId);
+      return false;
+    }
+    
+    Contenido contenido = contenidoOpt.get();
+    if (contenido instanceof ContenidoFisico) {
+      ContenidoFisico contenidoFisico = (ContenidoFisico) contenido;
+      return contenidoFisico.getStockDisponible() >= cantidadSolicitada;
+    }
+    
+    // Para contenido digital, asumimos disponibilidad ilimitada
+    return true;
+  }
 
-    return obtenerEntidadCarritoPorPerfil(perfilId)
-        .map(carrito -> {
-          if ("DESCUENTO10".equals(codigoCupon)) {
-            for (ItemCarrito item : carrito.getItems()) {
-              int precioItem = item.getPrecio() != null ? item.getPrecio() : 0;
-              int descuentoCalculado = (int) (precioItem * 0.10); // 10% de descuento
-              item.setDescuento(descuentoCalculado);
-            }
-            return true;
-          }
-          return false;
-        })
-        .orElse(false);
+  // ✅ MÉTODOS AUXILIARES PRIVADOS
+  
+  private Carrito obtenerOCrearCarritoPorPerfilId(Long perfilId) {
+    return carritoRepository.findByPerfil_Id(perfilId)
+        .orElseGet(() -> crearNuevoCarrito(perfilId));
+  }
+  
+  private Carrito crearNuevoCarrito(Long perfilId) {
+    Perfil perfil = perfilService.obtenerEntidadPerfilPorId(perfilId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Perfil no encontrado: " + perfilId));
+    
+    return Carrito.builder()
+        .perfil(perfil)
+        .estado(EstadoCarrito.ACTIVO)
+        .fechaCreacion(LocalDateTime.now())
+        .fechaUltimaModificacion(LocalDateTime.now())
+        .limiteItems(maxItemsPorCarrito)
+        .fechaExpiracion(LocalDateTime.now().plusDays(diasExpiracion))
+        .build();
+  }
+  
+  private Contenido validarYObtenerContenido(Long contenidoId) {
+    return contenidoRepository.findById(contenidoId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Contenido no encontrado: " + contenidoId));
+  }
+  
+  private void validarCantidadSolicitada(Contenido contenido, int cantidad) {
+    if (cantidad <= 0) {
+      throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
+    }
+    
+    if (cantidad > maxCantidadPorItem) {
+      throw new IllegalArgumentException("La cantidad excede el máximo permitido por item: " + maxCantidadPorItem);
+    }
+    
+    if (contenido instanceof ContenidoFisico) {
+      ContenidoFisico contenidoFisico = (ContenidoFisico) contenido;
+      if (contenidoFisico.getStockDisponible() < cantidad) {
+        throw new ContenidoNoDisponibleException("Stock insuficiente para el contenido: " + contenido.getId());
+      }
+    }
+  }
+  
+  private void actualizarItemExistente(ItemCarrito item, int cantidadAdicional, Contenido contenido) {
+    int nuevaCantidad = item.getCantidad() + cantidadAdicional;
+    validarCantidadSolicitada(contenido, nuevaCantidad);
+    
+    item.setCantidad(nuevaCantidad);
+    item.setFechaUltimaModificacion(LocalDateTime.now());
+  }
+  
+  private void crearNuevoItem(Carrito carrito, Contenido contenido, ItemCarritoRequestDTO itemDTO) {
+    ItemCarrito nuevoItem = ItemCarrito.builder()
+        .carrito(carrito)
+        .contenido(contenido)
+        .cantidad(itemDTO.getCantidad())
+        .precio(calcularPrecioItem(contenido))
+        .descuento(0)
+        .fechaAgregado(LocalDateTime.now())
+        .fechaUltimaModificacion(LocalDateTime.now())
+        .cantidadMaxima(maxCantidadPorItem)
+        .precioOriginal(calcularPrecioItem(contenido))
+        .build();
+    
+    carrito.addItem(nuevoItem);
+  }    private Integer calcularPrecioItem(Contenido contenido) {
+        // Usar el precio real del contenido
+        return contenido.getPrecio() != null ? contenido.getPrecio() : 0;
+    }
+
+  // ============ MÉTODOS FALTANTES DE LA INTERFAZ ============
+
+  @Override
+  @Transactional
+  public boolean aplicarCuponDescuentoPorPerfil(Long perfilId, String codigoCupon) {
+    log.info("Aplicando cupón {} al carrito del perfil {}", codigoCupon, perfilId);
+    
+    Optional<Carrito> carritoOpt = carritoRepository.findByPerfil_Id(perfilId);
+    if (carritoOpt.isEmpty()) {
+      log.warn("No se encontró carrito para el perfil {}", perfilId);
+      return false;
+    }
+    
+    // Lógica de validación y aplicación de cupón
+    // Por ahora implementación básica
+    Carrito carrito = carritoOpt.get();
+    
+    // Ejemplo: cupón DESCUENTO10 aplica 10% de descuento
+    if ("DESCUENTO10".equals(codigoCupon)) {
+      int descuentoTotal = carrito.getItems().stream()
+          .mapToInt(item -> (int) (item.getPrecio() * item.getCantidad() * 0.10))
+          .sum();
+      
+      // Aplicar descuento proporcionalmente a cada item
+      carrito.getItems().forEach(item -> {
+        int descuentoItem = (int) (item.getPrecio() * 0.10);
+        item.setDescuento(descuentoItem);
+        item.setMotivoDescuento("Cupón: " + codigoCupon);
+      });
+      
+      carritoRepository.save(carrito);
+      log.info("Cupón {} aplicado exitosamente. Descuento total: {}", codigoCupon, descuentoTotal);
+      return true;
+    }
+    
+    log.warn("Cupón {} no válido o no aplicable", codigoCupon);
+    return false;
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean verificarDisponibilidadItemsPorPerfil(Long perfilId) {
-    return obtenerEntidadCarritoPorPerfil(perfilId)
-        .map(carrito -> {
-          // Verificar cada ítem
-          for (ItemCarrito item : carrito.getItems()) {
-            Long contenidoId = item.getContenido().getId();
-
-            // Verificar si el contenido existe y está disponible
-            boolean disponible = contenidoService.obtenerContenidoPorId(contenidoId)
-                .map(dto -> {
-                  // Para libros físicos, verificar stock
-                  if (dto.getTipo().equals(TipoContenido.COMIC_FISICO) ||
-                      dto.getTipo().equals(TipoContenido.LIBRO_FISICO) ||
-                      dto.getTipo().equals(TipoContenido.REVISTA_FISICA) ||
-                      dto.getTipo().equals(TipoContenido.MANGA_FISICO)) {
-                    Integer stock = dto.getStockDisponible();
-                    return stock != null && stock >= item.getCantidad();
-                  }
-                  // Para contenido digital, solo verificar que esté activo
-                  return dto.isActivo() && dto.isEnVenta();
-                })
-                .orElse(false);
-
-            if (!disponible) {
-              return false;
-            }
-          }
-          return true;
-        })
-        .orElse(true); // Si no hay carrito, no hay problemas de disponibilidad
-  }
-
-  // Método auxiliar para obtener o crear un carrito para un perfil
-  private Carrito obtenerOCrearCarritoPorPerfil(Long perfilId) {
-    return carritosPorPerfil.computeIfAbsent(perfilId, key -> {
-      Perfil perfil = perfilService.obtenerPerfilPorId(key)
-          .orElseThrow(() -> new IllegalArgumentException("Perfil no encontrado con ID: " + key));
-
-      Carrito nuevoCarrito = new Carrito();
-      nuevoCarrito.setId(carritoIdCounter.incrementAndGet());
-      nuevoCarrito.setPerfil(perfil);
-      nuevoCarrito.setFechaCreacion(LocalDateTime.now());
-      return nuevoCarrito;
-    });
-  }
-
-  private void actualizarCalculosCarrito(Carrito carrito, CarritoResponseDTO dto) {
-    if (carrito.getItems() != null) {
-      dto.setCantidadItems(carrito.getItems().size());
-
-      int subtotalCalc = 0;
-      int descuentosCalc = 0;
-
-      // Actualizar cálculos para cada item
-      if (dto.getItems() != null) {
-        for (ItemCarritoResponseDTO itemDto : dto.getItems()) {
-          Integer precio = itemDto.getPrecio() != null ? itemDto.getPrecio() : 0;
-          Integer descuento = itemDto.getDescuento() != null ? itemDto.getDescuento() : 0;
-          Integer cantidad = itemDto.getCantidad() != null ? itemDto.getCantidad() : 1;
-
-          // Actualizar subtotal y total de cada item
-          itemDto.setSubtotal(precio * cantidad);
-          itemDto.setTotal((precio - descuento) * cantidad);
-
-          // Acumular para el carrito
-          subtotalCalc += itemDto.getSubtotal();
-          descuentosCalc += (descuento * cantidad);
+    log.debug("Verificando disponibilidad de items para perfil {}", perfilId);
+    
+    Optional<Carrito> carritoOpt = carritoRepository.findByPerfil_Id(perfilId);
+    if (carritoOpt.isEmpty()) {
+      return true; // Carrito vacío, no hay problemas de disponibilidad
+    }
+    
+    Carrito carrito = carritoOpt.get();
+    for (ItemCarrito item : carrito.getItems()) {
+      if (item.getContenido() instanceof ContenidoFisico) {
+        ContenidoFisico contenidoFisico = (ContenidoFisico) item.getContenido();
+        if (contenidoFisico.getStockDisponible() < item.getCantidad()) {
+          log.warn("Item {} no tiene suficiente stock. Disponible: {}, Solicitado: {}", 
+              item.getContenido().getId(), contenidoFisico.getStockDisponible(), item.getCantidad());
+          return false;
         }
       }
-
-      // Actualizar totales del carrito
-      dto.setSubtotal(subtotalCalc);
-      dto.setTotalDescuentos(descuentosCalc);
-      dto.setTotal(subtotalCalc - descuentosCalc);
-    } else {
-      // Si no hay items, los totales deben ser 0
-      dto.setCantidadItems(0);
-      dto.setSubtotal(0);
-      dto.setTotalDescuentos(0);
-      dto.setTotal(0);
     }
+    
+    return true;
+  }
+
+  @Override
+  @Transactional
+  public CarritoResponseDTO fusionarCarritos(Long carritoDestinoId, Long carritoOrigenId) {
+    log.info("Fusionando carrito origen {} con destino {}", carritoOrigenId, carritoDestinoId);
+    
+    Carrito carritoDestino = carritoRepository.findById(carritoDestinoId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Carrito destino no encontrado: " + carritoDestinoId));
+    
+    Carrito carritoOrigen = carritoRepository.findById(carritoOrigenId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Carrito origen no encontrado: " + carritoOrigenId));
+    
+    // Fusionar items del carrito origen al destino
+    for (ItemCarrito itemOrigen : carritoOrigen.getItems()) {
+      // Buscar si ya existe un item con el mismo contenido en el destino
+      Optional<ItemCarrito> itemDestinoOpt = carritoDestino.getItems().stream()
+          .filter(item -> item.getContenido().getId().equals(itemOrigen.getContenido().getId()))
+          .findFirst();
+      
+      if (itemDestinoOpt.isPresent()) {
+        // Sumar cantidades
+        ItemCarrito itemDestino = itemDestinoOpt.get();
+        int nuevaCantidad = itemDestino.getCantidad() + itemOrigen.getCantidad();
+        validarCantidadSolicitada(itemDestino.getContenido(), nuevaCantidad);
+        itemDestino.setCantidad(nuevaCantidad);
+        itemDestino.setFechaUltimaModificacion(LocalDateTime.now());
+      } else {
+        // Crear nuevo item en destino
+        ItemCarrito nuevoItem = ItemCarrito.builder()
+            .carrito(carritoDestino)
+            .contenido(itemOrigen.getContenido())
+            .cantidad(itemOrigen.getCantidad())
+            .precio(itemOrigen.getPrecio())
+            .descuento(itemOrigen.getDescuento())
+            .fechaAgregado(LocalDateTime.now())
+            .fechaUltimaModificacion(LocalDateTime.now())
+            .cantidadMaxima(itemOrigen.getCantidadMaxima())
+            .precioOriginal(itemOrigen.getPrecioOriginal())
+            .motivoDescuento(itemOrigen.getMotivoDescuento())
+            .build();
+        
+        carritoDestino.addItem(nuevoItem);
+      }
+    }
+    
+    // Eliminar carrito origen después de la fusión
+    carritoRepository.delete(carritoOrigen);
+    
+    Carrito carritoFusionado = carritoRepository.save(carritoDestino);
+    log.info("Carritos fusionados exitosamente. Total items en carrito destino: {}", 
+        carritoFusionado.getItems().size());
+    
+    return carritoMapper.toResponseDTO(carritoFusionado);
+  }
+
+  @Override
+  @Transactional
+  public boolean transferirCarritoEntrePerfiles(Long perfilOrigenId, Long perfilDestinoId) {
+    log.info("Transfiriendo carrito de perfil {} a perfil {}", perfilOrigenId, perfilDestinoId);
+    
+    // Verificar que ambos perfiles existen
+    Perfil perfilOrigen = perfilService.obtenerEntidadPerfilPorId(perfilOrigenId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Perfil origen no encontrado: " + perfilOrigenId));
+    
+    Perfil perfilDestino = perfilService.obtenerEntidadPerfilPorId(perfilDestinoId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Perfil destino no encontrado: " + perfilDestinoId));
+    
+    // Verificar que ambos perfiles pertenecen al mismo usuario
+    if (!perfilOrigen.getUsuario().getId().equals(perfilDestino.getUsuario().getId())) {
+      throw new IllegalArgumentException("Los perfiles deben pertenecer al mismo usuario");
+    }
+    
+    Optional<Carrito> carritoOrigenOpt = carritoRepository.findByPerfil_Id(perfilOrigenId);
+    if (carritoOrigenOpt.isEmpty()) {
+      log.warn("No hay carrito para transferir del perfil {}", perfilOrigenId);
+      return false;
+    }
+    
+    Carrito carritoOrigen = carritoOrigenOpt.get();
+    
+    // Si el perfil destino ya tiene carrito, fusionar
+    Optional<Carrito> carritoDestinoOpt = carritoRepository.findByPerfil_Id(perfilDestinoId);
+    if (carritoDestinoOpt.isPresent()) {
+      fusionarCarritos(carritoDestinoOpt.get().getId(), carritoOrigen.getId());
+    } else {
+      // Simplemente cambiar el perfil del carrito
+      carritoOrigen.setPerfil(perfilDestino);
+      carritoOrigen.setFechaUltimaModificacion(LocalDateTime.now());
+      carritoRepository.save(carritoOrigen);
+    }
+    
+    log.info("Carrito transferido exitosamente de perfil {} a perfil {}", perfilOrigenId, perfilDestinoId);
+    return true;
+  }
+
+  @Override
+  @Transactional
+  public boolean guardarCarritoParaCompra(Long perfilId, String nombreGuardado) {
+    log.info("Guardando carrito del perfil {} con nombre '{}'", perfilId, nombreGuardado);
+    
+    Optional<Carrito> carritoOpt = carritoRepository.findByPerfil_Id(perfilId);
+    if (carritoOpt.isEmpty()) {
+      log.warn("No se encontró carrito para el perfil {}", perfilId);
+      return false;
+    }
+    
+    Carrito carrito = carritoOpt.get();
+    if (carrito.getItems().isEmpty()) {
+      log.warn("No se puede guardar un carrito vacío");
+      return false;
+    }
+    
+    // Por ahora, simplemente marcamos el carrito como guardado cambiando su estado
+    // En una implementación completa, se crearía una nueva entidad CarritoGuardado
+    carrito.setEstado(EstadoCarrito.CONVERTIDO_A_ORDEN);
+    carrito.setUsuarioModificacion(nombreGuardado); // Temporal: usar este campo para el nombre
+    carrito.setFechaUltimaModificacion(LocalDateTime.now());
+    
+    carritoRepository.save(carrito);
+    
+    log.info("Carrito guardado exitosamente con nombre '{}'", nombreGuardado);
+    return true;
+  }
+
+  @Override
+  @Transactional
+  public CarritoResponseDTO restaurarCarritoGuardado(Long perfilId, Long carritoGuardadoId) {
+    log.info("Restaurando carrito guardado {} para perfil {}", carritoGuardadoId, perfilId);
+    
+    // Verificar que el perfil existe
+    Perfil perfil = perfilService.obtenerEntidadPerfilPorId(perfilId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Perfil no encontrado: " + perfilId));
+    
+    // Buscar el carrito guardado
+    Carrito carritoGuardado = carritoRepository.findById(carritoGuardadoId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Carrito guardado no encontrado: " + carritoGuardadoId));
+    
+    // Verificar que el carrito pertenece al mismo usuario
+    if (!carritoGuardado.getPerfil().getUsuario().getId().equals(perfil.getUsuario().getId())) {
+      throw new IllegalArgumentException("El carrito guardado no pertenece al usuario");
+    }
+    
+    // Crear un nuevo carrito activo basado en el guardado
+    Carrito nuevoCarrito = Carrito.builder()
+        .perfil(perfil)
+        .estado(EstadoCarrito.ACTIVO)
+        .fechaCreacion(LocalDateTime.now())
+        .fechaUltimaModificacion(LocalDateTime.now())
+        .limiteItems(maxItemsPorCarrito)
+        .fechaExpiracion(LocalDateTime.now().plusDays(diasExpiracion))
+        .build();
+    
+    // Copiar items del carrito guardado
+    for (ItemCarrito itemGuardado : carritoGuardado.getItems()) {
+      ItemCarrito nuevoItem = ItemCarrito.builder()
+          .carrito(nuevoCarrito)
+          .contenido(itemGuardado.getContenido())
+          .cantidad(itemGuardado.getCantidad())
+          .precio(itemGuardado.getPrecio())
+          .descuento(itemGuardado.getDescuento())
+          .fechaAgregado(LocalDateTime.now())
+          .fechaUltimaModificacion(LocalDateTime.now())
+          .cantidadMaxima(itemGuardado.getCantidadMaxima())
+          .precioOriginal(itemGuardado.getPrecioOriginal())
+          .motivoDescuento(itemGuardado.getMotivoDescuento())
+          .build();
+      
+      nuevoCarrito.addItem(nuevoItem);
+    }
+    
+    // Eliminar carrito actual si existe
+    carritoRepository.findByPerfil_Id(perfilId).ifPresent(carritoRepository::delete);
+    
+    Carrito carritoRestaurado = carritoRepository.save(nuevoCarrito);
+    
+    log.info("Carrito guardado restaurado exitosamente para perfil {}", perfilId);
+    return carritoMapper.toResponseDTO(carritoRestaurado);
   }
 }

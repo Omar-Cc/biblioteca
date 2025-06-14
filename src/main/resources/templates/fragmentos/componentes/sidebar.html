@@ -1,192 +1,910 @@
-<div th:fragment="sidebar" class="sidebar bg-dark text-white">
-  <!-- Estilos para las flechas blancas -->
+<div th:fragment="sidebar" class="admin-sidebar">
+  <!-- CSS rediseñado del sidebar -->
   <style>
-    .sidebar .accordion-button::after {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    /* Variables CSS para el sidebar */
+    :root {
+      --sidebar-width: 280px;
+      --sidebar-collapsed-width: 80px;
+      --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      --sidebar-border: rgba(71, 85, 105, 0.3);
+      --sidebar-text: #e2e8f0;
+      --sidebar-text-secondary: #94a3b8;
+      --sidebar-hover-bg: rgba(99, 102, 241, 0.1);
+      --sidebar-active-bg: linear-gradient(135deg, #6366f1, #4f46e5);
+      --sidebar-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --sidebar-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .sidebar .accordion-button:not(.collapsed)::after {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    /* Contenedor principal del sidebar */
+    .admin-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      box-shadow: var(--sidebar-shadow);
+      transition: var(--sidebar-transition);
+      z-index: 1040;
+      /* Aumentado para estar por encima del navbar */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+    }
+
+    /* Header del sidebar */
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--sidebar-border);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>') repeat;
+      z-index: 1;
+    }
+
+    .sidebar-brand {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: white;
+      text-decoration: none;
+      transition: var(--sidebar-transition);
+    }
+
+    .sidebar-brand:hover {
+      color: #a5b4fc;
+      transform: translateX(4px);
+    }
+
+    .sidebar-brand-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.75rem;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand-text {
+      font-size: 1.125rem;
+      font-weight: 700;
+      line-height: 1.2;
+      transition: var(--sidebar-transition);
+    }
+
+    .admin-sidebar.collapsed .sidebar-brand-text {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    .sidebar-toggle-btn {
+      position: absolute;
+      top: 1rem;
+      right: -0.75rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--sidebar-active-bg);
+      border: 2px solid var(--sidebar-border);
+      border-radius: 50%;
+      color: white;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--sidebar-transition);
+      z-index: 1050;
+      /* Z-index más alto que el navbar */
+    }
+
+    .sidebar-toggle-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Contenido principal del sidebar */
+    .sidebar-content {
+      flex: 1;
+      padding: 1rem 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-content::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 2px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.5);
+    }
+
+    /* Navegación principal */
+    .sidebar-nav {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-section {
+      margin-bottom: 2rem;
+    }
+
+    .nav-section-title {
+      padding: 0 1.5rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--sidebar-text-secondary);
+      transition: var(--sidebar-transition);
+    }
+
+    .admin-sidebar.collapsed .nav-section-title {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    /* Items de navegación */
+    .nav-item {
+      margin-bottom: 0.25rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: var(--sidebar-transition);
+      position: relative;
+      border-radius: 0;
+    }
+
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: transparent;
+      transition: var(--sidebar-transition);
+    }
+
+    .nav-link:hover {
+      color: white;
+      background: var(--sidebar-hover-bg);
+      transform: translateX(8px);
+    }
+
+    .nav-link:hover::before {
+      background: #6366f1;
+    }
+
+    .nav-link.active {
+      color: white;
+      background: var(--sidebar-active-bg);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-link.active::before {
+      background: #a5b4fc;
+    }
+
+    .nav-link-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.75rem;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: var(--sidebar-transition);
+    }
+
+    .nav-link-text {
+      transition: var(--sidebar-transition);
+      white-space: nowrap;
+    }
+
+    .admin-sidebar.collapsed .nav-link-text {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    .admin-sidebar.collapsed .nav-link {
+      justify-content: center;
+      padding: 0.75rem;
+    }
+
+    /* Dropdown/Accordion items */
+    .nav-dropdown {
+      position: relative;
+    }
+
+    .nav-dropdown-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--sidebar-text);
+      text-align: left;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+      transition: var(--sidebar-transition);
+      position: relative;
+    }
+
+    .nav-dropdown-toggle::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: transparent;
+      transition: var(--sidebar-transition);
+    }
+
+    .nav-dropdown-toggle:hover {
+      color: white;
+      background: var(--sidebar-hover-bg);
+    }
+
+    .nav-dropdown-toggle:hover::before {
+      background: #6366f1;
+    }
+
+    .nav-dropdown-toggle.active {
+      color: white;
+      background: var(--sidebar-hover-bg);
+    }
+
+    .nav-dropdown-toggle.active::before {
+      background: #6366f1;
+    }
+
+    .nav-dropdown-icon {
+      font-size: 0.75rem;
+      transition: var(--sidebar-transition);
+    }
+
+    .nav-dropdown-toggle.active .nav-dropdown-icon {
+      transform: rotate(180deg);
+    }
+
+    .admin-sidebar.collapsed .nav-dropdown-icon {
+      display: none;
+    }
+
+    /* Submenu */
+    .nav-submenu {
+      background: rgba(15, 23, 42, 0.5);
+      border-left: 2px solid rgba(99, 102, 241, 0.3);
+      margin-left: 1rem;
+      margin-right: 0.5rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      transition: var(--sidebar-transition);
+    }
+
+    .admin-sidebar.collapsed .nav-submenu {
+      display: none;
+    }
+
+    .nav-submenu .nav-link {
+      padding: 0.625rem 1rem 0.625rem 2.5rem;
+      font-size: 0.8125rem;
+      position: relative;
+    }
+
+    .nav-submenu .nav-link::before {
+      content: '';
+      position: absolute;
+      left: 1.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 4px;
+      background: var(--sidebar-text-secondary);
+      border-radius: 50%;
+      transition: var(--sidebar-transition);
+    }
+
+    .nav-submenu .nav-link:hover::before,
+    .nav-submenu .nav-link.active::before {
+      background: #6366f1;
+      transform: translateY(-50%) scale(1.5);
+    }
+
+    .nav-submenu .nav-link:hover {
+      transform: translateX(4px);
+    }
+
+    /* Footer del sidebar */
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid var(--sidebar-border);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      transition: var(--sidebar-transition);
+    }
+
+    .sidebar-user:hover {
+      background: rgba(99, 102, 241, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .user-avatar {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--sidebar-active-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+      transition: var(--sidebar-transition);
+    }
+
+    .user-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role {
+      font-size: 0.75rem;
+      color: var(--sidebar-text-secondary);
+    }
+
+    .admin-sidebar.collapsed .user-info {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    /* Logout button */
+    .logout-btn {
+      width: 100%;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: var(--sidebar-transition);
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      transform: translateY(-2px);
+    }
+
+    .admin-sidebar.collapsed .logout-btn {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .admin-sidebar.collapsed .logout-btn .btn-text {
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .admin-sidebar {
+        transform: translateX(-100%);
+      }
+
+      .admin-sidebar.show {
+        transform: translateX(0);
+      }
+    }
+
+    /* Animaciones */
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .nav-item {
+      animation: slideInLeft 0.3s ease-out;
+    }
+
+    .nav-item:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .nav-item:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .nav-item:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .nav-item:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+
+    .nav-item:nth-child(5) {
+      animation-delay: 0.5s;
+    }
+
+    /* Estados de carga */
+    .nav-link.loading {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link.loading::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        left: -100%;
+      }
+
+      100% {
+        left: 100%;
+      }
+    }
+
+    /* Tooltip para modo colapsado */
+    .nav-tooltip {
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--sidebar-transition);
+      z-index: 1060;
+      /* Z-index para tooltips */
+      border: 1px solid var(--sidebar-border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-tooltip::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border: 5px solid transparent;
+      border-right-color: rgba(15, 23, 42, 0.95);
+    }
+
+    .admin-sidebar.collapsed .nav-link:hover .nav-tooltip {
+      opacity: 1;
+      visibility: visible;
     }
   </style>
 
-  <div class="sidebar-header p-3 border-bottom border-secondary">
-    <h3 class="fs-5 mb-0">
-      <i class="bi bi-speedometer2 me-2"></i>
-      Panel de Administración
-    </h3>
-  </div>
-
-  <!-- Enlaces principales siempre visibles -->
-  <div class="list-group list-group-flush bg-dark">
-    <a class="list-group-item list-group-item-action bg-dark text-white border-0" th:href="@{/admin/dashboard}"
-      th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
-      <i class="bi bi-house-door me-2"></i> Dashboard
+  <!-- El resto del contenido del sidebar permanece igual -->
+  <!-- Contenido del sidebar -->
+  <div class="sidebar-header">
+    <a href="#" class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <i class="bi bi-book-half"></i>
+      </div>
+      <div class="sidebar-brand-text">
+        <div>BiblioVirtual</div>
+        <small style="font-size: 0.75rem; opacity: 0.8;">Panel Admin</small>
+      </div>
     </a>
+    <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
+      <i class="bi bi-chevron-left"></i>
+    </button>
   </div>
 
-  <!-- Accordions para categorías -->
-  <div class="accordion accordion-flush" id="sidebarAdminAccordion">
-
-    <!-- Contenido de la biblioteca -->
-    <div class="accordion-item bg-dark">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseContenido"
-          th:aria-expanded="${#lists.contains({'contenidos', 'obras', 'autores', 'editoriales', 'generos'}, activeTab)}">
-          <i class="bi bi-journal-bookmark me-2"></i> Biblioteca
-        </button>
-      </h2>
-      <div id="collapseContenido" class="accordion-collapse collapse bg-dark"
-        th:class="${#lists.contains({'contenidos', 'obras', 'autores', 'editoriales', 'generos'}, activeTab)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAdminAccordion">
-        <div class="list-group list-group-flush">
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/contenidos}" th:classappend="${activeTab == 'contenidos' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-journal-bookmark me-2"></i> Contenidos
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/obras}"
-            th:classappend="${activeTab == 'obras' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-book me-2"></i> Obras
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/autores}"
-            th:classappend="${activeTab == 'autores' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-person-badge me-2"></i> Autores
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/editoriales}" th:classappend="${activeTab == 'editoriales' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-building me-2"></i> Editoriales
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/generos}"
-            th:classappend="${activeTab == 'generos' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-tags me-2"></i> Géneros
+  <!-- Resto del contenido igual que antes -->
+  <div class="sidebar-content">
+    <nav class="sidebar-nav">
+      <!-- Todo el contenido de navegación permanece igual -->
+      <!-- Dashboard -->
+      <div class="nav-section">
+        <div class="nav-section-title">Principal</div>
+        <div class="nav-item">
+          <a class="nav-link" th:href="@{/admin/dashboard}"
+            th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
+            <span class="nav-link-icon">
+              <i class="bi bi-speedometer2"></i>
+            </span>
+            <span class="nav-link-text">Dashboard</span>
+            <div class="nav-tooltip">Dashboard</div>
           </a>
         </div>
       </div>
-    </div>
 
-    <!-- Usuarios y Lectores -->
-    <div class="accordion-item bg-dark">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseUsuarios"
-          th:aria-expanded="${#lists.contains({'usuarios', 'lectores', 'prestamos'}, activeTab)}">
-          <i class="bi bi-people me-2"></i> Usuarios
-        </button>
-      </h2>
-      <div id="collapseUsuarios" class="accordion-collapse collapse bg-dark"
-        th:class="${#lists.contains({'usuarios', 'lectores', 'prestamos'}, activeTab)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAdminAccordion">
-        <div class="list-group list-group-flush">
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/usuarios}" th:classappend="${activeTab == 'usuarios' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-people me-2"></i> Usuarios
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/lectores}" th:classappend="${activeTab == 'lectores' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-person-vcard me-2"></i> Lectores
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/prestamos}" th:classappend="${activeTab == 'prestamos' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-arrow-left-right me-2"></i> Préstamos
+      <!-- Biblioteca -->
+      <div class="nav-section">
+        <div class="nav-section-title">Biblioteca</div>
+
+        <div class="nav-item nav-dropdown">
+          <button class="nav-dropdown-toggle" type="button" data-bs-toggle="collapse"
+            data-bs-target="#bibliotecaSubmenu"
+            th:classappend="${#lists.contains({'contenidos', 'obras', 'autores', 'editoriales', 'generos'}, activeTab) ? 'active' : ''}">
+            <div style="display: flex; align-items: center;">
+              <span class="nav-link-icon">
+                <i class="bi bi-journal-bookmark"></i>
+              </span>
+              <span class="nav-link-text">Contenido</span>
+            </div>
+            <i class="bi bi-chevron-down nav-dropdown-icon"></i>
+            <div class="nav-tooltip">Contenido de Biblioteca</div>
+          </button>
+          <div class="nav-submenu collapse" id="bibliotecaSubmenu"
+            th:classappend="${#lists.contains({'contenidos', 'obras', 'autores', 'editoriales', 'generos'}, activeTab) ? 'show' : ''}">
+            <a class="nav-link" th:href="@{/admin/contenidos}"
+              th:classappend="${activeTab == 'contenidos' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-collection"></i>
+              </span>
+              <span class="nav-link-text">Contenidos</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/obras}" th:classappend="${activeTab == 'obras' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-book"></i>
+              </span>
+              <span class="nav-link-text">Obras</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/autores}" th:classappend="${activeTab == 'autores' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-person-badge"></i>
+              </span>
+              <span class="nav-link-text">Autores</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/editoriales}"
+              th:classappend="${activeTab == 'editoriales' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-building"></i>
+              </span>
+              <span class="nav-link-text">Editoriales</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/generos}" th:classappend="${activeTab == 'generos' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-tags"></i>
+              </span>
+              <span class="nav-link-text">Géneros</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Usuarios -->
+      <div class="nav-section">
+        <div class="nav-section-title">Usuarios</div>
+
+        <div class="nav-item nav-dropdown">
+          <button class="nav-dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#usuariosSubmenu"
+            th:classappend="${#lists.contains({'usuarios', 'lectores', 'prestamos'}, activeTab) ? 'active' : ''}">
+            <div style="display: flex; align-items: center;">
+              <span class="nav-link-icon">
+                <i class="bi bi-people"></i>
+              </span>
+              <span class="nav-link-text">Gestión</span>
+            </div>
+            <i class="bi bi-chevron-down nav-dropdown-icon"></i>
+            <div class="nav-tooltip">Gestión de Usuarios</div>
+          </button>
+          <div class="nav-submenu collapse" id="usuariosSubmenu"
+            th:classappend="${#lists.contains({'usuarios', 'lectores', 'prestamos'}, activeTab) ? 'show' : ''}">
+            <a class="nav-link" th:href="@{/admin/usuarios}"
+              th:classappend="${activeTab == 'usuarios' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-people"></i>
+              </span>
+              <span class="nav-link-text">Usuarios</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/lectores}"
+              th:classappend="${activeTab == 'lectores' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-person-vcard"></i>
+              </span>
+              <span class="nav-link-text">Lectores</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/prestamos}"
+              th:classappend="${activeTab == 'prestamos' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-arrow-left-right"></i>
+              </span>
+              <span class="nav-link-text">Préstamos</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comercial -->
+      <div class="nav-section">
+        <div class="nav-section-title">Comercial</div>
+
+        <div class="nav-item nav-dropdown">
+          <button class="nav-dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#comercialSubmenu"
+            th:classappend="${#lists.contains({'planes', 'beneficios', 'planes-beneficios', 'suscripciones'}, activeTab) ? 'active' : ''}">
+            <div style="display: flex; align-items: center;">
+              <span class="nav-link-icon">
+                <i class="bi bi-card-list"></i>
+              </span>
+              <span class="nav-link-text">Planes</span>
+            </div>
+            <i class="bi bi-chevron-down nav-dropdown-icon"></i>
+            <div class="nav-tooltip">Planes y Suscripciones</div>
+          </button>
+          <div class="nav-submenu collapse" id="comercialSubmenu"
+            th:classappend="${#lists.contains({'planes', 'beneficios', 'planes-beneficios', 'suscripciones'}, activeTab) ? 'show' : ''}">
+            <a class="nav-link" th:href="@{/admin/planes}" th:classappend="${activeTab == 'planes' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-card-list"></i>
+              </span>
+              <span class="nav-link-text">Planes</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/beneficios}"
+              th:classappend="${activeTab == 'beneficios' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-gift"></i>
+              </span>
+              <span class="nav-link-text">Beneficios</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/planes-beneficios}"
+              th:classappend="${activeTab == 'planes-beneficios' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-link-45deg"></i>
+              </span>
+              <span class="nav-link-text">Relaciones</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/suscripciones}"
+              th:classappend="${activeTab == 'suscripciones' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-calendar-check"></i>
+              </span>
+              <span class="nav-link-text">Suscripciones</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finanzas -->
+      <div class="nav-section">
+        <div class="nav-section-title">Finanzas</div>
+
+        <div class="nav-item nav-dropdown">
+          <button class="nav-dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#finanzasSubmenu"
+            th:classappend="${#lists.contains({'metodosPago', 'pagos', 'ordenes', 'facturas'}, activeTab) ? 'active' : ''}">
+            <div style="display: flex; align-items: center;">
+              <span class="nav-link-icon">
+                <i class="bi bi-cash-coin"></i>
+              </span>
+              <span class="nav-link-text">Pagos</span>
+            </div>
+            <i class="bi bi-chevron-down nav-dropdown-icon"></i>
+            <div class="nav-tooltip">Gestión Financiera</div>
+          </button>
+          <div class="nav-submenu collapse" id="finanzasSubmenu"
+            th:classappend="${#lists.contains({'metodosPago', 'pagos', 'ordenes', 'facturas'}, activeTab) ? 'show' : ''}">
+            <a class="nav-link" th:href="@{/admin/metodos-pago}"
+              th:classappend="${activeTab == 'metodosPago' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-credit-card"></i>
+              </span>
+              <span class="nav-link-text">Métodos de Pago</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/pagos}" th:classappend="${activeTab == 'pagos' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-cash-coin"></i>
+              </span>
+              <span class="nav-link-text">Pagos</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/ordenes}" th:classappend="${activeTab == 'ordenes' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-cart-check"></i>
+              </span>
+              <span class="nav-link-text">Órdenes</span>
+            </a>
+            <a class="nav-link" th:href="@{/admin/facturas}"
+              th:classappend="${activeTab == 'facturas' ? 'active' : ''}">
+              <span class="nav-link-icon">
+                <i class="bi bi-receipt"></i>
+              </span>
+              <span class="nav-link-text">Facturas</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reportes -->
+      <div class="nav-section">
+        <div class="nav-section-title">Análisis</div>
+
+        <div class="nav-item">
+          <a class="nav-link" th:href="@{/admin/informes}" th:classappend="${activeTab == 'informes' ? 'active' : ''}">
+            <span class="nav-link-icon">
+              <i class="bi bi-graph-up"></i>
+            </span>
+            <span class="nav-link-text">Reportes</span>
+            <div class="nav-tooltip">Informes y Reportes</div>
           </a>
         </div>
       </div>
-    </div>
 
-    <!-- Planes y Suscripciones -->
-    <div class="accordion-item bg-dark">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseComercial"
-          th:aria-expanded="${#lists.contains({'planes', 'beneficios', 'planes-beneficios', 'suscripciones'}, activeTab)}">
-          <i class="bi bi-card-list me-2"></i> Comercial
-        </button>
-      </h2>
-      <div id="collapseComercial" class="accordion-collapse collapse bg-dark"
-        th:class="${#lists.contains({'planes', 'beneficios', 'planes-beneficios', 'suscripciones'}, activeTab)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAdminAccordion">
-        <div class="list-group list-group-flush">
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/planes}"
-            th:classappend="${activeTab == 'planes' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-card-list me-2"></i> Planes
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/beneficios}" th:classappend="${activeTab == 'beneficios' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-gift me-2"></i> Beneficios
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/planes-beneficios}" th:classappend="${activeTab == 'planes-beneficios' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-link-45deg me-2"></i> Planes-Beneficios
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/suscripciones}" th:classappend="${activeTab == 'suscripciones' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-calendar-check me-2"></i> Suscripciones
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pagos y Finanzas -->
-    <div class="accordion-item bg-dark">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseFinanzas"
-          th:aria-expanded="${#lists.contains({'metodosPago', 'pagos', 'ordenes', 'facturas'}, activeTab)}">
-          <i class="bi bi-cash-coin me-2"></i> Finanzas
-        </button>
-      </h2>
-      <div id="collapseFinanzas" class="accordion-collapse collapse bg-dark"
-        th:class="${#lists.contains({'metodosPago', 'pagos', 'ordenes', 'facturas'}, activeTab)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAdminAccordion">
-        <div class="list-group list-group-flush">
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/metodos-pago}" th:classappend="${activeTab == 'metodosPago' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-credit-card me-2"></i> Métodos de Pago
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/pagos}"
-            th:classappend="${activeTab == 'pagos' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-cash-coin me-2"></i> Pagos
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4" th:href="@{/admin/ordenes}"
-            th:classappend="${activeTab == 'ordenes' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-cart-check me-2"></i> Órdenes
-          </a>
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/facturas}" th:classappend="${activeTab == 'facturas' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-receipt me-2"></i> Facturas
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Reportes y Salir -->
-    <div class="accordion-item bg-dark">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseReportes" th:aria-expanded="${activeTab == 'informes'}">
-          <i class="bi bi-bar-chart me-2"></i> Reportes
-        </button>
-      </h2>
-      <div id="collapseReportes" class="accordion-collapse collapse bg-dark"
-        th:class="${activeTab == 'informes'} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAdminAccordion">
-        <div class="list-group list-group-flush">
-          <a class="list-group-item list-group-item-action text-white border-0 ps-4"
-            th:href="@{/admin/informes}" th:classappend="${activeTab == 'informes' ? 'active' : 'bg-dark'}">
-            <i class="bi bi-bar-chart me-2"></i> Informes
-          </a>
-        </div>
-      </div>
-    </div>
+    </nav>
   </div>
 
-  <!-- Cerrar Sesión siempre visible -->
-  <div class="list-group list-group-flush bg-dark mt-3">
-    <form th:action="@{/logout}" method="post">
-      <button type="submit" class="list-group-item list-group-item-action bg-dark text-white border-0">
-        <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+  <div class="sidebar-footer">
+    <!-- Usuario actual -->
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <span sec:authentication="name" th:text="${#authentication?.name?.substring(0,1)?.toUpperCase()}">A</span>
+      </div>
+      <div class="user-info">
+        <div class="user-name" sec:authentication="name" th:text="${#authentication?.name}">Administrador</div>
+        <div class="user-role">Panel de Control</div>
+      </div>
+    </div>
+
+    <!-- Botón cerrar sesión -->
+    <form th:action="@{/logout}" method="post" class="mt-3">
+      <button type="submit" class="logout-btn">
+        <i class="bi bi-box-arrow-right"></i>
+        <span class="btn-text">Cerrar Sesión</span>
       </button>
     </form>
   </div>
+
+  <!-- Script para funcionalidad -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebar = document.querySelector('.admin-sidebar');
+      const toggleBtn = document.getElementById('sidebarToggleBtn');
+      const toggleIcon = toggleBtn.querySelector('i');
+
+      // Toggle sidebar collapse
+      toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');
+
+        if (sidebar.classList.contains('collapsed')) {
+          toggleIcon.className = 'bi bi-chevron-right';
+          localStorage.setItem('sidebarCollapsed', 'true');
+        } else {
+          toggleIcon.className = 'bi bi-chevron-left';
+          localStorage.setItem('sidebarCollapsed', 'false');
+        }
+      });
+
+      // Restaurar estado del sidebar
+      const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+      if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+        toggleIcon.className = 'bi bi-chevron-right';
+      }
+
+      // Auto-colapsar en pantallas pequeñas
+      function handleResize() {
+        if (window.innerWidth <= 1024) {
+          sidebar.classList.remove('show');
+        }
+      }
+
+      window.addEventListener('resize', handleResize);
+
+      // Toggle para móviles (desde navbar)
+      const mobileToggle = document.getElementById('sidebarToggle');
+      if (mobileToggle) {
+        mobileToggle.addEventListener('click', function () {
+          sidebar.classList.toggle('show');
+        });
+      }
+
+      // Cerrar sidebar al hacer click fuera en móviles
+      document.addEventListener('click', function (e) {
+        if (window.innerWidth <= 1024) {
+          if (!sidebar.contains(e.target) && !mobileToggle?.contains(e.target)) {
+            sidebar.classList.remove('show');
+          }
+        }
+      });
+
+      // Smooth scroll para enlaces internos
+      const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href').substring(1);
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    });
+  </script>
 </div>

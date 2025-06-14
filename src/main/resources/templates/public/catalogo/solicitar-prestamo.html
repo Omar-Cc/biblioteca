@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle=${contenido.obra.titulo + ' - Solicitar Préstamo - Biblioteca Virtual'},
+          pageAdditionalCss=~{::prestamoSolicitarCss},
+          pageContent=~{::prestamoSolicitarContent},
+          pageAdditionalScripts=~{::prestamoSolicitarScripts}
+      )}">
+
+<head>
+  <!-- Fragmento para CSS específico -->
+  <th:block th:fragment="prestamoSolicitarCss">
+    <style>
+      .prestamo-container {
+        background-color: white;
+        border-radius: 0;
+        padding-bottom: 3rem;
+        min-height: calc(100vh - 200px);
+      }
+
+      .prestamo-hero {
+        background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 1.5rem 1.5rem;
+      }
+
+      .prestamo-hero .container {
+        position: relative;
+      }
+
+      .prestamo-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .prestamo-titulo {
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .prestamo-subtitulo {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+      }
+
+      .breadcrumb-prestamo {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .breadcrumb-prestamo .breadcrumb {
+        background: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .breadcrumb-prestamo .breadcrumb-item {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .breadcrumb-prestamo .breadcrumb-item.active {
+        color: white;
+        font-weight: 600;
+      }
+
+      .breadcrumb-prestamo .breadcrumb-item+.breadcrumb-item::before {
+        color: rgba(255, 255, 255, 0.6);
+        content: "❯";
+      }
+
+      .breadcrumb-prestamo a {
+        color: white;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+
+      .breadcrumb-prestamo a:hover {
+        color: var(--bs-light);
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+      }
+
+      .prestamo-card {
+        border: none;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .prestamo-card:hover {
+        box-shadow: 0 1rem 2.5rem rgba(45, 110, 126, 0.15);
+        transform: translateY(-5px);
+      }
+
+      .prestamo-card .card-header {
+        background: linear-gradient(135deg, rgba(45, 110, 126, 0.05) 0%, rgba(255, 255, 255, 0.8) 100%);
+        border-bottom: 1px solid rgba(45, 110, 126, 0.1);
+        padding: 1.5rem 2rem;
+        font-weight: 600;
+        color: var(--bs-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .prestamo-card .card-header i {
+        font-size: 1.25rem;
+        opacity: 0.8;
+      }
+
+      .prestamo-card .card-body {
+        padding: 2rem;
+      }
+
+      .contenido-preview {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: rgba(45, 110, 126, 0.03);
+        border-radius: 1rem;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .contenido-preview:hover {
+        background: rgba(45, 110, 126, 0.05);
+        border-color: rgba(45, 110, 126, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.1);
+      }
+
+      .contenido-portada {
+        width: 100px;
+        height: 140px;
+        border-radius: 0.75rem;
+        object-fit: cover;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        flex-shrink: 0;
+      }
+
+      .contenido-preview:hover .contenido-portada {
+        transform: scale(1.05) rotate(1deg);
+        box-shadow: 0 0.75rem 1.5rem rgba(45, 110, 126, 0.2);
+      }
+
+      .contenido-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .contenido-titulo-preview {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--bs-primary);
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+      }
+
+      .contenido-meta {
+        color: var(--bs-secondary);
+        margin-bottom: 1rem;
+        font-weight: 500;
+      }
+
+      .contenido-detalles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+
+      .detalle-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: white;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        transition: all 0.2s ease;
+      }
+
+      .detalle-item:hover {
+        background: rgba(45, 110, 126, 0.05);
+        border-color: rgba(45, 110, 126, 0.2);
+      }
+
+      .detalle-item i {
+        color: var(--bs-primary);
+        font-size: 1rem;
+        opacity: 0.7;
+      }
+
+      .perfil-info {
+        background: linear-gradient(135deg, rgba(45, 110, 126, 0.08) 0%, rgba(255, 255, 255, 0.5) 100%);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(45, 110, 126, 0.15);
+      }
+
+      .perfil-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .perfil-avatar {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(45, 110, 126, 0.3);
+      }
+
+      .perfil-datos h5 {
+        margin: 0;
+        color: var(--bs-primary);
+        font-weight: 700;
+      }
+
+      .perfil-datos p {
+        margin: 0;
+        color: var(--bs-secondary);
+        font-size: 0.9rem;
+      }
+
+      .limites-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .limite-stat {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .limite-stat:hover {
+        background: rgba(45, 110, 126, 0.03);
+        border-color: rgba(45, 110, 126, 0.2);
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(45, 110, 126, 0.1);
+      }
+
+      .limite-numero {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+
+      .limite-numero.disponible {
+        color: var(--bs-success);
+      }
+
+      .limite-numero.usado {
+        color: var(--bs-primary);
+      }
+
+      .limite-numero.total {
+        color: var(--bs-info);
+      }
+
+      .limite-label {
+        font-size: 0.85rem;
+        color: var(--bs-secondary);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .validacion-resultado {
+        margin-bottom: 2rem;
+      }
+
+      .alert-prestamo {
+        border: none;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+      }
+
+      .alert-prestamo i {
+        font-size: 1.5rem;
+        margin-top: 0.125rem;
+      }
+
+      .alert-content h6 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+      }
+
+      .alert-content p {
+        margin: 0;
+        line-height: 1.4;
+      }
+
+      .alert-content ul {
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.25rem;
+      }
+
+      .alert-content li {
+        margin-bottom: 0.25rem;
+      }
+
+      .condiciones-prestamo {
+        background: rgba(45, 110, 126, 0.03);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .condiciones-titulo {
+        color: var(--bs-primary);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .condiciones-lista {
+        margin: 0;
+        padding-left: 1.5rem;
+      }
+
+      .condiciones-lista li {
+        margin-bottom: 0.5rem;
+        color: var(--bs-dark);
+        line-height: 1.4;
+      }
+
+      .form-prestamo {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        margin-bottom: 2rem;
+      }
+
+      .form-group-prestamo {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label-prestamo {
+        font-weight: 600;
+        color: var(--bs-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .form-control-prestamo {
+        border: 2px solid rgba(45, 110, 126, 0.1);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .form-control-prestamo:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(45, 110, 126, 0.15);
+        background: white;
+      }
+
+      .form-control-prestamo:read-only {
+        background: rgba(45, 110, 126, 0.05);
+        color: var(--bs-secondary);
+      }
+
+      .checkbox-custom {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: rgba(45, 110, 126, 0.03);
+        border-radius: 0.75rem;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .checkbox-custom:hover {
+        background: rgba(45, 110, 126, 0.05);
+        border-color: rgba(45, 110, 126, 0.2);
+      }
+
+      .checkbox-custom input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--bs-primary);
+        border-radius: 0.25rem;
+        margin-top: 0.125rem;
+        flex-shrink: 0;
+      }
+
+      .checkbox-custom input[type="checkbox"]:checked {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+      }
+
+      .checkbox-label {
+        flex: 1;
+        line-height: 1.4;
+        color: var(--bs-dark);
+        font-size: 0.95rem;
+      }
+
+      .botones-accion {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+      }
+
+      .btn-prestamo-accion {
+        padding: 1rem 2rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+        border: 2px solid transparent;
+        min-width: 180px;
+        justify-content: center;
+      }
+
+      .btn-prestamo-accion:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
+      }
+
+      .btn-confirmar {
+        background: linear-gradient(135deg, var(--bs-success) 0%, #2a9d4a 100%);
+        color: white;
+      }
+
+      .btn-confirmar:hover {
+        background: linear-gradient(135deg, #1e7031 0%, #2a9d4a 100%);
+        color: white;
+        border-color: var(--bs-success);
+      }
+
+      .btn-cancelar {
+        background: transparent;
+        color: var(--bs-secondary);
+        border-color: var(--bs-secondary);
+      }
+
+      .btn-cancelar:hover {
+        background: var(--bs-secondary);
+        color: white;
+        border-color: var(--bs-secondary);
+      }
+
+      .fecha-devolucion-info {
+        background: linear-gradient(135deg, rgba(42, 98, 70, 0.1) 0%, rgba(255, 255, 255, 0.5) 100%);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(42, 98, 70, 0.2);
+        margin-top: 1rem;
+      }
+
+      .fecha-devolucion-info .h5 {
+        color: var(--bs-success);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .fecha-destacada {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--bs-success);
+        background: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        display: inline-block;
+        border: 2px solid var(--bs-success);
+        box-shadow: 0 0.25rem 0.5rem rgba(42, 98, 70, 0.2);
+      }
+
+      /* Responsive */
+      @media (max-width: 991.98px) {
+        .prestamo-titulo {
+          font-size: 1.75rem;
+        }
+
+        .contenido-preview {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .contenido-portada {
+          align-self: center;
+        }
+
+        .contenido-detalles {
+          grid-template-columns: 1fr;
+        }
+
+        .limites-info {
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+      }
+
+      @media (max-width: 767.98px) {
+
+        .prestamo-card .card-header,
+        .prestamo-card .card-body {
+          padding: 1.25rem;
+        }
+
+        .botones-accion {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .btn-prestamo-accion {
+          min-width: auto;
+        }
+
+        .prestamo-titulo {
+          font-size: 1.5rem;
+        }
+
+        .prestamo-subtitulo {
+          font-size: 1rem;
+        }
+      }
+
+      /* Animaciones */
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      .prestamo-card {
+        animation: slideInUp 0.6s ease-out;
+      }
+
+      .perfil-info {
+        animation: slideInUp 0.6s ease-out 0.1s both;
+      }
+
+      .validacion-resultado {
+        animation: slideInUp 0.6s ease-out 0.2s both;
+      }
+
+      /* Estados de carga */
+      .btn-prestamo-accion:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      .btn-prestamo-accion.loading {
+        position: relative;
+        color: transparent;
+      }
+
+      .btn-prestamo-accion.loading::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid transparent;
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <!-- Contenido principal -->
+  <th:block th:fragment="prestamoSolicitarContent">
+    <div class="prestamo-container">
+
+      <!-- Hero Section -->
+      <div class="prestamo-hero">
+        <div class="container">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb-prestamo">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item">
+                <a th:href="@{/}">
+                  <i class="bi bi-house-door me-1"></i>Inicio
+                </a>
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/catalogo}">Catálogo</a>
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{'/catalogo/contenido/' + ${contenido.id}}" th:text="${contenido.obra.titulo}">Libro</a>
+              </li>
+              <li class="breadcrumb-item active">Solicitar Préstamo</li>
+            </ol>
+          </nav>
+
+          <h1 class="prestamo-titulo">
+            <i class="bi bi-book-half me-3"></i>Solicitar Préstamo
+          </h1>
+          <p class="prestamo-subtitulo">
+            Confirma los detalles y condiciones para solicitar el préstamo de este contenido
+          </p>
+        </div>
+      </div>
+
+      <div class="container">
+        <!-- Información del Contenido -->
+        <div class="prestamo-card">
+          <div class="card-header">
+            <i class="bi bi-journal-bookmark"></i>
+            <span>Contenido Seleccionado</span>
+          </div>
+          <div class="card-body">
+            <div class="contenido-preview">
+              <img th:src="${contenido.portadaUrl != null ? contenido.portadaUrl : '/img/portada-default.jpg'}"
+                class="contenido-portada" th:alt="${contenido.obra?.titulo ?: 'Portada del contenido'}">
+
+              <div class="contenido-info">
+                <h3 class="contenido-titulo-preview" th:text="${contenido.obra?.titulo ?: 'Título no disponible'}">
+                  Título del Contenido
+                </h3>
+
+                <p class="contenido-meta">
+                  <span th:if="${contenido.obra?.autores != null && !#lists.isEmpty(contenido.obra.autores)}"
+                    th:text="${'Por ' + #strings.listJoin(contenido.obra.autores.![nombre], ', ')}">
+                    Por Autor
+                  </span>
+                  <span th:if="${contenido.serie?.ordenEnSerie != null}"
+                    th:text="${' - Volumen ' + contenido.serie.ordenEnSerie}">
+                  </span>
+                </p>
+
+                <div class="contenido-detalles">
+                  <div class="detalle-item">
+                    <i class="bi bi-bookmark"></i>
+                    <span th:text="${contenido.tipo.toString().replace('_', ' ').toLowerCase()}">Tipo</span>
+                  </div>
+
+                  <div class="detalle-item" th:if="${contenido.editorial != null}">
+                    <i class="bi bi-building"></i>
+                    <span th:text="${contenido.editorial.nombre}">Editorial</span>
+                  </div>
+
+                  <div class="detalle-item" th:if="${contenido.isbn != null && !contenido.isbn.isEmpty()}">
+                    <i class="bi bi-upc-scan"></i>
+                    <span th:text="${'ISBN: ' + contenido.isbn}">ISBN</span>
+                  </div>
+
+                  <div class="detalle-item" th:if="${contenido.paginas != null}">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span th:text="${contenido.paginas + ' páginas'}">Páginas</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Perfil Actual -->
+        <div class="prestamo-card" sec:authorize="isAuthenticated()" th:if="${perfilActual != null}">
+          <div class="card-header">
+            <i class="bi bi-person-circle"></i>
+            <span>Perfil Activo</span>
+          </div>
+          <div class="card-body">
+            <div class="perfil-info">
+              <div class="perfil-header">
+                <div class="perfil-avatar">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="perfil-datos">
+                  <h5 th:text="${perfilActual.nombreVisible}">Nombre del Perfil</h5>
+                  <p th:text="${'Categoría: ' + (perfilActual.esInfantil ? 'Infantil' : 'Adulto')}">Categoría de perfil
+                  </p>
+                  <div th:if="${perfilActual.esPerfilPrincipal}" class="text-primary small">
+                    <i class="bi bi-star-fill me-1"></i>Perfil Principal
+                  </div>
+                </div>
+              </div>
+
+              <div class="limites-info">
+                <div class="limite-stat">
+                  <div class="limite-numero disponible"
+                    th:text="${prestamosActivos != null ? (perfilActual.limitePrestamosDesignado - prestamosActivos) : perfilActual.limitePrestamosDesignado}">
+                    Calculando...
+                  </div>
+                  <div class="limite-label">Disponibles</div>
+                </div>
+
+                <div class="limite-stat">
+                  <div class="limite-numero usado" th:text="${prestamosActivos != null ? prestamosActivos : 0}">0</div>
+                  <div class="limite-label">En Uso</div>
+                </div>
+
+                <div class="limite-stat">
+                  <div class="limite-numero total" th:text="${perfilActual.limitePrestamosDesignado}">5</div>
+                  <div class="limite-label">Límite Total</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultado de Validación -->
+        <div class="validacion-resultado" th:if="${validacion != null}">
+
+          <!-- Validación Exitosa -->
+          <div th:if="${validacion.esValidoSafe}" class="alert alert-prestamo alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <div class="alert-content">
+              <h6>¡Préstamo Disponible!</h6>
+              <p>Puedes proceder con la solicitud de préstamo. Se ha verificado que cumples con todos los requisitos.
+              </p>
+            </div>
+          </div>
+
+          <!-- Validación con Advertencias -->
+          <div th:if="${validacion.esValidoSafe && validacion.tieneAdvertencias}"
+            class="alert alert-prestamo alert-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div class="alert-content">
+              <h6>Advertencias del Sistema</h6>
+              <p>El préstamo es posible, pero ten en cuenta:</p>
+              <ul th:if="${validacion.advertencias != null}">
+                <li th:each="advertencia : ${validacion.advertencias}" th:text="${advertencia}">Advertencia</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Validación con Errores -->
+          <div th:if="${!validacion.esValidoSafe}" class="alert alert-prestamo alert-danger">
+            <i class="bi bi-x-circle-fill"></i>
+            <div class="alert-content">
+              <h6>No se puede realizar el préstamo</h6>
+              <p>Se encontraron los siguientes problemas:</p>
+              <ul th:if="${validacion.errores != null}">
+                <li th:each="error : ${validacion.errores}" th:text="${error}">Error</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Condiciones del Préstamo -->
+        <div class="prestamo-card" th:if="${validacion != null && validacion.esValidoSafe}">
+          <div class="card-header">
+            <i class="bi bi-file-text"></i>
+            <span>Condiciones del Préstamo</span>
+          </div>
+          <div class="card-body">
+            <div class="condiciones-prestamo">
+              <h5 class="condiciones-titulo">
+                <i class="bi bi-info-circle"></i>
+                Términos y Condiciones
+              </h5>
+
+              <ul class="condiciones-lista">
+                <li>El préstamo tiene una duración de <strong>14 días calendario</strong> desde la fecha de
+                  confirmación.</li>
+                <li>Puedes renovar el préstamo <strong>una vez</strong> si no hay lista de espera para este contenido.
+                </li>
+                <li>La devolución tardía puede resultar en restricciones temporales para futuros préstamos.</li>
+                <li>El contenido digital estará disponible en tu biblioteca personal durante el período del préstamo.
+                </li>
+                <li>No puedes transferir o compartir el acceso al contenido prestado con terceros.</li>
+                <li>Al vencer el préstamo, el acceso al contenido se bloqueará automáticamente.</li>
+              </ul>
+            </div>
+
+            <!-- Información de Fechas -->
+            <div class="fecha-devolucion-info">
+              <h5 class="h5">
+                <i class="bi bi-calendar-check"></i>
+                Fechas Importantes
+              </h5>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <strong>Fecha de Préstamo:</strong><br>
+                  <span class="fecha-destacada"
+                    th:text="${fechaPrestamo != null ? #temporals.format(fechaPrestamo, 'dd/MM/yyyy') : #temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}">
+                    Hoy
+                  </span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Fecha de Devolución:</strong><br>
+                  <span class="fecha-destacada"
+                    th:text="${fechaPrestamo != null ? #temporals.format(fechaPrestamo.plusDays(14), 'dd/MM/yyyy') : #temporals.format(#temporals.createNow().plusDays(14), 'dd/MM/yyyy')}">
+                    En 14 días
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Formulario de Confirmación -->
+            <form th:action="@{'/catalogo/prestamo/' + ${contenido.id} + '/confirmar'}" method="post"
+              class="form-prestamo" id="formConfirmarPrestamo">
+
+              <div class="form-group-prestamo">
+                <label class="form-label-prestamo">
+                  <i class="bi bi-calendar-event"></i>
+                  Fecha de Préstamo
+                </label>
+                <input type="date" class="form-control form-control-prestamo"
+                  th:value="${fechaPrestamo != null ? fechaPrestamo : #temporals.createNow()}" readonly>
+              </div>
+
+              <div class="form-group-prestamo">
+                <label class="checkbox-custom" for="aceptarTerminos">
+                  <input type="checkbox" id="aceptarTerminos" name="aceptarTerminos" required>
+                  <span class="checkbox-label">
+                    <strong>Acepto los términos y condiciones del préstamo</strong><br>
+                    <small class="text-muted">
+                      He leído y entiendo las condiciones del préstamo, incluyendo las fechas de devolución y las
+                      políticas de renovación.
+                    </small>
+                  </span>
+                </label>
+              </div>
+
+              <div class="form-group-prestamo">
+                <label class="checkbox-custom" for="confirmarComprension">
+                  <input type="checkbox" id="confirmarComprension" name="confirmarComprension" required>
+                  <span class="checkbox-label">
+                    <strong>Confirmo que comprendo las responsabilidades del préstamo</strong><br>
+                    <small class="text-muted">
+                      Entiendo que debo devolver el contenido en la fecha indicada y que el retraso puede afectar mi
+                      capacidad de realizar futuros préstamos.
+                    </small>
+                  </span>
+                </label>
+              </div>
+
+              <div class="botones-accion">
+                <button type="submit" class="btn btn-prestamo-accion btn-confirmar" id="btnConfirmar" disabled>
+                  <i class="bi bi-check-circle"></i>
+                  <span>Confirmar Préstamo</span>
+                </button>
+
+                <a th:href="@{'/catalogo/contenido/' + ${contenido.id}}" class="btn btn-prestamo-accion btn-cancelar">
+                  <i class="bi bi-x-circle"></i>
+                  <span>Cancelar</span>
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Acciones cuando hay errores de validación -->
+        <div class="prestamo-card" th:if="${validacion != null && !validacion.esValidoSafe}">
+          <div class="card-header">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>Acciones Recomendadas</span>
+          </div>
+          <div class="card-body text-center">
+            <div class="mb-3">
+              <p class="text-muted">No puedes realizar este préstamo en este momento, pero puedes:</p>
+            </div>
+
+            <div class="botones-accion">
+              <a th:href="@{'/catalogo/contenido/' + ${contenido.id}}" class="btn btn-prestamo-accion btn-cancelar">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver al Detalle</span>
+              </a>
+
+              <a th:href="@{/catalogo}" class="btn btn-prestamo-accion btn-outline-primary">
+                <i class="bi bi-search"></i>
+                <span>Explorar Catálogo</span>
+              </a>
+
+              <a th:href="@{/mi-cuenta/prestamos}" class="btn btn-prestamo-accion btn-outline-info">
+                <i class="bi bi-book"></i>
+                <span>Mis Préstamos</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </th:block>
+
+  <!-- Scripts específicos -->
+  <th:block th:fragment="prestamoSolicitarScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Referencias a elementos
+        const form = document.getElementById('formConfirmarPrestamo');
+        const btnConfirmar = document.getElementById('btnConfirmar');
+        const checkboxTerminos = document.getElementById('aceptarTerminos');
+        const checkboxComprension = document.getElementById('confirmarComprension');
+
+        // Validar checkboxes para habilitar/deshabilitar el botón
+        function validarFormulario() {
+          const todosAceptados = checkboxTerminos.checked && checkboxComprension.checked;
+          btnConfirmar.disabled = !todosAceptados;
+
+          if (todosAceptados) {
+            btnConfirmar.classList.add('btn-confirmar');
+            btnConfirmar.classList.remove('btn-secondary');
+          } else {
+            btnConfirmar.classList.remove('btn-confirmar');
+            btnConfirmar.classList.add('btn-secondary');
+          }
+        }
+
+        // Event listeners para checkboxes
+        if (checkboxTerminos) {
+          checkboxTerminos.addEventListener('change', validarFormulario);
+        }
+
+        if (checkboxComprension) {
+          checkboxComprension.addEventListener('change', validarFormulario);
+        }
+
+        // Envío del formulario
+        if (form) {
+          form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Mostrar estado de carga
+            btnConfirmar.classList.add('loading');
+            btnConfirmar.disabled = true;
+
+            // Crear overlay de confirmación
+            const confirmacion = confirm(
+              '¿Estás seguro de que deseas confirmar este préstamo?\n\n' +
+              'Una vez confirmado, el contenido estará disponible en tu biblioteca personal ' +
+              'y deberás devolverlo en la fecha indicada.'
+            );
+
+            if (confirmacion) {
+              // Proceder con el envío
+              setTimeout(() => {
+                form.submit();
+              }, 500);
+            } else {
+              // Restaurar botón si cancela
+              btnConfirmar.classList.remove('loading');
+              btnConfirmar.disabled = false;
+            }
+          });
+        }
+
+        // Animaciones de entrada
+        const cards = document.querySelectorAll('.prestamo-card');
+        cards.forEach((card, index) => {
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(30px)';
+
+          setTimeout(() => {
+            card.style.transition = 'all 0.6s ease-out';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          }, index * 150);
+        });
+
+        // Efectos hover para estadísticas
+        const stats = document.querySelectorAll('.limite-stat');
+        stats.forEach(stat => {
+          stat.addEventListener('mouseenter', function () {
+            this.style.transform = 'translateY(-5px) scale(1.05)';
+          });
+
+          stat.addEventListener('mouseleave', function () {
+            this.style.transform = 'translateY(0) scale(1)';
+          });
+        });
+
+        // Efecto de escritura para fechas importantes
+        const fechas = document.querySelectorAll('.fecha-destacada');
+        fechas.forEach((fecha, index) => {
+          fecha.style.opacity = '0';
+          fecha.style.transform = 'scale(0.8)';
+
+          setTimeout(() => {
+            fecha.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            fecha.style.opacity = '1';
+            fecha.style.transform = 'scale(1)';
+          }, 800 + (index * 200));
+        });
+
+        // Validación inicial
+        validarFormulario();
+
+        // Tooltip para información adicional
+        const elementos = document.querySelectorAll('[title]');
+        elementos.forEach(elemento => {
+          elemento.addEventListener('mouseenter', function () {
+            this.style.position = 'relative';
+          });
+        });
+      });
+
+      // Función para manejar errores de red
+      window.addEventListener('beforeunload', function (e) {
+        const form = document.getElementById('formConfirmarPrestamo');
+        const btnConfirmar = document.getElementById('btnConfirmar');
+
+        if (btnConfirmar && btnConfirmar.classList.contains('loading')) {
+          e.preventDefault();
+          e.returnValue = '¿Estás seguro de que quieres salir? El préstamo se está procesando.';
+        }
+      });
+
+      // Auto-focus en el primer checkbox
+      setTimeout(() => {
+        const primerCheckbox = document.getElementById('aceptarTerminos');
+        if (primerCheckbox) {
+          primerCheckbox.focus();
+        }
+      }, 1000);
+    </script>
+  </th:block>
+
+</body>
+
+</html>

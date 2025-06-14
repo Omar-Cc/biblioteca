@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es" class="h-100" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Acceso Denegado - Biblioteca</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/custom-theme.css}">
+  <style>
+    body.error-page {
+      background: linear-gradient(135deg, var(--bs-danger) 0%, var(--bs-warning) 50%, var(--bs-dark) 100%);
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px 0;
+    }
+
+    /* Partículas flotantes de fondo */
+    .floating-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .floating-shield {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.08);
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .floating-shield:nth-child(1) {
+      top: 15%;
+      left: 15%;
+      animation-delay: 0s;
+    }
+
+    .floating-shield:nth-child(2) {
+      top: 25%;
+      right: 15%;
+      animation-delay: 1.5s;
+    }
+
+    .floating-shield:nth-child(3) {
+      bottom: 25%;
+      left: 25%;
+      animation-delay: 3s;
+    }
+
+    .floating-shield:nth-child(4) {
+      bottom: 35%;
+      right: 25%;
+      animation-delay: 4.5s;
+    }
+
+    .floating-shield:nth-child(5) {
+      top: 60%;
+      left: 8%;
+      animation-delay: 6s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+
+      25% {
+        transform: translateY(-15px) rotate(3deg);
+      }
+
+      50% {
+        transform: translateY(-25px) rotate(-2deg);
+      }
+
+      75% {
+        transform: translateY(-10px) rotate(4deg);
+      }
+    }
+
+    .card-error-page {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 10;
+      animation: slideIn 0.8s ease-out;
+      transition: all 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .card-error-page .card-body {
+      padding: 3rem 2rem;
+    }
+
+    /* Icono animado */
+    .icon-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .main-icon {
+      animation: pulse 2s ease-in-out infinite;
+      color: var(--bs-danger);
+      text-shadow: 0 5px 15px rgba(var(--bs-danger-rgb), 0.3);
+      filter: drop-shadow(0 0 10px rgba(var(--bs-danger-rgb), 0.2));
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px rgba(var(--bs-danger-rgb), 0.2));
+      }
+
+      50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 20px rgba(var(--bs-danger-rgb), 0.4));
+      }
+    }
+
+    /* Texto del error */
+    .error-number {
+      font-size: 5.5rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, var(--bs-danger), var(--bs-warning), var(--bs-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      animation: glow 2.5s ease-in-out infinite alternate;
+      text-shadow: 0 5px 15px rgba(var(--bs-danger-rgb), 0.2);
+    }
+
+    @keyframes glow {
+      from {
+        filter: drop-shadow(0 0 5px rgba(var(--bs-danger-rgb), 0.3));
+      }
+
+      to {
+        filter: drop-shadow(0 0 25px rgba(var(--bs-danger-rgb), 0.6));
+      }
+    }
+
+    .btn-enhanced {
+      border-radius: 50px;
+      padding: 12px 30px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-enhanced::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-enhanced:hover::before {
+      left: 100%;
+    }
+
+    .btn-enhanced:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-danger.btn-enhanced {
+      background: linear-gradient(45deg, #dc3545, #c82333);
+      border: none;
+    }
+
+    .btn-danger.btn-enhanced:hover {
+      background: linear-gradient(45deg, #c82333, #721c24);
+    }
+
+    /* Línea divisoria animada */
+    .custom-divider {
+      width: 0;
+      height: 3px;
+      background: linear-gradient(45deg, var(--bs-danger), var(--bs-warning));
+      margin: 2rem auto;
+      border-radius: 2px;
+      animation: expandLine 1s ease-out 0.5s forwards;
+    }
+
+    @keyframes expandLine {
+      to {
+        width: 100px;
+      }
+    }
+
+    /* Efectos de hover para la tarjeta */
+    .card-error-page:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 35px 55px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Badge de seguridad */
+    .security-badge {
+      background: linear-gradient(45deg, var(--bs-danger), var(--bs-warning));
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-block;
+      margin: 1rem 0;
+      animation: fadeIn 1s ease-out 0.8s both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Lista de recomendaciones */
+    .recommendations {
+      background: rgba(var(--bs-light-rgb), 0.8);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-left: 4px solid var(--bs-danger);
+    }
+
+    .recommendations ul {
+      margin-bottom: 0;
+      padding-left: 1.2rem;
+    }
+
+    .recommendations li {
+      margin-bottom: 0.5rem;
+      color: #495057;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .error-number {
+        font-size: 4rem;
+      }
+
+      .card-error-page .card-body {
+        padding: 2rem 1.5rem;
+      }
+
+      .floating-elements {
+        display: none;
+      }
+
+      body.error-page {
+        padding: 10px 0;
+      }
+    }
+
+    @media (max-height: 700px) {
+      body.error-page {
+        justify-content: flex-start;
+        padding-top: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body class="error-page">
+  <!-- Elementos flotantes de fondo -->
+  <div class="floating-elements">
+    <i class="bi bi-shield-exclamation floating-shield" style="font-size: 2.2rem;"></i>
+    <i class="bi bi-shield-x floating-shield" style="font-size: 1.8rem;"></i>
+    <i class="bi bi-lock floating-shield" style="font-size: 2rem;"></i>
+    <i class="bi bi-shield-slash floating-shield" style="font-size: 1.6rem;"></i>
+    <i class="bi bi-key floating-shield" style="font-size: 1.4rem;"></i>
+  </div>
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-6">
+        <div class="card shadow-lg border-0 rounded-4 card-error-page">
+          <div class="card-body text-center">
+            <!-- Icono principal -->
+            <div class="icon-container">
+              <i class="bi bi-shield-exclamation main-icon" style="font-size: 4.5rem;"></i>
+            </div>
+
+            <!-- Número de error -->
+            <div class="error-number">403</div>
+
+            <!-- Título -->
+            <h1 class="h2 fw-bold mb-2 text-dark">¡Acceso Denegado!</h1>
+
+            <!-- Badge de seguridad -->
+            <div class="security-badge">
+              <i class="bi bi-shield-lock me-2"></i>Área Protegida
+            </div>
+
+            <!-- Descripción -->
+            <p class="lead text-muted mb-3">
+              No tienes los permisos necesarios para acceder a esta sección de nuestra biblioteca digital.
+            </p>
+
+            <!-- Línea divisoria animada -->
+            <div class="custom-divider"></div>
+
+            <!-- Recomendaciones -->
+            <div class="recommendations text-start">
+              <h6 class="fw-bold text-dark mb-3">
+                <i class="bi bi-info-circle me-2 text-primary"></i>¿Qué puedes hacer?
+              </h6>
+              <ul class="small">
+                <li>Verifica que hayas iniciado sesión correctamente</li>
+                <li>Contacta al administrador si necesitas permisos especiales</li>
+                <li>Regresa al catálogo público para explorar libros disponibles</li>
+                <li>Revisa si tu cuenta tiene los privilegios necesarios</li>
+              </ul>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center pb-3">
+              <a th:href="@{/}" class="btn btn-danger btn-enhanced">
+                <i class="bi bi-house-door me-2"></i>Ir al Catálogo
+              </a>
+              <a th:href="@{/login}" class="btn btn-outline-primary btn-enhanced ms-sm-2 mt-2 mt-sm-0">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+              </a>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="mt-3">
+              <small class="text-muted">
+                <i class="bi bi-clock me-1"></i>
+                Si ya tienes una cuenta, intenta cerrar sesión y volver a iniciarla
+              </small>
+            </div>
+
+            <!-- Contacto de soporte -->
+            <div class="mt-4 pt-3 border-top">
+              <p class="small text-secondary mb-1">¿Necesitas ayuda?</p>
+              <a href="mailto:soporte@biblioteca.com" class="btn btn-sm btn-outline-secondary btn-enhanced">
+                <i class="bi bi-envelope me-1"></i>Contactar Soporte
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Efecto de parallax sutil en los elementos flotantes
+    document.addEventListener('mousemove', (e) => {
+      const floatingElements = document.querySelectorAll('.floating-shield');
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+
+      floatingElements.forEach((element, index) => {
+        const speed = (index + 1) * 0.3;
+        const xPos = x * speed;
+        const yPos = y * speed;
+        element.style.transform += ` translate(${xPos}px, ${yPos}px)`;
+      });
+    });
+
+    // Animación de entrada escalonada
+    document.addEventListener('DOMContentLoaded', () => {
+      const elements = document.querySelectorAll('.card-error-page .card-body > *');
+      elements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'all 0.5s ease';
+        element.style.animationDelay = `${index * 0.1}s`;
+
+        setTimeout(() => {
+          element.style.opacity = '1';
+          element.style.transform = 'translateY(0)';
+        }, index * 100 + 200);
+      });
+    });
+  </script>
+</body>
+
+</html>

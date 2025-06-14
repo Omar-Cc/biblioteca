@@ -1,180 +1,270 @@
-<div th:fragment="sidebarCuenta" class="card shadow-sm">
-  <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-    <h5 class="card-title mb-0">Mi Cuenta</h5>
-    <!-- Indicador de perfil activo -->
-    <span th:if="${session.perfilActivoNombre}" class="badge bg-light text-primary">
-      <i class="bi bi-person-circle me-1"></i>
-      <small th:text="${session.perfilActivoNombre}">Perfil</small>
-    </span>
+<div th:fragment="sidebarCuenta" class="sidebar-cuenta">
+  <!-- Header del sidebar simplificado -->
+  <div class="sidebar-header-compact">
+  <div class="user-indicator">
+    <div class="avatar-mini">
+      <img th:if="${not #strings.isEmpty(fotoPerfil)}" th:src="${fotoPerfil}" alt="Avatar" class="avatar-tiny">
+      <img th:unless="${not #strings.isEmpty(fotoPerfil)}" th:src="@{/image/default-avatar.jpg}" alt="Avatar" class="avatar-tiny">
+      <div class="plan-dot" th:classappend="${'plan-' + (#strings.toLowerCase(session.nombrePlan ?: 'basico'))}"></div>
+    </div>
+    <div class="quick-actions-compact">
+      <button class="action-btn-compact" data-bs-toggle="tooltip" title="Configuración">
+        <i class="bi bi-gear"></i>
+      </button>
+      <button class="action-btn-compact" data-bs-toggle="tooltip" title="Notificaciones">
+        <i class="bi bi-bell"></i>
+        <span class="notification-dot" th:if="${notificacionesSinLeer > 0}"></span>
+      </button>
+    </div>
   </div>
-  <!-- Enlaces siempre visibles (más usados) -->
-  <div class="list-group list-group-flush">
-    <a th:href="@{/mi-cuenta}" class="list-group-item list-group-item-action"
-      th:classappend="${currentActiveMenu == 'informacion'} ? 'active' : ''">
-      <i class="bi bi-person me-2"></i> Información Personal
-    </a>
-    <a th:href="@{/mi-cuenta/perfiles}" class="list-group-item list-group-item-action"
-      th:classappend="${currentActiveMenu == 'perfiles'} ? 'active' : ''">
-      <i class="bi bi-people me-2"></i> Perfiles
-      <span th:if="${totalPerfiles != null && totalPerfiles > 0}" class="badge rounded-pill float-end"
-        th:text="${totalPerfiles}"
-        th:classappend="${currentActiveMenu == 'perfiles'} ? 'bg-light text-primary' : 'bg-primary'">0</span>
-    </a>
-    <a th:href="@{/usuarios/prestamos}" class="list-group-item list-group-item-action"
-      th:classappend="${currentActiveMenu == 'prestamos'} ? 'active' : ''">
-      <i class="bi bi-journal-bookmark me-2"></i> Préstamos
-    </a>
-    <a th:href="@{/usuarios/notificaciones}" class="list-group-item list-group-item-action"
-      th:classappend="${currentActiveMenu == 'notificaciones'} ? 'active' : ''">
-      <i class="bi bi-bell me-2"></i> Notificaciones
-      <span class="badge rounded-pill bg-danger float-end" th:if="${notificacionesSinLeer > 0}"
-        th:text="${notificacionesSinLeer}">0</span>
-    </a>
-  </div>
+</div>
 
-  <!-- Accordions para el resto de opciones -->
-  <div class="accordion accordion-flush" id="sidebarAccordion">
-    <!-- Mi Biblioteca -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseBiblioteca"
-          th:aria-expanded="${#lists.contains({'favoritos', 'colecciones', 'reseñas', 'lectura'}, currentActiveMenu)}">
-          <i class="bi bi-book me-2"></i> Mi Biblioteca
-        </button>
-      </h2>
-      <div id="collapseBiblioteca" class="accordion-collapse collapse"
-        th:class="${#lists.contains({'favoritos', 'colecciones', 'reseñas', 'lectura'}, currentActiveMenu)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAccordion">
-        <div class="list-group list-group-flush">
-          <a th:href="@{/usuarios/favoritos}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'favoritos'} ? 'active' : ''">
-            <i class="bi bi-heart me-2"></i> Mis Favoritos
-          </a>
-          <a th:href="@{/usuarios/colecciones}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'colecciones'} ? 'active' : ''">
-            <i class="bi bi-collection me-2"></i> Mis Colecciones
-          </a>
-          <a th:href="@{/usuarios/reseñas}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'reseñas'} ? 'active' : ''">
-            <i class="bi bi-star me-2"></i> Mis Reseñas
-          </a>
-          <a th:href="@{/usuarios/lectura}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'lectura'} ? 'active' : ''">
-            <i class="bi bi-bookmark me-2"></i> Progreso de Lectura
-          </a>
-          <a th:href="@{/usuarios/historial}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'historial'} ? 'active' : ''">
-            <i class="bi bi-clock-history me-2"></i> Historial
-          </a>
+  <!-- Navegación principal -->
+  <nav class="sidebar-nav">
+    <!-- Enlaces principales -->
+    <div class="nav-section">
+      <div class="nav-section-header">
+        <i class="bi bi-house-door"></i>
+        <span>Principal</span>
+      </div>
+
+      <a th:href="@{/mi-cuenta}" class="nav-item-sidebar"
+        th:classappend="${currentActiveMenu == 'informacion'} ? 'active' : ''">
+        <div class="nav-icon">
+          <i class="bi bi-person"></i>
         </div>
+        <span class="nav-label">Mi Información</span>
+        <div class="nav-indicator"></div>
+      </a>
+
+      <!-- Resto de navegación igual... -->
+      <a th:href="@{/mi-cuenta/perfiles}" class="nav-item-sidebar"
+        th:classappend="${currentActiveMenu == 'perfiles'} ? 'active' : ''">
+        <div class="nav-icon">
+          <i class="bi bi-people"></i>
+        </div>
+        <span class="nav-label">Perfiles</span>
+        <span class="nav-badge" th:if="${totalPerfiles > 1}" th:text="${totalPerfiles}">0</span>
+        <div class="nav-indicator"></div>
+      </a>
+
+      <a th:href="@{/mi-cuenta/prestamos}" class="nav-item-sidebar"
+        th:classappend="${currentActiveMenu == 'prestamos'} ? 'active' : ''">
+        <div class="nav-icon">
+          <i class="bi bi-journal-bookmark"></i>
+        </div>
+        <span class="nav-label">Préstamos</span>
+        <div class="nav-indicator"></div>
+      </a>
+    </div>
+
+    <!-- Mi Biblioteca -->
+    <div class="nav-section">
+      <button class="nav-section-toggle" data-bs-toggle="collapse" data-bs-target="#biblioteca-section"
+        th:aria-expanded="${#lists.contains({'favoritos', 'colecciones', 'reseñas', 'lectura', 'historial'}, currentActiveMenu)}">
+        <div class="section-header">
+          <i class="bi bi-book"></i>
+          <span>Mi Biblioteca</span>
+        </div>
+        <i class="bi bi-chevron-down toggle-icon"></i>
+      </button>
+
+      <div class="collapse nav-subsection" id="biblioteca-section"
+        th:class="${#lists.contains({'favoritos', 'colecciones', 'reseñas', 'lectura', 'historial'}, currentActiveMenu)} ? 'collapse nav-subsection show' : 'collapse nav-subsection'">
+        <a th:href="@{/mi-cuenta/favoritos}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'favoritos'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-heart"></i>
+          </div>
+          <span class="nav-label">Favoritos</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/colecciones}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'colecciones'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-collection"></i>
+          </div>
+          <span class="nav-label">Colecciones</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/reseñas}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'reseñas'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-star"></i>
+          </div>
+          <span class="nav-label">Reseñas</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/lectura}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'lectura'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-bookmark"></i>
+          </div>
+          <span class="nav-label">Progreso</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/historial}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'historial'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <span class="nav-label">Historial</span>
+          <div class="nav-indicator"></div>
+        </a>
       </div>
     </div>
 
     <!-- Compras y Suscripciones -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseSuscripciones"
-          th:aria-expanded="${#lists.contains({'suscripcion', 'pagos', 'pedidos', 'facturas'}, currentActiveMenu)}">
-          <i class="bi bi-credit-card me-2"></i> Compras y Suscripciones
-        </button>
-      </h2>
-      <div id="collapseSuscripciones" class="accordion-collapse collapse"
-        th:class="${#lists.contains({'suscripcion', 'pagos', 'pedidos', 'facturas'}, currentActiveMenu)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAccordion">
-        <div class="list-group list-group-flush">
-          <a th:href="@{/usuarios/suscripcion}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'suscripcion'} ? 'active' : ''">
-            <i class="bi bi-card-checklist me-2"></i> Mi Suscripción
-          </a>
-          <a th:href="@{/usuarios/pagos}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'pagos'} ? 'active' : ''">
-            <i class="bi bi-credit-card me-2"></i> Métodos de Pago
-          </a>
-          <a th:href="@{/usuarios/pedidos}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'pedidos'} ? 'active' : ''">
-            <i class="bi bi-bag me-2"></i> Mis Pedidos
-            <span class="badge rounded-pill bg-primary float-end" th:if="${pedidosPendientes > 0}"
-              th:text="${pedidosPendientes}">0</span>
-          </a>
-          <a th:href="@{/usuarios/facturas}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'facturas'} ? 'active' : ''">
-            <i class="bi bi-receipt me-2"></i> Facturas
-          </a>
+    <div class="nav-section">
+      <button class="nav-section-toggle" data-bs-toggle="collapse" data-bs-target="#compras-section"
+        th:aria-expanded="${#lists.contains({'suscripcion', 'pagos', 'pedidos', 'facturas'}, currentActiveMenu)}">
+        <div class="section-header">
+          <i class="bi bi-credit-card"></i>
+          <span>Compras</span>
         </div>
+        <i class="bi bi-chevron-down toggle-icon"></i>
+      </button>
+
+      <div class="collapse nav-subsection" id="compras-section"
+        th:class="${#lists.contains({'suscripcion', 'pagos', 'pedidos', 'facturas'}, currentActiveMenu)} ? 'collapse nav-subsection show' : 'collapse nav-subsection'">
+        <a th:href="@{/mi-cuenta/suscripcion}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'suscripcion'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-card-checklist"></i>
+          </div>
+          <span class="nav-label">Suscripción</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/pago}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'pagos'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-wallet2"></i>
+          </div>
+          <span class="nav-label">Métodos de Pago</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/orden}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'pedidos'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-bag"></i>
+          </div>
+          <span class="nav-label">Pedidos</span>
+          <span class="nav-badge pulse" th:if="${pedidosPendientes > 0}" th:text="${pedidosPendientes}">0</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/facturas}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'facturas'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <span class="nav-label">Facturas</span>
+          <div class="nav-indicator"></div>
+        </a>
       </div>
     </div>
 
     <!-- Social -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseSocial"
-          th:aria-expanded="${#lists.contains({'grupos', 'discusiones'}, currentActiveMenu)}">
-          <i class="bi bi-people-fill me-2"></i> Social
-        </button>
-      </h2>
-      <div id="collapseSocial" class="accordion-collapse collapse"
-        th:class="${#lists.contains({'grupos', 'discusiones'}, currentActiveMenu)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAccordion">
-        <div class="list-group list-group-flush">
-          <a th:href="@{/usuarios/grupos}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'grupos'} ? 'active' : ''">
-            <i class="bi bi-people-fill me-2"></i> Mis Grupos de Lectura
-          </a>
-          <a th:href="@{/usuarios/discusiones}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'discusiones'} ? 'active' : ''">
-            <i class="bi bi-chat-left-text me-2"></i> Mis Discusiones
-          </a>
+    <div class="nav-section">
+      <button class="nav-section-toggle" data-bs-toggle="collapse" data-bs-target="#social-section"
+        th:aria-expanded="${#lists.contains({'grupos', 'discusiones'}, currentActiveMenu)}">
+        <div class="section-header">
+          <i class="bi bi-people-fill"></i>
+          <span>Social</span>
         </div>
+        <i class="bi bi-chevron-down toggle-icon"></i>
+      </button>
+
+      <div class="collapse nav-subsection" id="social-section"
+        th:class="${#lists.contains({'grupos', 'discusiones'}, currentActiveMenu)} ? 'collapse nav-subsection show' : 'collapse nav-subsection'">
+        <a th:href="@{/mi-cuenta/grupos}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'grupos'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <span class="nav-label">Grupos</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/discusiones}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'discusiones'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-chat-left-text"></i>
+          </div>
+          <span class="nav-label">Discusiones</span>
+          <div class="nav-indicator"></div>
+        </a>
       </div>
     </div>
 
     <!-- Descubrir -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseDescubrir" th:aria-expanded="${currentActiveMenu == 'recomendaciones'}">
-          <i class="bi bi-magic me-2"></i> Descubrir
-        </button>
-      </h2>
-      <div id="collapseDescubrir" class="accordion-collapse collapse"
-        th:class="${currentActiveMenu == 'recomendaciones'} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAccordion">
-        <div class="list-group list-group-flush">
-          <a th:href="@{/usuarios/recomendaciones}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'recomendaciones'} ? 'active' : ''">
-            <i class="bi bi-lightbulb me-2"></i> Recomendaciones
-          </a>
+    <div class="nav-section">
+      <a th:href="@{/mi-cuenta/recomendaciones}" class="nav-item-sidebar special"
+        th:classappend="${currentActiveMenu == 'recomendaciones'} ? 'active' : ''">
+        <div class="nav-icon">
+          <i class="bi bi-magic"></i>
         </div>
-      </div>
+        <span class="nav-label">Descubrir</span>
+        <div class="nav-indicator"></div>
+      </a>
     </div>
 
     <!-- Configuración -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-          data-bs-target="#collapseConfiguracion"
-          th:aria-expanded="${#lists.contains({'seguridad', 'lector'}, currentActiveMenu)}">
-          <i class="bi bi-gear me-2"></i> Configuración
-        </button>
-      </h2>
-      <div id="collapseConfiguracion" class="accordion-collapse collapse"
-        th:class="${#lists.contains({'seguridad', 'lector'}, currentActiveMenu)} ? 'accordion-collapse collapse show' : 'accordion-collapse collapse'"
-        data-bs-parent="#sidebarAccordion">
-        <div class="list-group list-group-flush">
-          <a th:href="@{/mi-cuenta/seguridad}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'seguridad'} ? 'active' : ''">
-            <i class="bi bi-shield-lock me-2"></i> Seguridad
-          </a>
-          <a th:href="@{/mi-cuenta/lector}" class="list-group-item list-group-item-action ps-4"
-            th:classappend="${currentActiveMenu == 'lector'} ? 'active' : ''"
-            th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}">
-            <i class="bi bi-person-vcard me-2"></i> Datos de Lector
-          </a>
+    <div class="nav-section">
+      <button class="nav-section-toggle" data-bs-toggle="collapse" data-bs-target="#config-section"
+        th:aria-expanded="${#lists.contains({'seguridad', 'lector'}, currentActiveMenu)}">
+        <div class="section-header">
+          <i class="bi bi-gear"></i>
+          <span>Configuración</span>
         </div>
+        <i class="bi bi-chevron-down toggle-icon"></i>
+      </button>
+
+      <div class="collapse nav-subsection" id="config-section"
+        th:class="${#lists.contains({'seguridad', 'lector'}, currentActiveMenu)} ? 'collapse nav-subsection show' : 'collapse nav-subsection'">
+        <a th:href="@{/mi-cuenta/seguridad}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'seguridad'} ? 'active' : ''">
+          <div class="nav-icon">
+            <i class="bi bi-shield-lock"></i>
+          </div>
+          <span class="nav-label">Seguridad</span>
+          <div class="nav-indicator"></div>
+        </a>
+
+        <a th:href="@{/mi-cuenta/lector}" class="nav-item-sidebar sub-item"
+          th:classappend="${currentActiveMenu == 'lector'} ? 'active' : ''"
+          th:if="${session.esPerfilPrincipal == null || session.esPerfilPrincipal}">
+          <div class="nav-icon">
+            <i class="bi bi-person-vcard"></i>
+          </div>
+          <span class="nav-label">Datos de Lector</span>
+          <div class="nav-indicator"></div>
+        </a>
       </div>
     </div>
+  </nav>
+
+  <!-- Footer del sidebar -->
+  <div class="sidebar-footer">
+    <div class="progress-section">
+      <div class="progress-info">
+        <span class="progress-label">Uso del plan</span>
+        <span class="progress-value">65%</span>
+      </div>
+      <div class="progress-bar-custom">
+        <div class="progress-fill" style="width: 65%"></div>
+      </div>
+    </div>
+
+    <a href="#" class="upgrade-btn" th:if="${session.nombrePlan == 'Básico'}">
+      <i class="bi bi-arrow-up-circle"></i>
+      <span>Mejorar Plan</span>
+    </a>
   </div>
 </div>

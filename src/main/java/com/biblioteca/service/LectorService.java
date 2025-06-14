@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.biblioteca.dto.LectorRequestDTO;
 import com.biblioteca.dto.LectorResponseDTO;
-import com.biblioteca.models.Lector;
+import com.biblioteca.models.acceso.Lector;
 
 public interface LectorService {
 

@@ -12,7 +12,7 @@
     body {
       background-color: #141414;
       color: white;
-      max-height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -26,7 +26,7 @@
 
     .profile-title {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: .8rem;
       font-size: 2.5rem;
       font-weight: 300;
       color: #e5e5e5;
@@ -107,7 +107,7 @@
     }
 
     .btn-gestionar {
-      margin-top: 3rem;
+      margin-top: 1rem;
       border: 1px solid #aaa;
       color: #aaa;
       background: transparent;
@@ -122,7 +122,7 @@
 
     .logo {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: .8rem;
     }
 
     .logo-text {
@@ -132,6 +132,48 @@
 
     .logo-colored {
       color: var(--bs-primary);
+    }
+
+    /* Estilos para información del plan */
+    .plan-info-compact {
+      padding: 1rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      text-align: center;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .plan-info-compact .plan-name {
+      color: var(--bs-primary);
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .plan-info-compact .plan-usage {
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+
+    .add-profile-disabled {
+      opacity: 0.5;
+      cursor: not-allowed !important;
+      pointer-events: none;
+    }
+
+    .upgrade-hint {
+      color: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .upgrade-hint a {
+      color: white;
+      text-decoration: underline;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -143,6 +185,15 @@
 
   <div class="container profile-container">
     <h1 class="profile-title">¿Quién está leyendo?</h1>
+
+    <!-- Información del plan (solo si hay perfiles) -->
+    <div th:if="${planInfo != null and !sinPerfiles}" class="plan-info-compact">
+      <div class="plan-name" th:text="${planInfo.nombrePlan}">Plan Básico</div>
+      <div class="plan-usage">
+        <span th:text="${perfilesUsados}">0</span> de
+        <span th:text="${perfilesPermitidos}">1</span> perfiles utilizados
+      </div>
+    </div>
 
     <!-- Alertas -->
     <div th:if="${errorMessage}" class="alert alert-danger text-center mb-4" role="alert">
@@ -186,8 +237,8 @@
         </form>
       </div>
 
-      <!-- Botón para agregar nuevo perfil (si no se ha llegado al máximo) -->
-      <div th:if="${perfiles.size() < 5}" class="profile-box">
+      <!-- Botón para agregar nuevo perfil (con validación de límites del plan) -->
+      <div th:if="${perfilesDisponibles > 0}" class="profile-box">
         <a th:href="@{/mi-cuenta/perfiles/nuevo}" class="text-decoration-none">
           <div class="profile-img add">
             <i class="bi bi-plus-lg"></i>
@@ -197,14 +248,22 @@
       </div>
     </div>
 
+    <!-- Mensaje de upgrade cuando se alcanza el límite -->
+    <div th:if="${perfilesDisponibles <= 0 and planInfo != null and !planInfo.esPlanPremium}" class="upgrade-hint">
+      <i class="bi bi-star-fill me-2"></i>
+      ¡Has alcanzado el límite de tu plan actual!
+      <br>
+      <a th:href="@{/mi-cuenta/suscripciones/upgrade}">Actualiza tu plan para crear más perfiles</a>
+    </div>
+
     <!-- Botón de gestionar perfiles solo si hay perfiles -->
-    <div th:if="${!sinPerfiles}" class="text-center mt-5">
+    <div th:if="${!sinPerfiles}" class="text-center">
       <a th:href="@{/mi-cuenta/perfiles}" class="btn btn-gestionar">Gestionar perfiles</a>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
-  
+
 </body>
 
 </html>

@@ -3,174 +3,173 @@ package com.biblioteca.service.impl;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.biblioteca.dto.LectorRequestDTO;
 import com.biblioteca.dto.LectorResponseDTO;
+import com.biblioteca.exceptions.RecursoNoEncontradoException;
 import com.biblioteca.mapper.LectorMapper;
-import com.biblioteca.models.Lector;
-import com.biblioteca.models.Usuario;
+import com.biblioteca.models.acceso.Lector;
+import com.biblioteca.models.acceso.Usuario;
+import com.biblioteca.repositories.LectorRepository;
 import com.biblioteca.service.LectorService;
 import com.biblioteca.service.UsuarioService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class LectorServiceImpl implements LectorService {
 
-  private final Map<String, Lector> lectoresPorUsername = new ConcurrentHashMap<>();
   private final UsuarioService usuarioService;
+  private final LectorRepository lectorRepository;
   private final LectorMapper lectorMapper;
-  private final ZoneId limaZone;
-
-  public LectorServiceImpl(UsuarioService usuarioService, LectorMapper lectorMapper) {
-    this.usuarioService = usuarioService;
-    this.lectorMapper = lectorMapper;
-    this.limaZone = ZoneId.of("America/Lima");
-  }
+  private final ZoneId limaZone = ZoneId.of("America/Lima");
 
   @Override
+  @Transactional(readOnly = true)
   public boolean tienePerfilLector(String username) {
-    return lectoresPorUsername.containsKey(username);
+    // Asumiendo que Lector tiene una relación con Usuario y podemos buscar por el
+    // username del Usuario
+    return lectorRepository.existsByUsuarioUsername(username);
   }
 
   @Override
+  @Transactional
   public LectorResponseDTO crearPerfilLector(String username, LectorRequestDTO lectorDTO) {
-    // Verificar si ya existe un perfil de lector
     if (tienePerfilLector(username)) {
       throw new IllegalArgumentException("Ya existe un perfil de lector para el usuario: " + username);
     }
 
-    // Obtener el usuario base
     Usuario usuario = usuarioService.buscarPorUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
-    // Crear nuevo lector con datos del usuario y el DTO
     Lector lector = lectorMapper.usuarioYDtoToLector(usuario, lectorDTO);
+    lector.setUsuario(usuario); // Asegurar que la relación esté establecida
+    usuario.setUltimaActividad(LocalDateTime.now(limaZone));
+    // El ID del lector será generado por la base de datos
 
-    // Actualizar la fecha de última actividad
-    lector.setUltimaActividad(LocalDateTime.now(limaZone));
+    Lector lectorGuardado = lectorRepository.save(lector);
+    // La actualización del tipo de usuario en la entidad Usuario (si es necesario)
+    // podría manejarse aquí o dentro de UsuarioService si Lector no es una subclase
+    // directa.
+    // Por ejemplo, si Usuario tiene un campo 'tipo' o 'rol'.
+    // usuarioService.marcarComoLector(username); // Ejemplo de método en
+    // UsuarioService
 
-    // Guardar en el mapa
-    lectoresPorUsername.put(username, lector);
-
-    // Actualizar el repositorio de usuarios también (ya que Lector es un Usuario)
-    actualizarUsuario(lector);
-
-    return lectorMapper.lectorToLectorResponseDTO(lector);
+    return lectorMapper.lectorToLectorResponseDTO(lectorGuardado);
   }
 
   @Override
+  @Transactional
   public LectorResponseDTO actualizarPerfilLector(String username, LectorRequestDTO lectorDTO) {
-    Lector lector = obtenerEntidadLectorPorUsername(username)
-        .orElseThrow(() -> new IllegalArgumentException("No existe un perfil de lector para el usuario: " + username));
+    Lector lector = lectorRepository.findByUsuarioUsername(username)
+        .orElseThrow(
+            () -> new RecursoNoEncontradoException("No existe un perfil de lector para el usuario: " + username));
 
-    // Actualizar los campos del lector con los del DTO
     lectorMapper.updateLectorFromDto(lectorDTO, lector);
+    lector.getUsuario().setUltimaActividad(LocalDateTime.now(limaZone));
 
-    // Actualizar fecha de última actividad
-    lector.setUltimaActividad(LocalDateTime.now(limaZone));
-
-    // Guardar los cambios
-    lectoresPorUsername.put(username, lector);
-
-    // Actualizar el repositorio de usuarios
-    actualizarUsuario(lector);
-
-    return lectorMapper.lectorToLectorResponseDTO(lector);
+    Lector lectorActualizado = lectorRepository.save(lector);
+    return lectorMapper.lectorToLectorResponseDTO(lectorActualizado);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<LectorResponseDTO> obtenerPerfilLectorPorUsername(String username) {
-    return obtenerEntidadLectorPorUsername(username)
+    return lectorRepository.findByUsuarioUsername(username)
         .map(lectorMapper::lectorToLectorResponseDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Lector> obtenerEntidadLectorPorUsername(String username) {
-    return Optional.ofNullable(lectoresPorUsername.get(username));
+    return lectorRepository.findByUsuarioUsername(username);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<LectorResponseDTO> listarTodosLosLectores() {
-    return lectoresPorUsername.values().stream()
+    return lectorRepository.findAll().stream()
         .map(lectorMapper::lectorToLectorResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional
   public LectorResponseDTO cambiarEstadoLector(String username, String nuevoEstado) {
-    Lector lector = obtenerEntidadLectorPorUsername(username)
-        .orElseThrow(() -> new IllegalArgumentException("No existe un perfil de lector para el usuario: " + username));
+    Lector lector = lectorRepository.findByUsuarioUsername(username)
+        .orElseThrow(
+            () -> new RecursoNoEncontradoException("No existe un perfil de lector para el usuario: " + username));
 
-    // Validar el nuevo estado
     if (!esEstadoValido(nuevoEstado)) {
       throw new IllegalArgumentException("Estado de cuenta no válido: " + nuevoEstado);
     }
 
     lector.setEstadoCuenta(nuevoEstado);
-    lector.setUltimaActividad(LocalDateTime.now(limaZone));
+    lector.getUsuario().setUltimaActividad(LocalDateTime.now(limaZone));
 
-    // Actualizar repositorios
-    lectoresPorUsername.put(username, lector);
-    actualizarUsuario(lector);
-
-    return lectorMapper.lectorToLectorResponseDTO(lector);
+    Lector lectorActualizado = lectorRepository.save(lector);
+    return lectorMapper.lectorToLectorResponseDTO(lectorActualizado);
   }
 
   @Override
+  @Transactional
   public LectorResponseDTO actualizarMultasPendientes(String username, Integer nuevoValor) {
-    Lector lector = obtenerEntidadLectorPorUsername(username)
-        .orElseThrow(() -> new IllegalArgumentException("No existe un perfil de lector para el usuario: " + username));
+    Lector lector = lectorRepository.findByUsuarioUsername(username)
+        .orElseThrow(
+            () -> new RecursoNoEncontradoException("No existe un perfil de lector para el usuario: " + username));
 
     if (nuevoValor < 0) {
       throw new IllegalArgumentException("El valor de multas pendientes no puede ser negativo");
     }
 
     lector.setMultasPendientes(nuevoValor);
-    lector.setUltimaActividad(LocalDateTime.now(limaZone));
+    lector.getUsuario().setUltimaActividad(LocalDateTime.now(limaZone));
 
-    // Actualizar automáticamente el estado si hay multas
     if (nuevoValor > 0 && "ACTIVO".equals(lector.getEstadoCuenta())) {
       lector.setEstadoCuenta("MULTADO");
     } else if (nuevoValor == 0 && "MULTADO".equals(lector.getEstadoCuenta())) {
       lector.setEstadoCuenta("ACTIVO");
     }
 
-    // Actualizar repositorios
-    lectoresPorUsername.put(username, lector);
-    actualizarUsuario(lector);
-
-    return lectorMapper.lectorToLectorResponseDTO(lector);
+    Lector lectorActualizado = lectorRepository.save(lector);
+    return lectorMapper.lectorToLectorResponseDTO(lectorActualizado);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<LectorResponseDTO> buscarLectoresPorApellido(String apellido) {
-    return lectoresPorUsername.values().stream()
-        .filter(lector -> lector.getApellido().toLowerCase().contains(apellido.toLowerCase()))
+    // Asumiendo que Lector tiene una relación con Usuario y Usuario tiene el campo
+    // apellido.
+    // La consulta real dependerá de cómo esté definida la entidad Lector y su
+    // relación.
+    // Si Lector hereda de Usuario, esto podría ser más directo.
+    // Si Lector tiene un campo 'usuario', la consulta sería por 'usuario.apellido'.
+    return lectorRepository.findByApellidoContainingIgnoreCase(apellido).stream()
         .map(lectorMapper::lectorToLectorResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional
   public boolean eliminarPerfilLector(String username) {
-    if (lectoresPorUsername.remove(username) != null) {
-      // Se deberia también "degradar" el Usuario a no-Lector
+    Optional<Lector> lectorOpt = lectorRepository.findByUsuarioUsername(username);
+    if (lectorOpt.isPresent()) {
+      lectorRepository.delete(lectorOpt.get());
+      // Aquí podría ir lógica para "degradar" al Usuario si es necesario,
+      // por ejemplo, cambiar un rol o tipo en la entidad Usuario.
+      // usuarioService.removerRolLector(username); // Ejemplo
       return true;
     }
     return false;
   }
 
-  private void actualizarUsuario(Lector lector) {
-    
-    usuarioService.actualizarLector(lector);
-  }
-
-  // Validador de estados
   private boolean esEstadoValido(String estado) {
     return List.of("ACTIVO", "SUSPENDIDO", "MULTADO", "INACTIVO").contains(estado);
   }

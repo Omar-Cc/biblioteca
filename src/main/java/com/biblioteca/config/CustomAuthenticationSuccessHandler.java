@@ -5,38 +5,106 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
-public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
   private final SessionManagementService sessionManagementService;
 
   public CustomAuthenticationSuccessHandler(SessionManagementService sessionManagementService) {
     this.sessionManagementService = sessionManagementService;
-    setDefaultTargetUrl("/mi-cuenta/perfiles/seleccionar");
   }
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
 
-    String username = authentication.getName();
-    String sessionId = request.getSession().getId();
-    String deviceInfo = determineDeviceInfo(request.getHeader("User-Agent"));
+    try {
+      String username = authentication.getName();
+      String sessionId = request.getSession().getId();
+      String deviceInfo = determineDeviceInfo(request.getHeader("User-Agent"));
 
-    // Obtener IP
-    String ipAddress = request.getRemoteAddr();
+      // Obtener IP
+      String ipAddress = getClientIpAddress(request);
 
-    // Determinar ubicación basada en IP ( MaxMind GeoIP o ipapi.com )
-    String location = determineLocation(ipAddress);
+      // Determinar ubicación basada en IP
+      String location = determineLocation(ipAddress);
 
-    sessionManagementService.registerSession(username, sessionId, deviceInfo, ipAddress, location);
+      sessionManagementService.registerSession(username, sessionId, deviceInfo, ipAddress, location);
 
-    super.onAuthenticationSuccess(request, response, authentication);
+      // Guardar la URL solicitada para después de la selección de perfil
+      String requestedUrl = getRequestedUrl(request);
+      if (requestedUrl != null && !isAuthRelatedUrl(requestedUrl)) {
+        request.getSession().setAttribute("URL_AFTER_PROFILE_SELECTION", requestedUrl);
+        System.out.println("🔍 DEBUG - URL guardada para después de selección de perfil: " + requestedUrl);
+      }
+
+      // Siempre redirigir a selección de perfil después del login
+      // El PerfilInterceptor se encargará de verificar si hay perfil activo
+      System.out.println("🔍 DEBUG - Redirigiendo a selección de perfil después del login");
+      response.sendRedirect(request.getContextPath() + "/mi-cuenta/perfiles/seleccionar");
+      
+    } catch (Exception e) {
+      // Log del error pero continuar con la redirección
+      e.printStackTrace();
+      response.sendRedirect(request.getContextPath() + "/mi-cuenta/perfiles/seleccionar");
+    }
+  }
+
+  private String getRequestedUrl(HttpServletRequest request) {
+    // 1. Verificar si hay una URL guardada manualmente en la sesión
+    String requestedUrl = (String) request.getSession().getAttribute("REQUESTED_URL");
+    if (requestedUrl != null && !requestedUrl.isEmpty()) {
+      System.out.println("🔍 DEBUG - URL desde sesión manual: " + requestedUrl);
+      return requestedUrl;
+    }
+
+    // 2. Verificar Spring Security SavedRequest
+    org.springframework.security.web.savedrequest.SavedRequest savedRequest = 
+        (org.springframework.security.web.savedrequest.SavedRequest) request.getSession()
+            .getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+    
+    if (savedRequest != null) {
+      String savedUrl = savedRequest.getRedirectUrl();
+      System.out.println("🔍 DEBUG - URL desde Spring Security: " + savedUrl);
+      return savedUrl;
+    }
+
+    return null;
+  }
+
+  private boolean isAuthRelatedUrl(String url) {
+    if (url == null) return true;
+    
+    // Extraer solo el path de la URL
+    try {
+      java.net.URL urlObj = new java.net.URL(url);
+      String path = urlObj.getPath();
+      return path.equals("/") || 
+             path.equals("/login") || 
+             path.equals("/registro") || 
+             path.startsWith("/mi-cuenta/perfiles/");
+    } catch (Exception e) {
+      return true;
+    }
+  }
+
+  private String getClientIpAddress(HttpServletRequest request) {
+    String xForwardedFor = request.getHeader("X-Forwarded-For");
+    if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+      return xForwardedFor.split(",")[0].trim();
+    }
+
+    String xRealIp = request.getHeader("X-Real-IP");
+    if (xRealIp != null && !xRealIp.isEmpty()) {
+      return xRealIp;
+    }
+
+    return request.getRemoteAddr();
   }
 
   private String determineDeviceInfo(String userAgent) {
@@ -60,7 +128,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
   }
 
   private String determineLocation(String ipAddress) {
-    // Servicio de geolocalización basado en IP ( MaxMind GeoIP o ipapi.com )
+    // Servicio de geolocalización basado en IP
     if ("0:0:0:0:0:0:0:1".equals(ipAddress) || "127.0.0.1".equals(ipAddress)) {
       return "Local";
     } else if (ipAddress.startsWith("192.168.")) {

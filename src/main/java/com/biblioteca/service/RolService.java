@@ -1,7 +1,9 @@
 package com.biblioteca.service;
 
-import com.biblioteca.models.Rol;
 import java.util.Optional;
+
+import com.biblioteca.models.acceso.Rol;
+
 import java.util.List;
 
 public interface RolService {

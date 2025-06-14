@@ -19,4 +19,5 @@ public class HistorialPagoSuscripcionResponseDTO {
     private String estado;
     private Long suscripcionId;
     private Long pagoId;
+    private String metodoPago;
 }

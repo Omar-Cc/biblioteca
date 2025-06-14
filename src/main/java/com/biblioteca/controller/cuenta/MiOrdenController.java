@@ -1,11 +1,14 @@
 package com.biblioteca.controller.cuenta;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,7 +23,8 @@ import com.biblioteca.dto.comercial.MetodoPagoResponseDTO;
 import com.biblioteca.dto.comercial.OrdenRequestDTO;
 import com.biblioteca.dto.comercial.OrdenResponseDTO;
 import com.biblioteca.dto.comercial.PagoRequestDTO;
-import com.biblioteca.models.Perfil;
+import com.biblioteca.enums.EstadoPago;
+import com.biblioteca.models.acceso.Perfil;
 import com.biblioteca.service.CarritoService;
 import com.biblioteca.service.FacturaService;
 import com.biblioteca.service.MetodoPagoService;
@@ -30,11 +34,13 @@ import com.biblioteca.service.PerfilService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequestMapping("/mi-cuenta/orden")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER', 'LECTOR')")
+@PreAuthorize("hasRole('LECTOR')")
 public class MiOrdenController {
 
   private final OrdenService ordenService;
@@ -45,20 +51,56 @@ public class MiOrdenController {
   private final FacturaService facturaService;
 
   @GetMapping
-  public String listarOrdenes(Model model, HttpSession session) {
+  @Transactional(readOnly = true)
+  public String listarOrdenes(
+      @RequestParam(required = false) String estado,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+      Model model,
+      HttpSession session) {
+
     // Obtener el perfil del usuario actual
     Perfil perfil = obtenerPerfilActual(session);
     if (perfil == null) {
       return "redirect:/mi-cuenta/perfiles/seleccionar?error=Se+requiere+un+perfil+para+ver+órdenes";
     }
 
-    List<OrdenResponseDTO> ordenes = ordenService.obtenerOrdenesPorPerfil(perfil.getId());
+    List<OrdenResponseDTO> ordenes;
+
+    // Aplicar filtros si están presentes
+    if (estado != null || fechaDesde != null || fechaHasta != null) {
+      ordenes = ordenService.obtenerOrdenesPorPerfilConFiltros(perfil.getId(), estado, fechaDesde, fechaHasta);
+    } else {
+      ordenes = ordenService.obtenerOrdenesPorPerfil(perfil.getId());
+    }
+
     model.addAttribute("ordenes", ordenes);
 
-    return "ordenes/lista";
+    // Calcular estadísticas basadas en los resultados filtrados
+    long totalOrdenes = ordenes.size();
+    long ordenesPendientes = ordenes.stream().filter(o -> "Pendiente".equals(o.getEstadoOrden())).count();
+    long ordenesCompletadas = ordenes.stream().filter(o -> "Completada".equals(o.getEstadoOrden())).count();
+    long ordenesCanceladas = ordenes.stream().filter(o -> "Cancelada".equals(o.getEstadoOrden())).count();
+
+    model.addAttribute("totalOrdenes", totalOrdenes);
+    model.addAttribute("ordenesPendientes", ordenesPendientes);
+    model.addAttribute("ordenesCompletadas", ordenesCompletadas);
+    model.addAttribute("ordenesCanceladas", ordenesCanceladas);
+
+    // Mantener los filtros en el modelo para que se muestren en el formulario
+    model.addAttribute("filtroEstado", estado);
+    model.addAttribute("filtroFechaDesde", fechaDesde);
+    model.addAttribute("filtroFechaHasta", fechaHasta);
+
+    // Indicar si hay filtros activos
+    boolean filtrosActivos = estado != null || fechaDesde != null || fechaHasta != null;
+    model.addAttribute("filtrosActivos", filtrosActivos);
+
+    return "mi-cuenta/ordenes/lista-mis-ordenes";
   }
 
   @GetMapping("/{id}")
+  @Transactional(readOnly = true)
   public String verDetalleOrden(@PathVariable Long id, Model model, HttpSession session,
       RedirectAttributes redirectAttributes) {
     Perfil perfil = obtenerPerfilActual(session);
@@ -78,7 +120,7 @@ public class MiOrdenController {
           facturaService.obtenerFacturaPorId(orden.getFactura().getId())
               .ifPresent(factura -> model.addAttribute("factura", factura));
 
-          return "ordenes/detalle";
+          return "mi-cuenta/ordenes/detalle-mi-orden";
         })
         .orElseGet(() -> {
           redirectAttributes.addFlashAttribute("error", "Orden no encontrada");
@@ -107,56 +149,124 @@ public class MiOrdenController {
     List<MetodoPagoResponseDTO> metodosPago = metodoPagoService.obtenerMetodosPagoActivos();
     model.addAttribute("metodosPago", metodosPago);
 
-    // Calcular total del carrito para el perfil específico
-    double totalCarrito = carritoService.calcularTotalCarritoPorPerfil(perfil.getId());
-    model.addAttribute("totalCarrito", totalCarrito);
-
     // Pasar datos del carrito específico del perfil
     carritoService.obtenerCarritoPorPerfil(perfil.getId())
         .ifPresent(carrito -> model.addAttribute("carrito", carrito));
 
+    // Agregar perfil al modelo
+    model.addAttribute("perfil", perfil);
+
     // Preparar DTO para la orden
     model.addAttribute("ordenForm", new OrdenRequestDTO());
 
-    return "ordenes/checkout";
+    return "mi-cuenta/ordenes/checkout-orden";
   }
 
   @PostMapping("/crear")
   public String crearOrden(
       @ModelAttribute("ordenForm") OrdenRequestDTO ordenDTO,
       @RequestParam Long metodoPagoId,
+      @RequestParam String tipoEntrega,
+      @RequestParam(required = false) String nombre,
+      @RequestParam(required = false) String telefono,
+      @RequestParam(required = false) String direccion,
+      @RequestParam(required = false) String ciudad,
+      @RequestParam(required = false) String codigoPostal,
+      @RequestParam(required = false) String numeroTarjeta,
+      @RequestParam(required = false) String nombreTarjeta,
+      @RequestParam(required = false) String cvv,
+      @RequestParam(required = false) String mesVencimiento,
+      @RequestParam(required = false) String anioVencimiento,
       Model model,
-      RedirectAttributes redirectAttributes, HttpSession session) {
+      RedirectAttributes redirectAttributes,
+      HttpSession session) {
+
+    log.info("Creando orden para método de pago: {}, tipo entrega: {}", metodoPagoId, tipoEntrega);
 
     Perfil perfil = obtenerPerfilActual(session);
-
     if (perfil == null) {
       redirectAttributes.addFlashAttribute("error", "Se requiere un perfil para realizar compras");
       return "redirect:/mi-cuenta/perfiles/crear";
+    }
+
+    // Validaciones específicas según tipo de entrega
+    if ("DELIVERY".equals(tipoEntrega)) {
+      if (nombre == null || nombre.trim().isEmpty() ||
+          telefono == null || telefono.trim().isEmpty() ||
+          direccion == null || direccion.trim().isEmpty() ||
+          ciudad == null || ciudad.trim().isEmpty()) {
+        redirectAttributes.addFlashAttribute("error",
+            "Todos los campos de entrega son obligatorios para delivery");
+        return "redirect:/mi-cuenta/orden/checkout";
+      }
+    }
+
+    // Validar datos de tarjeta si es necesario
+    MetodoPagoResponseDTO metodoPago = metodoPagoService.obtenerMetodoPagoPorId(metodoPagoId)
+        .orElse(null);
+
+    if (metodoPago != null &&
+        (metodoPago.getTipo().contains("TARJETA") || metodoPago.getTipo().contains("CREDITO"))) {
+      if (numeroTarjeta == null || numeroTarjeta.trim().isEmpty() ||
+          nombreTarjeta == null || nombreTarjeta.trim().isEmpty() ||
+          cvv == null || cvv.trim().isEmpty() ||
+          mesVencimiento == null || mesVencimiento.trim().isEmpty() ||
+          anioVencimiento == null || anioVencimiento.trim().isEmpty()) {
+        redirectAttributes.addFlashAttribute("error",
+            "Todos los campos de la tarjeta son obligatorios");
+        return "redirect:/mi-cuenta/orden/checkout";
+      }
     }
 
     try {
       // Crear la orden desde el carrito
       OrdenResponseDTO orden = ordenService.crearOrdenDesdeCarrito(perfil.getId());
 
-      // Registrar el pago
+      // Crear datos de pago con información adicional
       PagoRequestDTO pagoDTO = new PagoRequestDTO();
       pagoDTO.setOrdenId(orden.getId());
       pagoDTO.setMetodoPagoId(metodoPagoId);
       pagoDTO.setMonto(orden.getTotalOrden());
-      pagoDTO.setEstado("Pendiente");
+      pagoDTO.setEstado(EstadoPago.PENDIENTE.name());
+      pagoDTO.setSuscripcionId(null);
 
+      // Agregar información de entrega como referencia
+      StringBuilder referencia = new StringBuilder();
+      referencia.append("Tipo: ").append(tipoEntrega);
+
+      if ("DELIVERY".equals(tipoEntrega)) {
+        referencia.append(" | Entrega: ").append(nombre)
+            .append(" | Tel: ").append(telefono)
+            .append(" | Dir: ").append(direccion).append(", ").append(ciudad);
+        if (codigoPostal != null && !codigoPostal.trim().isEmpty()) {
+          referencia.append(" ").append(codigoPostal);
+        }
+      }
+
+      // Agregar datos de tarjeta (solo últimos 4 dígitos por seguridad)
+      if (numeroTarjeta != null && !numeroTarjeta.trim().isEmpty()) {
+        String ultimosDigitos = numeroTarjeta.replaceAll("\\s", "").substring(
+            Math.max(0, numeroTarjeta.replaceAll("\\s", "").length() - 4));
+        referencia.append(" | Tarjeta: ****").append(ultimosDigitos);
+      }
+
+      pagoDTO.setReferenciaPago(referencia.toString());
+
+      // Registrar el pago
       pagoService.registrarPago(pagoDTO);
 
-      // Procesar la orden
-      ordenService.procesarOrden(orden.getId());
+      // Procesar la orden (esto generará la factura)
+      OrdenResponseDTO ordenProcesada = ordenService.procesarOrden(orden.getId());
 
-      redirectAttributes.addFlashAttribute("mensaje", "Orden creada exitosamente");
-      return "redirect:/mi-cuenta/orden/" + orden.getId();
+      log.info("Orden creada exitosamente: {}", ordenProcesada.getId());
+      redirectAttributes.addFlashAttribute("mensaje",
+          "Orden #" + ordenProcesada.getId() + " creada exitosamente");
+      return "redirect:/mi-cuenta/orden/" + ordenProcesada.getId();
 
     } catch (Exception e) {
+      log.error("Error al crear orden: {}", e.getMessage(), e);
       redirectAttributes.addFlashAttribute("error", "Error al crear la orden: " + e.getMessage());
-      return "redirect:/mi-cuenta/carrito";
+      return "redirect:/mi-cuenta/orden/checkout";
     }
   }
 
@@ -249,7 +359,7 @@ public class MiOrdenController {
     List<OrdenResponseDTO> ordenes = ordenService.obtenerOrdenesPorPerfil(perfil.getId());
     model.addAttribute("ordenes", ordenes);
 
-    return "ordenes/historial";
+    return "mi-cuenta/ordenes/historial-ordenes";
   }
 
   private Perfil obtenerPerfilActual(HttpSession session) {
@@ -261,7 +371,7 @@ public class MiOrdenController {
     }
 
     // Obtener el perfil desde la base de datos usando el ID
-    return perfilService.obtenerPerfilPorId(perfilActivoId)
+    return perfilService.obtenerEntidadPerfilPorId(perfilActivoId)
         .orElse(null);
   }
 
@@ -271,5 +381,5 @@ public class MiOrdenController {
     }
     return principal.getName();
   }
-  
+
 }

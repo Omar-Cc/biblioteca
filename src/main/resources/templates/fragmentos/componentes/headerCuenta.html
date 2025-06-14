@@ -1,105 +1,167 @@
-<div th:fragment="headerCuenta" class="container py-4">
-  <!-- Información principal del perfil -->
-  <div class="row align-items-center">
-    <div class="col-md-auto mb-3 mb-md-0 position-relative">
-      <div class="avatar-container">
-        <img th:if="${not #strings.isEmpty(fotoPerfil)}" th:src="${fotoPerfil}" alt="Foto de perfil"
-          class="profile-avatar rounded-circle border border-3 border-white shadow" id="profileAvatar">
-        <img th:unless="${not #strings.isEmpty(fotoPerfil)}" th:src="@{/image/default-avatar.jpg}" alt="Foto de perfil"
-          class="profile-avatar rounded-circle border border-3 border-white shadow">
+<div th:fragment="headerCuenta">
+  <div th:if="${tienePerfilActivo}" class="container-fluid py-4">
 
-        <!-- Badge del plan -->
-        <span class="badge bg-warning text-dark position-absolute bottom-0 end-0 translate-middle-y rounded-pill">
-          <i class="bi bi-stars me-1"></i><span th:text="${session.nombrePlan ?: 'Plan Básico'}">Plan
-            Básico</span>
-        </span>
+    <!-- Información principal del perfil -->
+    <div class="row align-items-center">
+      <div class="col-md-auto mb-3 mb-md-0">
+        <div class="avatar-container position-relative">
+          <div class="profile-avatar-wrapper">
+            <img th:if="${not #strings.isEmpty(fotoPerfil)}" th:src="${fotoPerfil}" alt="Foto de perfil"
+              class="profile-avatar rounded-circle shadow-lg" id="profileAvatar">
+            <img th:unless="${not #strings.isEmpty(fotoPerfil)}" th:src="@{/image/default-avatar.jpg}"
+              alt="Foto de perfil" class="profile-avatar rounded-circle shadow-lg">
+            <div class="status-indicator online"></div>
+          </div>
+
+
+        </div>
+      </div>
+
+      <div class="col text-white">
+        <div class="profile-info-container">
+          <div class="user-info-section">
+            <h1 class="profile-title mb-2" th:text="${session.perfilActivoNombre}">Cargando...</h1>
+            <div class="user-meta mb-3">
+              <div class="meta-item">
+                <i class="bi bi-calendar-check"></i>
+                <span>Miembro desde: <strong th:text="${fechaAntiguedad}">11 de mayo</strong></span>
+              </div>
+              <div class="meta-item" th:if="${ultimaConexion}">
+                <i class="bi bi-clock"></i>
+                <span>Última conexión: <strong th:text="${ultimaConexion}">Hace 2 horas</strong></span>
+              </div>
+            </div>
+            <div class="profile-stats-grid">
+              <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-icon">
+                  <i class="bi bi-book-fill"></i>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-number" data-count th:text="${lecturasTotales ?: '0'}">0</span>
+                  <span class="stat-label">Lecturas</span>
+                </div>
+              </div>
+
+              <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-icon">
+                  <i class="bi bi-star-fill"></i>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-number" data-count th:text="${totalReseñas ?: '0'}">0</span>
+                  <span class="stat-label">Reseñas</span>
+                </div>
+              </div>
+
+              <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-icon">
+                  <i class="bi bi-heart-fill"></i>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-number" data-count th:text="${totalFavoritos ?: '0'}">0</span>
+                  <span class="stat-label">Favoritos</span>
+                </div>
+              </div>
+
+              <div class="stat-card" th:if="${session.esPerfilPrincipal}" data-aos="fade-up" data-aos-delay="400">
+                <div class="stat-icon">
+                  <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-content">
+                  <span class="stat-number" data-count th:text="${totalPerfiles ?: '1'}">1</span>
+                  <span class="stat-label">Perfiles</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-buttons mt-4">
+            <button class="btn btn-profile-action primary" id="editProfileBtn">
+              <i class="bi bi-pencil-square"></i>
+              <span>Editar perfil</span>
+            </button>
+            <button class="btn btn-profile-action secondary" id="shareProfileBtn">
+              <i class="bi bi-share"></i>
+              <span>Compartir</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="col text-white">
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-        <div>
-          <h1 class="display-6 fw-bold mb-0" th:text="${session.perfilActivoNombre}">Cargando...</h1>
-          <p class="opacity-75 mb-2">
-            <i class="bi bi-calendar3 me-1"></i>Miembro desde: <span th:text="${fechaAntiguedad}">11 de
-              mayo</span>
-          </p>
+    <!-- Barra de navegación rápida modernizada -->
+    <div class="quick-navigation-bar mt-4">
+      <div class="nav-container">
+        <!-- Enlaces principales con efectos hover -->
+        <div class="quick-links-section">
+          <a th:href="@{/carrito}" class="quick-nav-item" data-tooltip="Mi carrito de compras">
+            <div class="nav-icon-wrapper">
+              <i class="bi bi-cart3"></i>
+              <span class="notification-badge" th:if="${itemsEnCarrito > 0}" th:text="${itemsEnCarrito}">0</span>
+            </div>
+            <span class="nav-label">Mi carrito</span>
+          </a>
 
-          <!-- Estadísticas del perfil -->
-          <div class="d-flex flex-wrap gap-3 mt-1 profile-stats">
-            <div class="stat-item">
-              <i class="bi bi-book"></i>
-              <span th:text="${lecturasTotales ?: '0'}">0</span> lecturas
+          <a th:href="@{/usuarios/lectura}" class="quick-nav-item" data-tooltip="Continuar donde lo dejaste">
+            <div class="nav-icon-wrapper">
+              <i class="bi bi-book-half"></i>
             </div>
-            <div class="stat-item">
-              <i class="bi bi-star-fill"></i>
-              <span th:text="${totalReseñas ?: '0'}">0</span> reseñas
+            <span class="nav-label">Continuar leyendo</span>
+          </a>
+
+          <a th:href="@{/usuarios/favoritos}" class="quick-nav-item" data-tooltip="Tus contenidos favoritos">
+            <div class="nav-icon-wrapper">
+              <i class="bi bi-heart"></i>
             </div>
-            <div class="stat-item">
-              <i class="bi bi-heart-fill"></i>
-              <span th:text="${totalFavoritos ?: '0'}">0</span> favoritos
+            <span class="nav-label">Favoritos</span>
+          </a>
+
+          <a th:href="@{/usuarios/notificaciones}" class="quick-nav-item" data-tooltip="Notificaciones recientes">
+            <div class="nav-icon-wrapper">
+              <i class="bi bi-bell"></i>
+              <span class="notification-badge pulse" th:if="${notificacionesSinLeer > 0}"
+                th:text="${notificacionesSinLeer}">0</span>
             </div>
-            <div class="stat-item" th:if="${session.esPerfilPrincipal}">
-              <i class="bi bi-people-fill"></i>
-              <span th:text="${totalPerfiles ?: '1'}">1</span> perfiles
-            </div>
-          </div>
+            <span class="nav-label">Notificaciones</span>
+          </a>
         </div>
 
-        <div class="mt-3 mt-md-0">
-          <button class="btn btn-light" id="editProfileBtn">
-            <i class="bi bi-pencil me-2"></i>Editar perfil
-          </button>
+        <div class="recommendation-section">
+          <div class="recommendation-card">
+            <div class="recommendation-content">
+              <div class="recommendation-media">
+                <img th:src="@{${recomendacionPortada ?: '/images/default-book.jpg'}}" alt="Portada recomendada"
+                  class="recommendation-cover">
+                <div class="media-overlay">
+                  <i class="bi bi-play-circle-fill play-icon"></i>
+                </div>
+              </div>
+
+              <div class="recommendation-info">
+                <span class="recommendation-badge">
+                  <i class="bi bi-magic"></i>
+                  <span>Para ti</span>
+                </span>
+                <h6 class="recommendation-title" th:text="${recomendacionTitulo ?: 'Descubre este título'}">
+                  Descubre este título
+                </h6>
+                <div class="recommendation-meta">
+                  <span class="rating">
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                  </span>
+                  <span class="genre">Ficción</span>
+                </div>
+                <a th:href="@{${recomendacionUrl ?: '#'}}" class="btn btn-recommendation">
+                  <span>Ver ahora</span>
+                  <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Barra de enlaces rápidos -->
-  <div class="quick-links-bar bg-white rounded shadow-sm mt-4">
-    <div class="row g-0">
-      <!-- Enlaces principales -->
-      <div class="col-12 col-md-8">
-        <div class="d-flex flex-wrap">
-          <a th:href="@{/carrito}" class="quick-link-item">
-            <i class="bi bi-cart3"></i>
-            <span>Mi carrito</span>
-            <span class="badge bg-primary rounded-pill" th:if="${itemsEnCarrito > 0}"
-              th:text="${itemsEnCarrito}">0</span>
-          </a>
-          <a th:href="@{/usuarios/lectura}" class="quick-link-item">
-            <i class="bi bi-book"></i>
-            <span>Continuar leyendo</span>
-          </a>
-          <a th:href="@{/usuarios/favoritos}" class="quick-link-item">
-            <i class="bi bi-heart"></i>
-            <span>Favoritos</span>
-          </a>
-          <a th:href="@{/usuarios/notificaciones}" class="quick-link-item position-relative">
-            <i class="bi bi-bell"></i>
-            <span>Notificaciones</span>
-            <span class="notification-badge" th:if="${notificacionesSinLeer > 0}"
-              th:text="${notificacionesSinLeer}">0</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Recomendación personalizada -->
-      <div class="col-12 col-md-4 border-start border-light">
-        <div class="recommendation-widget p-2">
-          <div class="d-flex align-items-center">
-            <img
-              th:src="@{${recomendacionPortada ?: 'https://m.media-amazon.com/images/I/71FTb9X6wsL._AC_UF1000,1000_QL80_.jpg'}}"
-              alt="Portada" class="recommendation-cover me-3">
-            <div>
-              <span class="badge bg-success mb-1"><i class="bi bi-magic me-1"></i>Recomendado para ti</span>
-              <h6 class="recommendation-title mb-1" th:text="${recomendacionTitulo ?: 'Descubre este título'}">
-                Descubre este título</h6>
-              <a th:href="@{${recomendacionUrl ?: '#'}}" class="btn btn-sm btn-outline-primary">Ver detalles</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div th:unless="${tienePerfilActivo}">
   </div>
 </div>

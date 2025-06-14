@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Detalle de Orden #' + ${orden.id},
+          pageAdditionalCss=~{::detalleOrdenCss},
+          pageContent=~{::detalleOrdenContent},
+          pageAdditionalScripts=~{::detalleOrdenScripts}
+      )}">
+
+<head>
+	<th:block th:fragment="detalleOrdenCss">
+		<style>
+			/* Aprovechando las variables CSS existentes */
+			.orden-header {
+				background: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-darker));
+				color: white;
+				border-radius: 0.5rem;
+				box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+			}
+
+			/* Usando las clases de badges existentes con mejoras mínimas */
+			.estado-badge {
+				font-size: 0.875rem;
+				padding: 0.5rem 1rem;
+				border-radius: 50px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			/* Aprovechando las clases dashboard-card existentes */
+			.info-card {
+				@extend .dashboard-card;
+				border-radius: 0.75rem;
+				transition: transform 0.3s;
+			}
+
+			.info-card:hover {
+				transform: translateY(-3px);
+			}
+
+			/* Usando las variables de color existentes */
+			.precio-formato {
+				font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+				font-weight: 600;
+			}
+
+			.saldo-positivo {
+				color: var(--bs-success) !important;
+				font-weight: 600;
+			}
+
+			.saldo-pendiente {
+				color: var(--bs-danger) !important;
+				font-weight: 600;
+			}
+
+			.saldo-cero {
+				color: var(--bs-secondary) !important;
+				font-weight: 500;
+			}
+
+			/* Aprovechando las clases de botones existentes */
+			.action-buttons .btn {
+				padding: 0.5rem 1rem;
+				margin-right: 0.5rem;
+				border-radius: 0.5rem;
+			}
+
+			/* Usando el sistema de cards existente */
+			.item-card {
+				background: white;
+				border: 1px solid rgba(0, 0, 0, 0.125);
+				border-radius: 0.75rem;
+				transition: all 0.3s;
+				box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+			}
+
+			.item-card:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+			}
+
+			.item-image-placeholder {
+				background-color: var(--bs-light);
+				border: 2px dashed var(--bs-secondary);
+				border-radius: 0.5rem;
+				width: 80px;
+				height: 80px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--bs-secondary);
+			}
+
+			/* Aprovechando las utilidades de fondo existentes */
+			.resumen-financiero {
+				background-color: var(--bs-primary-subtle, rgba(45, 110, 126, 0.1));
+				border: 1px solid rgba(45, 110, 126, 0.2);
+				border-radius: 0.75rem;
+			}
+
+			.precio-item {
+				padding: 0.75rem 1rem;
+				border-radius: 0.5rem;
+				background: rgba(255, 255, 255, 0.8);
+				margin-bottom: 0.5rem;
+				transition: background-color 0.2s;
+			}
+
+			.precio-item:hover {
+				background: rgba(255, 255, 255, 1);
+			}
+
+			/* Usando las clases fade-in existentes */
+			.animate-in {
+				@extend .fade-in;
+				animation-duration: 0.6s;
+			}
+
+			/* Mejoras para las tablas usando las clases datatable existentes */
+			.table-detalle {
+				border-radius: 0.5rem;
+				overflow: hidden;
+				box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+			}
+
+			.table-detalle thead th {
+				background-color: var(--bs-primary);
+				color: white;
+				border: none;
+				font-weight: 600;
+				text-transform: uppercase;
+				font-size: 0.8rem;
+				letter-spacing: 0.5px;
+			}
+
+			.table-detalle tbody tr:hover {
+				background-color: var(--bs-light);
+			}
+
+			/* Breadcrumb usando estilos existentes */
+			.breadcrumb-admin {
+				background-color: white;
+				border-radius: 0.5rem;
+				box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+				padding: 1rem;
+			}
+
+			/* Modal usando estilos existentes */
+			.modal-admin .modal-content {
+				border-radius: 0.75rem;
+				border: none;
+				box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+			}
+
+			.modal-admin .modal-header {
+				background-color: var(--bs-danger);
+				color: white;
+				border-radius: 0.75rem 0.75rem 0 0;
+			}
+
+			/* Stats usando las clases dashboard-card existentes */
+			.stats-overview {
+				background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+				border-radius: 0.75rem;
+				color: white;
+			}
+
+			.stats-icon {
+				width: 50px;
+				height: 50px;
+				background: rgba(255, 255, 255, 0.2);
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 1.5rem;
+			}
+		</style>
+	</th:block>
+</head>
+
+<body>
+	<div th:fragment="detalleOrdenContent" class="container-fluid py-4">
+		<!-- Alertas usando el fragmento existente -->
+		<div th:replace="~{fragmentos/componentes/alerts :: alerts}"></div>
+
+		<!-- Header principal usando clases existentes -->
+		<div class="orden-header p-4 mb-4 animate-in">
+			<div class="row align-items-center">
+				<div class="col-lg-8">
+					<div class="d-flex align-items-center mb-3">
+						<div class="stats-icon me-3">
+							<i class="bi bi-receipt"></i>
+						</div>
+						<div>
+							<h1 class="h2 mb-1">
+								Orden #<span th:text="${orden.id}"></span>
+							</h1>
+							<p class="mb-0 opacity-75">
+								<i class="bi bi-calendar3 me-2"></i>
+								<span th:text="${#temporals.format(orden.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span>
+							</p>
+						</div>
+					</div>
+					<div class="d-flex align-items-center gap-3 flex-wrap">
+						<!-- Usando las clases badge existentes -->
+						<span th:class="|badge bg-${orden.estadoOrden == 'PENDIENTE' ? 'warning' : 
+										orden.estadoOrden == 'PROCESANDO' ? 'info' : orden.estadoOrden == 'COMPLETADA' ? 'success' : 
+                    'danger'} estado-badge|" th:text="${orden.estadoOrden}"></span>
+						<div class="text-white">
+							<i class="bi bi-person-circle me-2"></i>
+							<span class="fw-semibold" th:text="${orden.perfilNombre}"></span>
+							<small class="opacity-75 ms-2">ID: <span th:text="${orden.perfilId}"></span></small>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4 text-lg-end text-center mt-3 mt-lg-0">
+					<div class="stats-overview d-inline-block p-3 text-center">
+						<div class="h3 mb-0 fw-bold">
+							S/. <span th:text="${#numbers.formatDecimal((orden.totalOrden ?: 0) / 100.0, 1, 2)}">0.00</span>
+						</div>
+						<small>Total de la orden</small>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row g-4">
+			<!-- Panel izquierdo -->
+			<div class="col-xl-4">
+				<!-- Información general usando dashboard-card -->
+				<div class="card dashboard-card mb-4 animate-in">
+					<div class="card-header bg-primary text-white">
+						<h5 class="mb-0 d-flex align-items-center">
+							<i class="bi bi-info-circle me-2"></i>
+							Información General
+						</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-3">
+							<div class="col-12">
+								<div class="precio-item d-flex justify-content-between align-items-center">
+									<span class="text-muted">ID de Orden:</span>
+									<span class="fw-bold">#<span th:text="${orden.id}"></span></span>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="precio-item d-flex justify-content-between align-items-center">
+									<span class="text-muted">Estado:</span>
+									<span th:class="|badge bg-${orden.estadoOrden == 'PENDIENTE' ? 'warning' : 
+                                                         orden.estadoOrden == 'PROCESANDO' ? 'info' : 
+                                                         orden.estadoOrden == 'COMPLETADA' ? 'success' : 
+                                                         'danger'}|" th:text="${orden.estadoOrden}"></span>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="precio-item d-flex justify-content-between align-items-center">
+									<span class="text-muted">Cliente:</span>
+									<span class="fw-semibold" th:text="${orden.perfilNombre}"></span>
+								</div>
+							</div>
+							<div class="col-12" th:if="${orden.carritoId}">
+								<div class="precio-item d-flex justify-content-between align-items-center">
+									<span class="text-muted">Carrito ID:</span>
+									<span th:text="${orden.carritoId}"></span>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="precio-item d-flex justify-content-between align-items-center">
+									<span class="text-muted">Items:</span>
+									<span class="badge bg-primary" th:text="${#lists.size(items)}"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Resumen financiero -->
+				<div class="card dashboard-card resumen-financiero mb-4 animate-in">
+					<div class="card-header bg-success text-white">
+						<h5 class="mb-0 d-flex align-items-center">
+							<i class="bi bi-calculator me-2"></i>
+							Resumen Financiero
+						</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-3">
+							<div class="col-12">
+								<div class="precio-item d-flex justify-content-between align-items-center">
+									<span>Subtotal:</span>
+									<span class="precio-formato">
+										S/. <span
+											th:text="${#numbers.formatDecimal((orden.subtotal ?: orden.totalOrden ?: 0) / 100.0, 1, 2)}">0.00</span>
+									</span>
+								</div>
+							</div>
+							<div class="col-12" th:if="${(orden.totalDescuentos ?: 0) > 0}">
+								<div class="precio-item d-flex justify-content-between align-items-center text-success">
+									<span>Descuentos:</span>
+									<span class="precio-formato">
+										-S/. <span
+											th:text="${#numbers.formatDecimal((orden.totalDescuentos ?: 0) / 100.0, 1, 2)}">0.00</span>
+									</span>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="precio-item d-flex justify-content-between align-items-center bg-primary text-white">
+									<span class="fw-bold">Total:</span>
+									<span class="precio-formato fw-bold fs-5">
+										S/. <span th:text="${#numbers.formatDecimal((orden.totalOrden ?: 0) / 100.0, 1, 2)}">0.00</span>
+									</span>
+								</div>
+							</div>
+							<div class="col-12" th:if="${(orden.totalPagado ?: 0) > 0}">
+								<div class="precio-item d-flex justify-content-between align-items-center text-success">
+									<span>Total Pagado:</span>
+									<span class="precio-formato">
+										S/. <span th:text="${#numbers.formatDecimal((orden.totalPagado ?: 0) / 100.0, 1, 2)}">0.00</span>
+									</span>
+								</div>
+							</div>
+							<div class="col-12" th:if="${orden.saldoPendiente != null}">
+								<div class="precio-item d-flex justify-content-between align-items-center">
+									<span>Saldo Pendiente:</span>
+									<span th:class="${(orden.saldoPendiente ?: 0) > 0 ? 'precio-formato saldo-pendiente' : 
+                                           (orden.saldoPendiente ?: 0) < 0 ? 'precio-formato saldo-positivo' : 
+                                           'precio-formato saldo-cero'}">
+										S/. <span
+											th:text="${#numbers.formatDecimal(T(java.lang.Math).abs((orden.saldoPendiente ?: 0) / 100.0), 1, 2)}">0.00</span>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Acciones usando clases de botones existentes -->
+				<div class="card dashboard-card animate-in">
+					<div class="card-header bg-warning text-dark">
+						<h5 class="mb-0 d-flex align-items-center">
+							<i class="bi bi-gear me-2"></i>
+							Acciones Disponibles
+						</h5>
+					</div>
+					<div class="card-body">
+						<div class="action-buttons d-grid gap-2">
+							<div th:if="${orden.estadoOrden == 'PENDIENTE'}">
+								<button class="btn btn-success w-100" th:onclick="|cambiarEstado('${orden.id}', 'PROCESANDO')|">
+									<i class="bi bi-play-circle me-2"></i>Procesar Orden
+								</button>
+								<button class="btn btn-outline-danger w-100" th:onclick="|cancelarOrden('${orden.id}')|">
+									<i class="bi bi-x-circle me-2"></i>Cancelar Orden
+								</button>
+							</div>
+							<div th:if="${orden.estadoOrden == 'PROCESANDO'}">
+								<button class="btn btn-primary w-100" th:onclick="|cambiarEstado('${orden.id}', 'COMPLETADA')|">
+									<i class="bi bi-check-circle me-2"></i>Completar Orden
+								</button>
+								<button class="btn btn-outline-danger w-100" th:onclick="|cancelarOrden('${orden.id}')|">
+									<i class="bi bi-x-circle me-2"></i>Cancelar Orden
+								</button>
+							</div>
+							<a th:href="@{/admin/ordenes}" class="btn btn-outline-secondary">
+								<i class="bi bi-arrow-left me-2"></i>Volver a Lista
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Panel derecho -->
+			<div class="col-xl-8">
+				<!-- Items de la orden -->
+				<div class="card dashboard-card mb-4 animate-in">
+					<div class="card-header bg-primary text-white">
+						<h5 class="mb-0 d-flex align-items-center">
+							<i class="bi bi-list-ul me-2"></i>
+							Items de la Orden
+							<span class="badge bg-light text-dark ms-3" th:text="${#lists.size(items)}"></span>
+						</h5>
+					</div>
+					<div class="card-body">
+						<div th:if="${items != null and !#lists.isEmpty(items)}">
+							<div class="row g-3">
+								<div class="col-12" th:each="item : ${items}">
+									<div class="item-card p-3">
+										<div class="row align-items-center">
+											<div class="col-md-2 text-center mb-3 mb-md-0">
+												<div th:if="${item.contenidoImagen != null and !#strings.isEmpty(item.contenidoImagen)}">
+													<img th:src="${item.contenidoImagen}" th:alt="${item.contenidoTitulo}"
+														class="img-fluid rounded" style="width: 80px; height: 80px; object-fit: cover;">
+												</div>
+												<div th:if="${item.contenidoImagen == null or #strings.isEmpty(item.contenidoImagen)}"
+													class="item-image-placeholder">
+													<i class="bi bi-book fs-3"></i>
+												</div>
+											</div>
+											<div class="col-md-6 mb-3 mb-md-0">
+												<h6 class="fw-bold mb-2" th:text="${item.contenidoTitulo}"></h6>
+												<p class="text-muted small mb-2" th:text="${item.contenidoTipoDescripcion}"></p>
+												<div class="d-flex gap-2 flex-wrap">
+													<span class="badge bg-secondary">ID: <span th:text="${item.contenidoId}"></span></span>
+													<span class="badge bg-info">Cantidad: <span th:text="${item.cantidad}"></span></span>
+												</div>
+											</div>
+											<div class="col-md-4">
+												<div class="text-end">
+													<div class="row g-2">
+														<div class="col-12">
+															<small class="text-muted d-block">Precio unitario</small>
+															<div class="precio-formato text-primary">
+																S/. <span
+																	th:text="${#numbers.formatDecimal((item.precioAlComprar ?: 0) / 100.0, 1, 2)}">0.00</span>
+															</div>
+														</div>
+														<div class="col-12" th:if="${(item.descuentoAplicado ?: 0) > 0}">
+															<small class="text-success d-block">Descuento aplicado</small>
+															<div class="precio-formato text-success">
+																-S/. <span
+																	th:text="${#numbers.formatDecimal((item.descuentoAplicado ?: 0) / 100.0, 1, 2)}">0.00</span>
+															</div>
+														</div>
+														<div class="col-12">
+															<small class="text-muted d-block">Total del item</small>
+															<div class="precio-formato fw-bold fs-5 text-success">
+																S/. <span
+																	th:text="${#numbers.formatDecimal((item.total ?: item.precioAlComprar * item.cantidad) / 100.0, 1, 2)}">0.00</span>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div th:if="${items == null or #lists.isEmpty(items)}" class="text-center py-5">
+							<div class="item-image-placeholder mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2rem;">
+								<i class="bi bi-inbox"></i>
+							</div>
+							<h5 class="text-muted">No hay items en esta orden</h5>
+							<p class="text-muted">Esta orden no contiene ningún item.</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pagos asociados usando datatable -->
+				<div class="card dashboard-card mb-4 animate-in"
+					th:if="${orden.pagos != null and !#lists.isEmpty(orden.pagos)}">
+					<div class="card-header bg-success text-white">
+						<h5 class="mb-0 d-flex align-items-center">
+							<i class="bi bi-credit-card me-2"></i>
+							Historial de Pagos
+							<span class="badge bg-light text-dark ms-3" th:text="${#lists.size(orden.pagos)}"></span>
+						</h5>
+					</div>
+					<div class="card-body p-0">
+						<div class="table-responsive p-3">
+							<table class="table table-detalle datatable mb-0">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Fecha</th>
+										<th>Monto</th>
+										<th>Estado</th>
+										<th>Referencia</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="pago : ${orden.pagos}">
+										<td class="fw-bold">#<span th:text="${pago.id}"></span></td>
+										<td>
+											<div th:text="${#temporals.format(pago.fechaPago ?: pago.fechaCreacion, 'dd/MM/yyyy')}"></div>
+											<small class="text-muted"
+												th:text="${#temporals.format(pago.fechaPago ?: pago.fechaCreacion, 'HH:mm')}"></small>
+										</td>
+										<td class="precio-formato text-success fw-bold">
+											S/. <span th:text="${#numbers.formatDecimal((pago.monto ?: 0) / 100.0, 1, 2)}">0.00</span>
+										</td>
+										<td>
+											<span th:class="|badge bg-${pago.estado == 'EXITOSO' ? 'success' : 
+                                                       pago.estado == 'PENDIENTE' ? 'warning' : 'danger'}|"
+												th:text="${pago.estado}"></span>
+										</td>
+										<td>
+											<span th:if="${pago.referenciaPago != null and !#strings.isEmpty(pago.referenciaPago)}"
+												th:text="${pago.referenciaPago}" class="badge bg-light text-dark font-monospace"></span>
+											<span th:if="${pago.referenciaPago == null or #strings.isEmpty(pago.referenciaPago)}"
+												class="text-muted fst-italic">Sin referencia</span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- Factura asociada -->
+				<div class="card dashboard-card animate-in" th:if="${orden.factura != null}">
+					<div class="card-header bg-info text-white">
+						<h5 class="mb-0 d-flex align-items-center">
+							<i class="bi bi-file-earmark-text me-2"></i>
+							Información de Facturación
+						</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-4">
+							<div class="col-md-6">
+								<div class="precio-item">
+									<strong>Número de Factura:</strong><br>
+									<span class="font-monospace" th:text="${orden.factura.numeroFactura}"></span>
+								</div>
+								<div class="precio-item">
+									<strong>Fecha de Emisión:</strong><br>
+									<span th:text="${#temporals.format(orden.factura.fechaEmision, 'dd/MM/yyyy')}"></span>
+								</div>
+								<div class="precio-item">
+									<strong>Estado:</strong><br>
+									<span class="badge bg-info" th:text="${orden.factura.estado}"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="precio-item d-flex justify-content-between">
+									<strong>Subtotal:</strong>
+									<span class="precio-formato">S/. <span
+											th:text="${#numbers.formatDecimal((orden.factura.subtotal ?: 0) / 100.0, 1, 2)}"></span></span>
+								</div>
+								<div class="precio-item d-flex justify-content-between">
+									<strong>Impuestos:</strong>
+									<span class="precio-formato">S/. <span
+											th:text="${#numbers.formatDecimal((orden.factura.impuestos ?: 0) / 100.0, 1, 2)}"></span></span>
+								</div>
+								<div class="precio-item d-flex justify-content-between bg-info text-white">
+									<strong>Total Facturado:</strong>
+									<span class="precio-formato fw-bold">S/. <span
+											th:text="${#numbers.formatDecimal((orden.factura.total ?: 0) / 100.0, 1, 2)}"></span></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal usando clases existentes -->
+		<div class="modal fade modal-admin" id="cancelarOrdenModal" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">
+							<i class="bi bi-exclamation-triangle me-2"></i>
+							Cancelar Orden
+						</h5>
+						<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+					</div>
+					<form id="cancelarOrdenForm" method="post">
+						<div class="modal-body">
+							<div class="alert alert-warning">
+								<i class="bi bi-exclamation-triangle me-2"></i>
+								<strong>¿Está seguro de que desea cancelar esta orden?</strong><br>
+								Esta acción no se puede deshacer y afectará el estado de la orden permanentemente.
+							</div>
+							<div class="mb-3">
+								<label for="motivo" class="form-label fw-bold required-field">
+									<i class="bi bi-chat-text me-2"></i>
+									Motivo de cancelación
+								</label>
+								<textarea class="form-control" id="motivo" name="motivo" rows="4"
+									placeholder="Proporcione una explicación detallada del motivo de cancelación..." required></textarea>
+								<div class="form-text">
+									<i class="bi bi-info-circle me-1"></i>
+									Este motivo será registrado en el historial de la orden.
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+								<i class="bi bi-x me-2"></i>Cancelar Acción
+							</button>
+							<button type="submit" class="btn btn-danger">
+								<i class="bi bi-trash me-2"></i>Confirmar Cancelación
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<th:block th:fragment="detalleOrdenScripts">
+		<script th:inline="javascript">
+			// Datos de la orden
+			var ordenData = /*[[${orden}]]*/ {};
+
+			// Función para cambiar estado de orden
+			function cambiarEstado(ordenId, nuevoEstado) {
+				const estadoTexto = {
+					'PROCESANDO': 'Procesando',
+					'COMPLETADA': 'Completada',
+					'CANCELADA': 'Cancelada'
+				};
+
+				if (confirm(`¿Está seguro de cambiar el estado a "${estadoTexto[nuevoEstado] || nuevoEstado}"?`)) {
+					const form = document.createElement('form');
+					form.method = 'POST';
+					form.action = `/admin/ordenes/${ordenId}/cambiar-estado`;
+
+					const estadoInput = document.createElement('input');
+					estadoInput.type = 'hidden';
+					estadoInput.name = 'nuevoEstado';
+					estadoInput.value = nuevoEstado;
+
+					const csrfToken = document.querySelector('meta[name="_csrf"]');
+					if (csrfToken) {
+						const csrfInput = document.createElement('input');
+						csrfInput.type = 'hidden';
+						csrfInput.name = '_csrf';
+						csrfInput.value = csrfToken.getAttribute('content');
+						form.appendChild(csrfInput);
+					}
+
+					form.appendChild(estadoInput);
+					document.body.appendChild(form);
+					form.submit();
+				}
+			}
+
+			// Función para cancelar orden
+			function cancelarOrden(ordenId) {
+				const modal = new bootstrap.Modal(document.getElementById('cancelarOrdenModal'));
+				const form = document.getElementById('cancelarOrdenForm');
+				form.action = `/admin/ordenes/${ordenId}/cambiar-estado`;
+
+				document.getElementById('motivo').value = '';
+
+				let estadoInput = form.querySelector('input[name="nuevoEstado"]');
+				if (!estadoInput) {
+					estadoInput = document.createElement('input');
+					estadoInput.type = 'hidden';
+					estadoInput.name = 'nuevoEstado';
+					estadoInput.value = 'CANCELADA';
+					form.appendChild(estadoInput);
+				}
+
+				modal.show();
+			}
+		</script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				// Validación del formulario de cancelación
+				document.getElementById('cancelarOrdenForm').addEventListener('submit', function (e) {
+					const motivo = document.getElementById('motivo').value.trim();
+					if (!motivo) {
+						e.preventDefault();
+						alert('Debe proporcionar un motivo para la cancelación.');
+						document.getElementById('motivo').focus();
+						return false;
+					}
+
+					if (motivo.length < 10) {
+						e.preventDefault();
+						alert('El motivo debe tener al menos 10 caracteres.');
+						document.getElementById('motivo').focus();
+						return false;
+					}
+				});
+
+				// Auto-ocultar alertas usando la funcionalidad existente
+				setTimeout(function () {
+					const alerts = document.querySelectorAll('.alert-dismissible');
+					alerts.forEach(alert => {
+						if (alert.querySelector('.btn-close')) {
+							alert.querySelector('.btn-close').click();
+						}
+					});
+				}, 5000);
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

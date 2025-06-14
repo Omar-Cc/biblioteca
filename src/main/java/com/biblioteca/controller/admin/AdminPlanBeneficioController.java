@@ -1,6 +1,7 @@
 package com.biblioteca.controller.admin;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.biblioteca.dto.comercial.PlanBeneficioRequestDTO;
+import com.biblioteca.models.comercial.PlanBeneficio;
 import com.biblioteca.service.BeneficioService;
 import com.biblioteca.service.PlanBeneficioService;
 import com.biblioteca.service.PlanService;
@@ -33,28 +35,31 @@ public class AdminPlanBeneficioController {
   private final BeneficioService beneficioService;
 
   @GetMapping("/plan/{planId}")
-  public String listarBeneficiosPorPlan(@PathVariable Long planId, Model model) {
+  public String listarBeneficiosPorPlan(@PathVariable Long planId, Model model, RedirectAttributes redirectAttributes) {
     // Verificar que el plan existe
     if (planService.obtenerPlanPorId(planId).isEmpty()) {
-      return "redirect:/admin/planes?error=Plan+no+encontrado";
+      redirectAttributes.addFlashAttribute("errorMessage", "Plan no encontrado con ID: " + planId);
+      return "redirect:/admin/planes";
     }
 
     model.addAttribute("plan", planService.obtenerPlanPorId(planId).get());
-    model.addAttribute("beneficiosAsociados", planBeneficioService.obtenerBeneficiosPorPlan(planId));
+    model.addAttribute("beneficiosAsociados", planBeneficioService.obtenerBeneficiosPorPlanId(planId));
     model.addAttribute("beneficiosDisponibles", beneficioService.obtenerBeneficiosActivos());
     model.addAttribute("activeTab", "planes");
     return "admin/planes-beneficios/lista-por-plan";
   }
 
   @GetMapping("/beneficio/{beneficioId}")
-  public String listarPlanesPorBeneficio(@PathVariable Long beneficioId, Model model) {
+  public String listarPlanesPorBeneficio(@PathVariable Long beneficioId, Model model,
+      RedirectAttributes redirectAttributes) {
     // Verificar que el beneficio existe
     if (beneficioService.obtenerBeneficioPorId(beneficioId).isEmpty()) {
-      return "redirect:/admin/beneficios?error=Beneficio+no+encontrado";
+      redirectAttributes.addFlashAttribute("errorMessage", "Beneficio no encontrado con ID: " + beneficioId);
+      return "redirect:/admin/beneficios";
     }
 
     model.addAttribute("beneficio", beneficioService.obtenerBeneficioPorId(beneficioId).get());
-    model.addAttribute("planesAsociados", planBeneficioService.obtenerPlanesPorBeneficio(beneficioId));
+    model.addAttribute("planesAsociados", planBeneficioService.obtenerPlanesPorBeneficioId(beneficioId));
     model.addAttribute("activeTab", "beneficios");
     return "admin/planes-beneficios/lista-por-beneficio";
   }
@@ -145,7 +150,7 @@ public class AdminPlanBeneficioController {
       @PathVariable Long beneficioId,
       Model model) {
 
-    return planBeneficioService.obtenerAsociacionPorIds(planId, beneficioId)
+    return planBeneficioService.obtenerAsociacionPorPlanIdYBeneficioId(planId, beneficioId)
         .map(planBeneficio -> {
           PlanBeneficioRequestDTO planBeneficioForm = new PlanBeneficioRequestDTO();
           planBeneficioForm.setPlanId(planId);
@@ -178,16 +183,26 @@ public class AdminPlanBeneficioController {
       return "admin/planes-beneficios/editar";
     }
 
-    // Asegurar que los IDs en el DTO coincidan con los de la URL
-    planBeneficioForm.setPlanId(planId);
-    planBeneficioForm.setBeneficioId(beneficioId);
+    Optional<PlanBeneficio> pbOpt = planBeneficioService.obtenerEntidadAsociacionPorPlanIdYBeneficioId(planId,
+        beneficioId);
+    if (pbOpt.isEmpty()) {
+      redirectAttributes.addFlashAttribute("errorMessage", "Asociación no encontrada para actualizar.");
+      return "redirect:/admin/planes-beneficios/plan/" + planId;
+    }
 
-    return planBeneficioService.actualizarAsociacion(planId, beneficioId, planBeneficioForm)
-        .map(planBeneficio -> {
-          redirectAttributes.addFlashAttribute("mensaje", "Asociación actualizada exitosamente");
-          return "redirect:/admin/planes-beneficios/plan/" + planId;
-        })
-        .orElse("redirect:/admin/planes-beneficios/plan/" + planId + "?error=Error+al+actualizar+la+asociación");
+    try {
+      planBeneficioService.actualizarAsociacion(pbOpt.get().getId(), planBeneficioForm);
+      redirectAttributes.addFlashAttribute("successMessage", "Asociación actualizada exitosamente.");
+      return "redirect:/admin/planes-beneficios/plan/" + planId;
+    } catch (Exception e) {
+      model.addAttribute("errorMessage", "Error al actualizar la asociación: " + e.getMessage());
+      model.addAttribute("planNombre", planService.obtenerPlanPorId(planId).map(p -> p.getNombre()).orElse("N/A"));
+      model.addAttribute("beneficioNombre",
+          beneficioService.obtenerBeneficioPorId(beneficioId).map(b -> b.getNombre()).orElse("N/A"));
+      model.addAttribute("isEdit", true);
+      model.addAttribute("activeTab", "planes");
+      return "admin/planes-beneficios/form-edit";
+    }
   }
 
   @PostMapping("/{planId}/{beneficioId}/eliminar")
@@ -196,11 +211,15 @@ public class AdminPlanBeneficioController {
       @PathVariable Long beneficioId,
       RedirectAttributes redirectAttributes) {
 
-    boolean eliminado = planBeneficioService.eliminarAsociacion(planId, beneficioId);
-    if (eliminado) {
-      redirectAttributes.addFlashAttribute("mensaje", "Asociación eliminada exitosamente");
-    } else {
-      redirectAttributes.addFlashAttribute("error", "No se pudo eliminar la asociación");
+    try {
+      boolean eliminado = planBeneficioService.eliminarAsociacionPorPlanIdYBeneficioId(planId, beneficioId);
+      if (eliminado) {
+        redirectAttributes.addFlashAttribute("successMessage", "Asociación eliminada exitosamente.");
+      } else {
+        redirectAttributes.addFlashAttribute("errorMessage", "No se pudo encontrar la asociación para eliminar.");
+      }
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar la asociación: " + e.getMessage());
     }
 
     return "redirect:/admin/planes-beneficios/plan/" + planId;
@@ -213,17 +232,29 @@ public class AdminPlanBeneficioController {
       @RequestParam boolean activar,
       RedirectAttributes redirectAttributes) {
 
-    boolean resultado = activar ? planBeneficioService.activarAsociacion(planId, beneficioId)
-        : planBeneficioService.desactivarAsociacion(planId, beneficioId);
-
-    if (resultado) {
-      redirectAttributes.addFlashAttribute("mensaje",
-          "Asociación " + (activar ? "activada" : "desactivada") + " exitosamente");
-    } else {
-      redirectAttributes.addFlashAttribute("error",
-          "No se pudo " + (activar ? "activar" : "desactivar") + " la asociación");
+    Optional<PlanBeneficio> pbOpt = planBeneficioService.obtenerEntidadAsociacionPorPlanIdYBeneficioId(planId,
+        beneficioId);
+    if (pbOpt.isEmpty()) {
+      redirectAttributes.addFlashAttribute("errorMessage", "Asociación no encontrada.");
+      return "redirect:/admin/planes-beneficios/plan/" + planId;
     }
+    Long asociacionId = pbOpt.get().getId();
+    try {
+      boolean exito;
+      if (activar) {
+        exito = planBeneficioService.activarAsociacion(asociacionId);
+      } else {
+        exito = planBeneficioService.desactivarAsociacion(asociacionId);
+      }
 
+      if (exito) {
+        redirectAttributes.addFlashAttribute("successMessage", "Estado de la asociación cambiado exitosamente.");
+      } else {
+        redirectAttributes.addFlashAttribute("errorMessage", "No se pudo cambiar el estado de la asociación.");
+      }
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMessage", "Error al cambiar estado: " + e.getMessage());
+    }
     return "redirect:/admin/planes-beneficios/plan/" + planId;
   }
 }

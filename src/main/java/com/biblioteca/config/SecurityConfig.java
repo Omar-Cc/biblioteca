@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -42,11 +42,16 @@ public class SecurityConfig {
             .requestMatchers(
                 AntPathRequestMatcher.antMatcher("/css/**"),
                 AntPathRequestMatcher.antMatcher("/js/**"),
-                AntPathRequestMatcher.antMatcher("/images/**"),
+                AntPathRequestMatcher.antMatcher("/image/**"),
+                AntPathRequestMatcher.antMatcher("/uploads/**"),
                 AntPathRequestMatcher.antMatcher("/webjars/**"),
                 AntPathRequestMatcher.antMatcher("/"),
                 AntPathRequestMatcher.antMatcher("/home"),
                 AntPathRequestMatcher.antMatcher("/catalogo/**"),
+                AntPathRequestMatcher.antMatcher("/carrito"),
+                AntPathRequestMatcher.antMatcher("/buscar/**"),
+                AntPathRequestMatcher.antMatcher("/api/buscar/**"),
+                AntPathRequestMatcher.antMatcher("/test-busqueda"),
                 AntPathRequestMatcher.antMatcher("/registro"),
                 AntPathRequestMatcher.antMatcher("/login"),
                 AntPathRequestMatcher.antMatcher("/error"),
@@ -54,16 +59,26 @@ public class SecurityConfig {
                 AntPathRequestMatcher.antMatcher("/404"),
                 AntPathRequestMatcher.antMatcher("/500"),
                 AntPathRequestMatcher.antMatcher("/beneficios/**"),
-                AntPathRequestMatcher.antMatcher("/planes/**"))
+                AntPathRequestMatcher.antMatcher("/planes/**"),
+                AntPathRequestMatcher.antMatcher("/nosotros"),
+                AntPathRequestMatcher.antMatcher("/contacto"),
+                AntPathRequestMatcher.antMatcher("/politica-de-privacidad"),
+                AntPathRequestMatcher.antMatcher("/terminos-y-condiciones"),
+                AntPathRequestMatcher.antMatcher("/licencias-de-contenido"),
+                AntPathRequestMatcher.antMatcher("/loader"),
+                AntPathRequestMatcher.antMatcher("/favicon.ico"))
             .permitAll()
             .requestMatchers(AntPathRequestMatcher.antMatcher("/admin/**")).hasRole("ADMIN")
-            .requestMatchers(AntPathRequestMatcher.antMatcher("/mi-cuenta/**")).hasRole("USER")
-            .requestMatchers(AntPathRequestMatcher.antMatcher("/ordenes/**")).hasAnyRole("USER", "ADMIN")
+            .requestMatchers(AntPathRequestMatcher.antMatcher("/mi-cuenta/**")).hasAnyRole("LECTOR", "ADMIN")
+            .requestMatchers(AntPathRequestMatcher.antMatcher("/ordenes/**")).hasAnyRole("LECTOR", "ADMIN")
             .anyRequest().authenticated())
         .csrf(csrf -> csrf
-            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+            .csrfTokenRepository(new HttpSessionCsrfTokenRepository()))
         .formLogin(form -> form
             .loginPage("/login")
+            .loginProcessingUrl("/login")
+            .usernameParameter("username")
+            .passwordParameter("password")
             .successHandler(authSuccessHandler)
             .failureUrl("/login?error=true")
             .permitAll())
@@ -73,8 +88,22 @@ public class SecurityConfig {
             .invalidateHttpSession(true)
             .deleteCookies("JSESSIONID")
             .permitAll())
+        .sessionManagement(session -> session
+            .maximumSessions(10)
+            .maxSessionsPreventsLogin(false))
         .exceptionHandling(exceptions -> exceptions
-            .accessDeniedPage("/403"));
+            .accessDeniedPage("/403")
+            .authenticationEntryPoint((request, response, authException) -> {
+                // Guardar la URL solicitada manualmente antes de redirigir
+                String targetUrl = request.getRequestURL().toString();
+                String queryString = request.getQueryString();
+                if (queryString != null && !queryString.isEmpty()) {
+                    targetUrl += "?" + queryString;
+                }
+                request.getSession().setAttribute("REQUESTED_URL", targetUrl);
+                System.out.println("🔍 DEBUG - SecurityConfig: URL guardada automáticamente: " + targetUrl);
+                response.sendRedirect("/login");
+            }));
 
     return http.build();
   }

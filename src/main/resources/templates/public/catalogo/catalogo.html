@@ -114,6 +114,55 @@
           margin: 0 auto;
         }
       }
+
+      .prestamo-status {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 10;
+      }
+
+      .prestamo-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+
+      .btn-prestamo {
+        position: relative;
+      }
+
+      .btn-prestamo.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .tooltip-prestamo {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-prestamo .tooltiptext {
+        visibility: hidden;
+        width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.8rem;
+      }
+
+      .tooltip-prestamo:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
     </style>
   </th:block>
 </head>
@@ -194,52 +243,166 @@
       <div id="gridView" class="row g-3" th:unless="${#lists.isEmpty(contenidos)}">
         <!-- Iterar sobre los contenidos -->
         <div class="col-md-4 col-lg-2 mb-4" th:each="contenido : ${contenidos}">
-          <div class="card book-card h-100 shadow-sm">
+          <div class="card book-card h-100 shadow-sm" style="position: relative;">
+
+            <!-- Badge de estado de préstamo -->
+            <div class="prestamo-status" sec:authorize="isAuthenticated()" th:if="${perfilActual != null}">
+              <span th:if="${contenido.yaPrestadoPorPerfil}" class="badge bg-success prestamo-badge"
+                th:title="${'Prestado hasta: ' + #temporals.format(contenido.prestamoActivo?.fechaDevolucionPrevista, 'dd/MM/yyyy')}">
+                <i class="bi bi-check-circle"></i> Prestado
+              </span>
+              <span th:if="${!contenido.yaPrestadoPorPerfil && !contenido.puedeSerPrestado}"
+                class="badge bg-secondary prestamo-badge">
+                <i class="bi bi-x-circle"></i> No prestable
+              </span>
+            </div>
+
             <div class="card-img-container">
               <img
                 th:src="${contenido.portadaUrl != null ? contenido.portadaUrl : 'https://via.placeholder.com/120x180.png?text=Sin+Portada'}"
                 class="card-img-top book-cover-side" th:alt="${contenido.obra?.titulo}">
             </div>
+
             <div class="card-body d-flex flex-column">
               <h5 class="card-title" style="min-height: 48px;"
                 th:text="${contenido.obra?.titulo ?: 'Título no disponible'} + (${contenido.serie?.ordenEnSerie != null} ? ' Vol. ' + ${contenido.serie.ordenEnSerie} : '')">
                 Título del Libro
               </h5>
+
               <p class="card-text small text-muted mb-0"
                 th:text="${contenido.obra?.autores != null && !#lists.isEmpty(contenido.obra.autores) ? #strings.listJoin(contenido.obra.autores.![nombre], ', ') : 'Autor desconocido'}">
                 Autor(es)
               </p>
+
               <p class="card-text small info-default"
                 th:text="${#strings.abbreviate(contenido.sinopsis, 100) ?: 'Sin sinopsis.'}">
                 Breve descripción del libro...
               </p>
+
               <div class="row mt-auto">
                 <span class="text-muted small info-default"
                   th:text="${'Tipo: ' + contenido.tipo.toString().replace('_', ' ').toLowerCase()}">Tipo</span>
-                <span class="info-default fw-bold fs-5 float-end" th:text="${'S/  ' + (contenido.precio / 100.0)}">Precio</span>
+                <span class="info-default fw-bold fs-5 float-end"
+                  th:text="${'S/  ' + (contenido.precio / 100.0)}">Precio</span>
               </div>
+
               <div class="actions-hover d-none mt-auto">
-                <span class="badge bg-success w-100">
-                </span>
+                <!-- Botón Ver Detalles (siempre disponible) -->
                 <a th:href="@{'/catalogo/contenido/' + ${contenido.id}}"
-                  class="btn btn-sm btn-outline-primary w-100 mb-2">Ver
-                  Detalles</a>
-                <!-- Otros botones como "Añadir al carrito" si aplica -->
-                <a th:href="@{'/catalogo/prestamo/' + ${contenido.id}}"
-                  class="btn btn-sm btn-outline-secondary w-100  mb-2">Solicitar
-                  Préstamo</a>
-                <!-- Boton para Agregar al carrito -->
-                <a th:href="@{'/mi-cuenta/carrito/agregar-rapido/' + ${contenido.id}}"
-                  class="btn btn-sm btn-outline-secondary w-100  mb-2">Agregar al Carrito</a>
+                  class="btn btn-sm btn-outline-primary w-100 mb-2">
+                  <i class="bi bi-eye"></i> Ver Detalles
+                </a>
+
+                <!-- Botones de préstamo (solo para usuarios logueados) -->
+                <div sec:authorize="isAuthenticated()" th:if="${perfilActual != null}">
+
+                  <!-- Si ya tiene el contenido prestado -->
+                  <div th:if="${contenido.yaPrestadoPorPerfil}">
+                    <button class="btn btn-sm btn-success w-100 mb-2" disabled>
+                      <i class="bi bi-check-circle"></i> Ya Prestado
+                    </button>
+
+                    <div class="tooltip-prestamo">
+                      <form th:action="@{'/catalogo/prestamo/' + ${contenido.prestamoActivo?.id} + '/devolver'}"
+                        method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-outline-warning w-100 mb-2"
+                          onclick="return confirm('¿Está seguro que desea devolver este préstamo?')">
+                          <i class="bi bi-arrow-return-left"></i> Devolver
+                        </button>
+                      </form>
+                      <span class="tooltiptext" th:if="${contenido.prestamoActivo?.fechaDevolucionPrevista != null}">
+                        Vence: <span
+                          th:text="${#temporals.format(contenido.prestamoActivo.fechaDevolucionPrevista, 'dd/MM/yyyy')}"></span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Si puede prestarlo -->
+                  <div th:if="${!contenido.yaPrestadoPorPerfil && contenido.puedeSerPrestado}">
+                    <a th:href="@{'/catalogo/prestamo/' + ${contenido.id}}"
+                      class="btn btn-sm btn-outline-success w-100 mb-2">
+                      <i class="bi bi-book"></i> Solicitar Préstamo
+                    </a>
+                  </div>
+
+                  <!-- Si no se puede prestar -->
+                  <div th:if="${!contenido.yaPrestadoPorPerfil && !contenido.puedeSerPrestado}">
+                    <div class="tooltip-prestamo">
+                      <button class="btn btn-sm btn-outline-secondary w-100 mb-2 disabled">
+                        <i class="bi bi-x-circle"></i> No Prestable
+                      </button>
+                      <span class="tooltiptext">Este contenido no está disponible para préstamo</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mensaje para usuarios no logueados -->
+                <div sec:authorize="!isAuthenticated()">
+                  <a href="/login" class="btn btn-sm btn-outline-info w-100 mb-2">
+                    <i class="bi bi-box-arrow-in-right"></i> Inicia sesión para prestar
+                  </a>
+                </div>
+
+                <!-- Mensaje si no hay perfil seleccionado -->
+                <div sec:authorize="isAuthenticated()" th:if="${perfilActual == null}">
+                  <a href="/mi-cuenta/perfiles/seleccionar" class="btn btn-sm btn-outline-warning w-100 mb-2">
+                    <i class="bi bi-person-plus"></i> Seleccionar Perfil
+                  </a>
+                </div>
+
+                <!-- Botón Agregar al Carrito (solo si está disponible para compra) -->
+                <a th:if="${contenido.enVenta}" th:href="@{'/mi-cuenta/carrito/agregar-rapido/' + ${contenido.id}}"
+                  class="btn btn-sm btn-outline-secondary w-100 mb-2">
+                  <i class="bi bi-cart-plus"></i> Agregar al Carrito
+                </a>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </main>
   </th:block>
 
+  <th:block th:fragment="catalogoScripts">
+    <script>
+      // Validación en tiempo real para préstamos
+      function validarPrestamo(contenidoId, btnElement) {
+        if (!btnElement) return;
+
+        btnElement.disabled = true;
+        btnElement.innerHTML = '<i class="bi bi-hourglass-split"></i> Validando...';
+
+        fetch(`/api/catalogo/validar-prestamo/${contenidoId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.esValido) {
+              btnElement.innerHTML = '<i class="bi bi-book"></i> Solicitar Préstamo';
+              btnElement.disabled = false;
+            } else {
+              btnElement.innerHTML = '<i class="bi bi-x-circle"></i> No Disponible';
+              btnElement.disabled = true;
+              btnElement.title = data.errores ? data.errores.join(', ') : 'No disponible';
+            }
+          })
+          .catch(error => {
+            console.error('Error validando préstamo:', error);
+            btnElement.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error';
+            btnElement.disabled = true;
+          });
+      }
+
+      // Auto-refresh de estados de préstamo cada 30 segundos
+      setInterval(() => {
+        const prestamoButtons = document.querySelectorAll('[data-validate-prestamo]');
+        prestamoButtons.forEach(btn => {
+          const contenidoId = btn.getAttribute('data-contenido-id');
+          if (contenidoId) {
+            validarPrestamo(contenidoId, btn);
+          }
+        });
+      }, 30000);
+    </script>
+  </th:block>
 </body>
 
 </html>

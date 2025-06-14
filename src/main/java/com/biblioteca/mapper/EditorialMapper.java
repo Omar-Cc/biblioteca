@@ -2,7 +2,8 @@ package com.biblioteca.mapper;
 
 import com.biblioteca.dto.EditorialRequestDTO;
 import com.biblioteca.dto.EditorialResponseDTO;
-import com.biblioteca.models.Editorial;
+import com.biblioteca.models.contenido.Editorial;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suscripción renovada exitosamente</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+
+    .success-box {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      margin: 20px 0;
+      color: #155724;
+    }
+
+    .receipt {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border: 1px solid #dee2e6;
+    }
+
+    .footer {
+      background: #343a40;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>✅ Biblioteca Digital</h1>
+      <p>¡Renovación exitosa!</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <h2 style="color: #28a745;">¡Gracias <span th:text="${nombreUsuario}">Usuario</span>!</h2>
+
+      <div class="success-box">
+        <h4>🎉 ¡Tu suscripción ha sido renovada!</h4>
+        <p>El pago se procesó correctamente y tu acceso continúa sin interrupciones.</p>
+      </div>
+
+      <div class="receipt">
+        <h3>🧾 Resumen de renovación:</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #dee2e6;"><strong>Plan:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #dee2e6; text-align: right;" th:text="${nombrePlan}">
+              Plan Premium</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #dee2e6;"><strong>Próxima renovación:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #dee2e6; text-align: right;"
+              th:text="${#temporals.format(fechaRenovacion, 'dd/MM/yyyy')}">15/07/2024</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #dee2e6;"><strong>Método de pago:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #dee2e6; text-align: right;" th:text="${metodoPago}">
+              Tarjeta ****1234</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0;"><strong>Estado:</strong></td>
+            <td style="padding: 8px 0; text-align: right; color: #28a745; font-weight: bold;">✅ Activa</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="#" class="btn">📖 Explorar biblioteca</a>
+        <a href="#" class="btn" style="background: #007bff; margin-left: 10px;">⚙️ Gestionar suscripción</a>
+      </div>
+
+      <div style="background: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; margin: 20px 0;">
+        <h4>🚀 ¡Continúa disfrutando!</h4>
+        <ul>
+          <li>📱 Descarga nuestra app móvil</li>
+          <li>🔖 Guarda tus libros favoritos</li>
+          <li>👥 Comparte reseñas con la comunidad</li>
+          <li>🎯 Descubre recomendaciones personalizadas</li>
+        </ul>
+      </div>
+
+      <p>Si tienes alguna pregunta sobre tu suscripción, no dudes en contactarnos.</p>
+
+      <p>
+        ¡Feliz lectura!<br>
+        <strong>El equipo de Biblioteca Digital</strong>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>📧 contacto@biblioteca.com | 📞 (123) 456-7890</p>
+      <p>© 2024 Biblioteca Digital. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        paramTitle='Mi Suscripción | Biblioteca Virtual',
+        paramCss=~{mi-cuenta/suscripcion/mi-suscripcion :: pageSpecificCss},
+        paramScripts=~{mi-cuenta/suscripcion/mi-suscripcion :: pageSpecificScripts},
+        activeMenu='suscripcion', 
+        pageSpecificContent=~{mi-cuenta/suscripcion/mi-suscripcion :: pageContent}
+      )}">
+
+<head>
+  <th:block th:fragment="pageSpecificCss">
+    <style>
+      /* ========================================
+         VARIABLES ESPECÍFICAS DE SUSCRIPCIÓN
+         ======================================== */
+      :root {
+        --suscripcion-shadow-card: 0 8px 32px rgba(0, 0, 0, 0.12);
+        --suscripcion-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.18);
+        --suscripcion-gradient-primary: linear-gradient(135deg, var(--bs-primary) 0%, #1e5f6f 100%);
+        --suscripcion-gradient-premium: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%);
+        --suscripcion-gradient-familiar: linear-gradient(135deg, #e63946 0%, #d42534 100%);
+        --suscripcion-gradient-basico: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        --suscripcion-border-radius: 16px;
+        --suscripcion-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* ========================================
+         HEADER DE PÁGINA
+         ======================================== */
+      .page-header-suscripcion {
+        background: var(--suscripcion-gradient-primary);
+        margin: 0 -1.5rem 2rem -1.5rem;
+        padding: 2rem 1.5rem;
+        border-radius: var(--suscripcion-border-radius) var(--suscripcion-border-radius) var(--suscripcion-border-radius) var(--suscripcion-border-radius);
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page-header-suscripcion::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .page-header-content-suscripcion {
+        position: relative;
+        z-index: 2;
+      }
+
+      .page-title-suscripcion {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .page-subtitle-suscripcion {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+      }
+
+      /* ========================================
+         TARJETA PRINCIPAL DE SUSCRIPCIÓN
+         ======================================== */
+      .suscripcion-card {
+        background: rgba(45, 110, 126, 0.05);
+        border-radius: var(--suscripcion-border-radius);
+        box-shadow: var(--suscripcion-shadow-card);
+        border: none;
+        overflow: hidden;
+        transition: var(--suscripcion-transition);
+        position: relative;
+        margin-bottom: 2rem;
+      }
+
+      .suscripcion-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--suscripcion-shadow-hover);
+      }
+
+      .plan-header-suscripcion {
+        padding: 2.5rem 2rem;
+        color: white;
+        background-color: var(--bs-primary);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .plan-header-suscripcion::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="20" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+        opacity: 0.5;
+      }
+
+      .plan-header-suscripcion.plan-basic {
+        background: var(--suscripcion-gradient-basico);
+      }
+
+      .plan-header-suscripcion.plan-premium {
+        background: var(--suscripcion-gradient-premium);
+      }
+
+      .plan-header-suscripcion.plan-familiar {
+        background: var(--suscripcion-gradient-familiar);
+      }
+
+      .plan-header-suscripcion.plan-lector {
+        background: var(--suscripcion-gradient-primary);
+      }
+
+      .plan-header-content-suscripcion {
+        position: relative;
+        z-index: 2;
+      }
+
+      .plan-title-suscripcion {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .plan-description-suscripcion {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+      }
+
+      .plan-meta-suscripcion {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .status-badge-suscripcion {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: var(--suscripcion-transition);
+      }
+
+      .status-badge-suscripcion:hover {
+        transform: scale(1.05);
+      }
+
+      .status-activa-suscripcion {
+        background: rgba(40, 167, 69, 0.2);
+        color: #d4edda;
+        border-color: rgba(40, 167, 69, 0.5);
+      }
+
+      .status-pendiente-suscripcion {
+        background: rgba(255, 193, 7, 0.2);
+        color: #fff3cd;
+        border-color: rgba(255, 193, 7, 0.5);
+      }
+
+      .status-vencida-suscripcion {
+        background: rgba(220, 53, 69, 0.2);
+        color: #f8d7da;
+        border-color: rgba(220, 53, 69, 0.5);
+      }
+
+      .price-display-suscripcion {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        font-size: 2.5rem;
+        font-weight: 800;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .currency-suscripcion {
+        font-size: 1.5rem;
+      }
+
+      .period-suscripcion {
+        font-size: 1rem;
+        opacity: 0.8;
+        font-weight: 400;
+      }
+
+      /* ========================================
+              PROGRESO CIRCULAR
+        ======================================== */
+      .progress-ring-container-suscripcion {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .progress-ring-suscripcion {
+        width: 140px;
+        height: 140px;
+        position: relative;
+      }
+
+      .progress-ring-suscripcion svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+      }
+
+      .progress-ring-suscripcion circle {
+        fill: transparent;
+        stroke-width: 12;
+        stroke-linecap: round;
+      }
+
+      .progress-ring-suscripcion .background {
+        stroke: rgba(255, 255, 255, 0.3);
+      }
+
+      .progress-ring-suscripcion .progress {
+        stroke: rgba(255, 255, 255, 0.9);
+        stroke-dasharray: 440;
+        stroke-dashoffset: 440;
+        transition: stroke-dashoffset 1s ease-in-out;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+      }
+
+      .progress-ring-text-suscripcion {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+      }
+
+      .progress-ring-number-suscripcion {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .progress-ring-label-suscripcion {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+      }
+
+      /* ========================================
+         INFORMACIÓN DETALLADA - FONDO BLANCO
+         ======================================== */
+      .info-grid-suscripcion {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .info-item-suscripcion {
+        text-align: center;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        transition: var(--suscripcion-transition);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .info-item-suscripcion:hover {
+        background: rgba(45, 110, 126, 0.02);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(45, 110, 126, 0.15);
+      }
+
+      .info-icon-suscripcion {
+        font-size: 3rem;
+        color: var(--bs-primary);
+        margin-bottom: 1rem;
+        display: block;
+        transition: var(--suscripcion-transition);
+      }
+
+      .info-item-suscripcion:hover .info-icon-suscripcion {
+        transform: scale(1.1);
+      }
+
+      .info-title-suscripcion {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .info-value-suscripcion {
+        font-size: 1rem;
+        color: var(--bs-primary);
+        font-weight: 500;
+      }
+
+      /* ========================================
+         BENEFICIOS - FULL WIDTH
+         ======================================== */
+      .benefits-section-suscripcion {
+        margin-bottom: 2rem;
+        width: 100%;
+      }
+
+      .benefits-title-suscripcion {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin-bottom: 1.5rem;
+        text-align: center;
+        justify-content: center;
+      }
+
+      .benefits-grid-suscripcion {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        width: 100%;
+      }
+
+      .benefit-item-suscripcion {
+        background: white;
+        border: 2px solid rgba(45, 110, 126, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: var(--suscripcion-transition);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .benefit-item-suscripcion::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--bs-primary);
+        transition: var(--suscripcion-transition);
+      }
+
+      .benefit-item-suscripcion:hover {
+        border-color: rgba(45, 110, 126, 0.3);
+        transform: translateX(8px);
+        box-shadow: -8px 8px 20px rgba(45, 110, 126, 0.1);
+      }
+
+      .benefit-item-suscripcion:hover::before {
+        width: 8px;
+      }
+
+      .benefit-item-suscripcion.plan-premium::before {
+        background: #6f42c1;
+      }
+
+      .benefit-item-suscripcion.plan-familiar::before {
+        background: #e63946;
+      }
+
+      .benefit-content-suscripcion {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .benefit-icon-suscripcion {
+        font-size: 1.5rem;
+        color: var(--bs-success);
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+      }
+
+      .benefit-text-suscripcion {
+        flex: 1;
+      }
+
+      .benefit-name-suscripcion {
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin-bottom: 0.25rem;
+      }
+
+      .benefit-description-suscripcion {
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.4;
+      }
+
+      .benefit-value-suscripcion {
+        background: var(--bs-primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      /* ========================================
+         HISTORIAL Y ACCIONES
+         ======================================== */
+      .section-card-suscripcion {
+        background: white;
+        border-radius: var(--suscripcion-border-radius);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        transition: var(--suscripcion-transition);
+      }
+
+      .section-card-suscripcion:hover {
+        box-shadow: var(--suscripcion-shadow-hover);
+      }
+
+      .section-header-suscripcion {
+        background: rgba(45, 110, 126, 0.05);
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .section-title-suscripcion {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin-bottom: 0;
+      }
+
+      .section-body-suscripcion {
+        padding: 1.5rem;
+        background: white;
+      }
+
+      .timeline-item-suscripcion {
+        position: relative;
+        padding-left: 4rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .timeline-item-suscripcion:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .timeline-item-suscripcion::before {
+        content: '';
+        position: absolute;
+        left: 1.25rem;
+        top: 2.5rem;
+        bottom: -1.5rem;
+        width: 2px;
+        background: linear-gradient(to bottom, var(--bs-primary), rgba(45, 110, 126, 0.3));
+      }
+
+      .timeline-item-suscripcion:last-child::before {
+        display: none;
+      }
+
+      .timeline-icon-suscripcion {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 2.5rem;
+        height: 2.5rem;
+        background: var(--bs-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(45, 110, 126, 0.3);
+        z-index: 2;
+      }
+
+      .timeline-content-suscripcion {
+        background: rgba(45, 110, 126, 0.02);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid rgba(45, 110, 126, 0.1);
+      }
+
+      .timeline-header-suscripcion {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+      }
+
+      .timeline-title-suscripcion {
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin-bottom: 0.25rem;
+      }
+
+      .timeline-date-suscripcion {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .timeline-amount-suscripcion {
+        text-align: right;
+      }
+
+      .amount-value-suscripcion {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--bs-success);
+        margin-bottom: 0.25rem;
+      }
+
+      /* ========================================
+         BOTONES DE ACCIÓN
+         ======================================== */
+      .actions-grid-suscripcion {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .action-btn-suscripcion {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--suscripcion-transition);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .action-btn-suscripcion::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      .action-btn-suscripcion:hover::before {
+        left: 100%;
+      }
+
+      .action-btn-suscripcion:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }      .action-btn-icon-suscripcion {
+        font-size: 1.1rem;
+      }
+
+      /* Estilos para botones deshabilitados */
+      .action-btn-suscripcion:disabled,
+      .action-btn-suscripcion.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border-color: #dee2e6;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .action-btn-suscripcion:disabled::before,
+      .action-btn-suscripcion.disabled::before {
+        display: none;
+      }
+
+      .action-btn-suscripcion:disabled:hover,
+      .action-btn-suscripcion.disabled:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* ========================================
+         BANNER DE UPGRADE
+         ======================================== */
+      .upgrade-banner-suscripcion {
+        background: var(--suscripcion-gradient-primary);
+        color: white;
+        border-radius: var(--suscripcion-border-radius);
+        padding: 3rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 3rem;
+      }
+
+      .upgrade-banner-suscripcion::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        opacity: 0.5;
+      }
+
+      .upgrade-content-suscripcion {
+        position: relative;
+        z-index: 2;
+      }
+
+      .upgrade-icon-suscripcion {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        display: block;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .upgrade-title-suscripcion {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .upgrade-description-suscripcion {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      }
+
+      .upgrade-actions-suscripcion {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .upgrade-btn-suscripcion {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--suscripcion-transition);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+      }
+
+      .upgrade-btn-suscripcion.primary {
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--bs-primary);
+      }
+
+      .upgrade-btn-suscripcion.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .upgrade-btn-suscripcion:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+      }
+
+      /* ========================================
+         PLANES DISPONIBLES
+         ======================================== */
+      .planes-grid-suscripcion {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .plan-card-suscripcion {
+        background: white;
+        border-radius: var(--suscripcion-border-radius);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 2px solid transparent;
+        overflow: hidden;
+        transition: var(--suscripcion-transition);
+        position: relative;
+      }
+
+      .plan-card-suscripcion:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--suscripcion-shadow-hover);
+        border-color: var(--bs-primary);
+      }
+
+      .plan-card-header-suscripcion {
+        padding: 1.5rem;
+        text-align: center;
+        color: white;
+        position: relative;
+      }
+
+      .plan-card-header-suscripcion.plan-basic {
+        background: var(--suscripcion-gradient-basico);
+      }
+
+      .plan-card-header-suscripcion.plan-premium {
+        background: var(--suscripcion-gradient-premium);
+      }
+
+      .plan-card-header-suscripcion.plan-familiar {
+        background: var(--suscripcion-gradient-familiar);
+      }
+
+      .plan-card-header-suscripcion.plan-lector {
+        background: var(--suscripcion-gradient-primary);
+      }
+
+      .plan-name-suscripcion {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .plan-card-body-suscripcion {
+        padding: 2rem 1.5rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        height: calc(100% - 120px);
+        background: white;
+      }
+
+      .plan-description-card-suscripcion {
+        color: #666;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+      }
+
+      .plan-cta-suscripcion {
+        margin-top: auto;
+      }
+
+      /* ========================================
+         RESPONSIVE DESIGN
+         ======================================== */
+      @media (max-width: 1200px) {
+        .info-grid-suscripcion {
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .benefits-grid-suscripcion {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 991.98px) {
+        .page-title-suscripcion {
+          font-size: 2rem;
+        }
+
+        .plan-title-suscripcion {
+          font-size: 1.5rem;
+        }
+
+        .price-display-suscripcion {
+          font-size: 2rem;
+        }
+
+        .progress-ring-suscripcion {
+          width: 120px;
+          height: 120px;
+        }
+
+        .progress-ring-number-suscripcion {
+          font-size: 1.5rem;
+        }
+
+        .info-grid-suscripcion {
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 1rem;
+        }
+
+        .planes-grid-suscripcion {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .benefits-grid-suscripcion {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 767.98px) {
+        .page-header-suscripcion {
+          margin: -1rem -1rem 1.5rem -1rem;
+          padding: 1.5rem 1rem;
+        }
+
+        .page-title-suscripcion {
+          font-size: 1.75rem;
+        }
+
+        .page-subtitle-suscripcion {
+          font-size: 1rem;
+        }
+
+        .plan-header-suscripcion {
+          padding: 2rem 1.5rem;
+        }
+
+        .plan-title-suscripcion {
+          font-size: 1.25rem;
+        }
+
+        .plan-meta-suscripcion {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.75rem;
+        }
+
+        .price-display-suscripcion {
+          font-size: 1.75rem;
+        }
+
+        .progress-ring-suscripcion {
+          width: 100px;
+          height: 100px;
+        }
+
+        .progress-ring-number-suscripcion {
+          font-size: 1.25rem;
+        }
+
+        .info-grid-suscripcion {
+          grid-template-columns: 1fr;
+        }
+
+        .timeline-item-suscripcion {
+          padding-left: 3rem;
+        }
+
+        .timeline-icon-suscripcion {
+          width: 2rem;
+          height: 2rem;
+          font-size: 0.9rem;
+        }
+
+        .upgrade-title-suscripcion {
+          font-size: 2rem;
+        }
+
+        .upgrade-description-suscripcion {
+          font-size: 1rem;
+        }
+
+        .upgrade-actions-suscripcion {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .upgrade-btn-suscripcion {
+          width: 100%;
+          max-width: 300px;
+          justify-content: center;
+        }
+
+        .planes-grid-suscripcion {
+          grid-template-columns: 1fr;
+        }
+
+        .benefits-grid-suscripcion {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 575.98px) {
+
+        .section-header-suscripcion,
+        .section-body-suscripcion {
+          padding: 1rem;
+        }
+
+        .benefit-item-suscripcion {
+          padding: 1rem;
+        }
+
+        .timeline-content-suscripcion {
+          padding: 1rem;
+        }
+
+        .timeline-header-suscripcion {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .timeline-amount-suscripcion {
+          text-align: left;
+        }
+      }
+
+      /* ========================================
+         ANIMACIONES
+         ======================================== */
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      .suscripcion-card {
+        animation: slideInUp 0.6s ease-out;
+      }
+
+      .info-item-suscripcion {
+        animation: slideInUp 0.6s ease-out backwards;
+      }
+
+      .info-item-suscripcion:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+
+      .info-item-suscripcion:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .info-item-suscripcion:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .benefit-item-suscripcion {
+        animation: slideInUp 0.6s ease-out backwards;
+      }
+
+      .benefit-item-suscripcion:nth-child(odd) {
+        animation-delay: 0.1s;
+      }
+
+      .benefit-item-suscripcion:nth-child(even) {
+        animation-delay: 0.2s;
+      }
+
+      .timeline-item-suscripcion {
+        animation: slideInUp 0.6s ease-out backwards;
+      }
+
+      .timeline-item-suscripcion:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+
+      .timeline-item-suscripcion:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .timeline-item-suscripcion:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .plan-card-suscripcion {
+        animation: slideInUp 0.6s ease-out backwards;
+      }
+
+      .plan-card-suscripcion:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+
+      .plan-card-suscripcion:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .plan-card-suscripcion:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .plan-card-suscripcion:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="pageContent">
+    <!-- RENDERIZADO 1: Cuando tiene suscripción -->
+    <div th:if="${tieneSuscripcion}">
+      <!-- Header de página -->
+      <div class="page-header-suscripcion">
+        <div class="page-header-content-suscripcion">
+          <h1 class="page-title-suscripcion">
+            <i class="bi bi-credit-card-2-front me-3"></i>
+            Mi Suscripción
+          </h1>
+          <p class="page-subtitle-suscripcion">Gestiona tu plan y mantente al día con tus beneficios</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12">
+          <!-- Tarjeta principal de la suscripción -->
+          <div class="suscripcion-card">
+            <div class="plan-header-suscripcion"
+              th:classappend="'plan-' + ${#strings.toLowerCase(suscripcion.planNombre)}">
+              <div class="plan-header-content-suscripcion">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h2 class="plan-title-suscripcion" th:text="${suscripcion.planNombre}">Plan Premium</h2>
+                    <p class="plan-description-suscripcion" th:text="${plan.descripcion}">Acceso completo a toda la
+                      biblioteca</p>
+                    <div class="plan-meta-suscripcion">
+                      <span class="status-badge-suscripcion"
+                        th:classappend="'status-' + ${#strings.toLowerCase(suscripcion.estado)} + '-suscripcion'"
+                        th:text="${suscripcion.estado}">ACTIVA</span>
+                      <span class="status-badge-suscripcion" th:text="${suscripcion.modalidadPago}">MENSUAL</span>
+                      <div class="price-display-suscripcion">
+                        <span class="currency-suscripcion">S/.</span>
+                        <span th:if="${#strings.equalsIgnoreCase(suscripcion.modalidadPago, 'mensual')}"
+                          th:text="${#numbers.formatDecimal(plan.precioMensual/100, 1, 2)}">29.99</span>
+                        <span th:if="${#strings.equalsIgnoreCase(suscripcion.modalidadPago, 'anual')}"
+                          th:text="${#numbers.formatDecimal(plan.precioAnual/100, 1, 2)}">299.99</span>
+                        <span class="period-suscripcion"
+                          th:text="'/' + (${#strings.equalsIgnoreCase(suscripcion.modalidadPago, 'anual')} ? 'año' : 'mes')">/mes</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <!-- Progreso circular del período -->
+                    <div class="progress-ring-container-suscripcion">
+                      <div class="progress-ring-suscripcion">
+                        <svg>
+                          <circle class="background" cx="70" cy="70" r="60"></circle>                          <circle class="progress" cx="70" cy="70" r="60"
+                            th:style="'stroke-dashoffset: ' + ${suscripcion.diasTotales > 0 ? (440 - (440 * suscripcion.diasTranscurridos / suscripcion.diasTotales)) : 440} + ';'">
+                          </circle>
+                        </svg>
+                        <div class="progress-ring-text-suscripcion">
+                          <div class="progress-ring-number-suscripcion" th:text="${suscripcion.diasRestantes}">15</div>
+                          <div class="progress-ring-label-suscripcion">días transcurridos</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-body-suscripcion">
+              <!-- Información detallada -->
+              <div class="info-grid-suscripcion">
+                <div class="info-item-suscripcion">
+                  <i class="info-icon-suscripcion bi bi-calendar-check"></i>
+                  <h6 class="info-title-suscripcion">Fecha de Inicio</h6>
+                  <p class="info-value-suscripcion"
+                    th:text="${#temporals.format(suscripcion.fechaInicio, 'dd/MM/yyyy')}">01/01/2024</p>
+                </div>
+                <div class="info-item-suscripcion">
+                  <i class="info-icon-suscripcion bi bi-arrow-clockwise"></i>
+                  <h6 class="info-title-suscripcion">Próxima Renovación</h6>
+                  <p class="info-value-suscripcion"
+                    th:text="${#temporals.format(suscripcion.fechaRenovacion, 'dd/MM/yyyy')}">01/02/2024</p>
+                </div>
+                <div class="info-item-suscripcion">
+                  <i class="info-icon-suscripcion bi bi-credit-card"></i>
+                  <h6 class="info-title-suscripcion">Método de Pago</h6>
+                  <p class="info-value-suscripcion" th:text="${metodoPago?.nombre ?: 'No configurado'}">Tarjeta ****1234
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beneficios del plan - Full Width -->
+      <div class="row">
+        <div class="col-12">
+          <div class="benefits-section-suscripcion">
+            <h3 class="benefits-title-suscripcion">
+              <i class="bi bi-check-circle"></i>
+              Beneficios Incluidos
+            </h3>
+            <div th:if="${beneficiosPlan != null and not #lists.isEmpty(beneficiosPlan)}"
+              class="benefits-grid-suscripcion">
+              <div th:each="planBeneficio : ${beneficiosPlan}"
+                th:if="${planBeneficio.activo and planBeneficio.beneficio != null and planBeneficio.beneficio.activo}"
+                class="benefit-item-suscripcion"
+                th:classappend="'plan-' + ${#strings.toLowerCase(suscripcion.planNombre)}">
+                <div class="benefit-content-suscripcion">
+                  <i class="benefit-icon-suscripcion bi bi-check-lg"></i>
+                  <div class="benefit-text-suscripcion">
+                    <div class="benefit-name-suscripcion" th:text="${planBeneficio.beneficio.nombre}">Beneficio</div>
+                    <div class="benefit-description-suscripcion" th:if="${planBeneficio.beneficio.descripcion}"
+                      th:text="${planBeneficio.beneficio.descripcion}">Descripción del beneficio</div>
+                  </div>
+                  <span class="benefit-value-suscripcion" th:if="${planBeneficio.valor}"
+                    th:text="${planBeneficio.valor}">Valor</span>
+                </div>
+              </div>
+            </div>
+            <div th:if="${beneficiosPlan == null or #lists.isEmpty(beneficiosPlan)}" class="text-center py-5">
+              <i class="bi bi-info-circle text-muted" style="font-size: 3rem;"></i>
+              <p class="text-muted mt-3">No hay beneficios configurados para este plan</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial de Pagos - Full Width -->
+      <div class="row">
+        <div class="col-12">
+          <div class="section-card-suscripcion">
+            <div class="section-header-suscripcion">
+              <h3 class="section-title-suscripcion">
+                <i class="bi bi-clock-history"></i>
+                Historial de Pagos
+              </h3>
+            </div>
+            <div class="section-body-suscripcion">
+              <div th:if="${suscripcion.historialPagos != null and not #lists.isEmpty(suscripcion.historialPagos)}">
+                <div class="timeline-item-suscripcion" th:each="pago : ${suscripcion.historialPagos}">
+                  <div class="timeline-icon-suscripcion">
+                    <i class="bi bi-credit-card"></i>
+                  </div>
+                  <div class="timeline-content-suscripcion">
+                    <div class="timeline-header-suscripcion">
+                      <div>
+                        <h6 class="timeline-title-suscripcion" th:text="'Pago - ' + ${pago.concepto}">Pago - Suscripción
+                          Mensual</h6>
+                        <div class="timeline-date-suscripcion"
+                          th:text="${#temporals.format(pago.fecha, 'dd/MM/yyyy HH:mm')}">15/01/2024 10:30</div>
+                      </div>
+                      <div class="timeline-amount-suscripcion">
+                        <div class="amount-value-suscripcion"
+                          th:text="'S/.' + ${#numbers.formatDecimal(pago.monto, 1, 2)}">S/.29.99</div>
+                        <span class="badge bg-success" th:if="${pago.estado == 'EXITOSO'}">Exitoso</span>
+                        <span class="badge bg-danger" th:if="${pago.estado == 'FALLIDO'}">Fallido</span>
+                        <span class="badge bg-warning" th:if="${pago.estado == 'PENDIENTE'}">Pendiente</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div th:if="${suscripcion.historialPagos == null or #lists.isEmpty(suscripcion.historialPagos)}"
+                class="text-center py-5">
+                <i class="bi bi-clock text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">No hay historial de pagos disponible</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones y Soporte - 2 Columnas -->
+      <div class="row">
+        <div class="col-lg-6">          <!-- Acciones rápidas -->
+          <div class="section-card-suscripcion">
+            <div class="section-header-suscripcion">
+              <h3 class="section-title-suscripcion">
+                <i class="bi bi-lightning"></i>
+                Acciones Rápidas
+                <span th:if="${soloLectura}" class="badge bg-warning ms-2">
+                  <i class="bi bi-eye"></i> Solo consulta
+                </span>
+              </h3>
+            </div>
+            <div class="section-body-suscripcion">
+              <!-- Mensaje informativo para perfiles no principales -->
+              <div th:if="${soloLectura}" class="alert alert-info mb-3">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Modo consulta:</strong> Estás viendo la información desde un perfil secundario. 
+                Para gestionar la suscripción, debes acceder desde el perfil principal de la cuenta.
+              </div>
+              
+              <div class="actions-grid-suscripcion">
+                <!-- Cambiar Plan -->
+                <div th:if="${esPerfilPrincipal}">
+                  <a href="/mi-cuenta/suscripcion/cambiar-plan" class="action-btn-suscripcion btn-outline-primary">
+                    <i class="action-btn-icon-suscripcion bi bi-arrow-up-circle"></i>
+                    Cambiar Plan
+                  </a>
+                </div>
+                <div th:unless="${esPerfilPrincipal}">
+                  <button type="button" class="action-btn-suscripcion btn-outline-secondary w-100" disabled title="Solo disponible desde el perfil principal">
+                    <i class="action-btn-icon-suscripcion bi bi-arrow-up-circle"></i>
+                    Cambiar Plan
+                    <i class="bi bi-lock ms-2"></i>
+                  </button>
+                </div>
+
+                <!-- Cambiar Método de Pago -->
+                <div th:if="${esPerfilPrincipal}">
+                  <a th:href="@{/mi-cuenta/suscripcion/{id}/cambiar-metodo-pago(id=${suscripcion.id})}"
+                    class="action-btn-suscripcion btn-outline-primary">
+                    <i class="action-btn-icon-suscripcion bi bi-credit-card"></i>
+                    Cambiar Método de Pago
+                  </a>
+                </div>
+                <div th:unless="${esPerfilPrincipal}">
+                  <button type="button" class="action-btn-suscripcion btn-outline-secondary w-100" disabled title="Solo disponible desde el perfil principal">
+                    <i class="action-btn-icon-suscripcion bi bi-credit-card"></i>
+                    Cambiar Método de Pago
+                    <i class="bi bi-lock ms-2"></i>
+                  </button>
+                </div>
+
+                <!-- Historial Completo - Este SÍ está disponible para todos -->
+                <a href="/mi-cuenta/suscripcion/historial-pagos" class="action-btn-suscripcion btn-outline-info">
+                  <i class="action-btn-icon-suscripcion bi bi-clock-history"></i>
+                  Historial Completo
+                </a>
+
+                <!-- Pausar Suscripción -->
+                <div th:if="${esPerfilPrincipal}">
+                  <form th:action="@{/mi-cuenta/suscripcion/{id}/pausar(id=${suscripcion.id})}" method="post">
+                    <button type="submit" class="action-btn-suscripcion btn-outline-warning w-100"
+                      onclick="return confirm('¿Desea pausar su suscripción?')">
+                      <i class="action-btn-icon-suscripcion bi bi-pause-circle"></i>
+                      Pausar Suscripción
+                    </button>
+                  </form>
+                </div>
+                <div th:unless="${esPerfilPrincipal}">
+                  <button type="button" class="action-btn-suscripcion btn-outline-secondary w-100" disabled title="Solo disponible desde el perfil principal">
+                    <i class="action-btn-icon-suscripcion bi bi-pause-circle"></i>
+                    Pausar Suscripción
+                    <i class="bi bi-lock ms-2"></i>
+                  </button>
+                </div>
+
+                <!-- Cancelar Suscripción -->
+                <div th:if="${esPerfilPrincipal}">
+                  <form th:action="@{/mi-cuenta/suscripcion/{id}/cancelar(id=${suscripcion.id})}" method="post">
+                    <button type="submit" class="action-btn-suscripcion btn-outline-danger w-100"
+                      onclick="return confirm('¿Está seguro de que desea cancelar su suscripción?')">
+                      <i class="action-btn-icon-suscripcion bi bi-x-circle"></i>
+                      Cancelar Suscripción
+                    </button>
+                  </form>
+                </div>
+                <div th:unless="${esPerfilPrincipal}">
+                  <button type="button" class="action-btn-suscripcion btn-outline-secondary w-100" disabled title="Solo disponible desde el perfil principal">
+                    <i class="action-btn-icon-suscripcion bi bi-x-circle"></i>
+                    Cancelar Suscripción
+                    <i class="bi bi-lock ms-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <!-- Información de soporte -->
+          <div class="section-card-suscripcion">
+            <div class="section-header-suscripcion">
+              <h3 class="section-title-suscripcion">
+                <i class="bi bi-headset"></i>
+                ¿Necesitas Ayuda?
+              </h3>
+            </div>
+            <div class="section-body-suscripcion">
+              <p class="text-muted mb-4">Si tienes preguntas sobre tu suscripción, nuestro equipo está aquí para
+                ayudarte.</p>
+              <div class="actions-grid-suscripcion">
+                <a href="/soporte" class="action-btn-suscripcion btn-outline-success">
+                  <i class="action-btn-icon-suscripcion bi bi-headset"></i>
+                  Centro de Ayuda
+                </a>
+                <a href="mailto:soporte@biblioteca.com" class="action-btn-suscripcion btn-outline-info">
+                  <i class="action-btn-icon-suscripcion bi bi-envelope"></i>
+                  Enviar Email
+                </a>
+                <a href="tel:+1234567890" class="action-btn-suscripcion btn-outline-warning">
+                  <i class="action-btn-icon-suscripcion bi bi-telephone"></i>
+                  Llamar Soporte
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RENDERIZADO 2: Cuando NO tiene suscripción -->
+    <div th:unless="${tieneSuscripcion}">
+      <!-- Banner de upgrade -->
+      <div class="upgrade-banner-suscripcion">
+        <div class="upgrade-content-suscripcion">
+          <i class="upgrade-icon-suscripcion bi bi-star-fill"></i>
+          <h1 class="upgrade-title-suscripcion">¡Descubre el Poder de una Suscripción!</h1>
+          <p class="upgrade-description-suscripcion">
+            Accede a miles de libros, audiolibros y contenido exclusivo con nuestros planes de suscripción.
+            Elige el plan que mejor se adapte a tus necesidades y comienza tu viaje literario hoy mismo.
+          </p>
+          <div class="upgrade-actions-suscripcion">
+            <a href="/planes" class="upgrade-btn-suscripcion primary">
+              <i class="bi bi-eye"></i>
+              Explorar Planes
+            </a>
+            <a href="/mi-cuenta/suscripcion/nueva" class="upgrade-btn-suscripcion secondary">
+              <i class="bi bi-plus-circle"></i>
+              Suscribirse Ahora
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Planes disponibles -->
+      <div th:if="${planes}">
+        <h2 class="text-center mb-4">Planes Disponibles</h2>
+        <div class="planes-grid-suscripcion">
+          <div th:each="plan : ${planes}" class="plan-card-suscripcion">
+            <div class="plan-card-header-suscripcion" th:classappend="'plan-' + ${#strings.toLowerCase(plan.nombre)}">
+              <h3 class="plan-name-suscripcion" th:text="${plan.nombre}">Plan Básico</h3>
+            </div>
+            <div class="plan-card-body-suscripcion">
+              <p class="plan-description-card-suscripcion" th:text="${plan.descripcion}">Descripción del plan</p>
+              <div class="plan-cta-suscripcion">
+                <a th:href="@{/planes/{id}(id=${plan.id})}" class="btn btn-primary w-100">
+                  <i class="bi bi-arrow-right me-2"></i>
+                  Elegir Plan
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="pageSpecificScripts">
+    <script>
+      // Animar el progreso circular cuando se carga la página
+      document.addEventListener('DOMContentLoaded', function () {
+        const progressCircle = document.querySelector('.progress-ring-suscripcion .progress');
+        if (progressCircle) {
+          const strokeDashoffset = progressCircle.style.strokeDashoffset;
+          progressCircle.style.strokeDashoffset = '440';
+          setTimeout(() => {
+            progressCircle.style.strokeDashoffset = strokeDashoffset;
+          }, 500);
+        }
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/cuenta-layout :: layoutConSideNav(
+        'Cambiar Método de Pago',
+        ~{::pageSpecificCss},
+        ~{::pageSpecificScripts},
+        'suscripcion',
+        ~{::pageContent}
+      )}">
+
+<head>
+	<th:block th:fragment="pageSpecificCss">
+	</th:block>
+</head>
+
+<body>
+	<div th:fragment="pageContent">
+		<div
+			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+			<h1 class="h2">
+				<i class="fas fa-credit-card me-2"></i>
+				Cambiar Método de Pago
+			</h1>
+			<div class="btn-toolbar mb-2 mb-md-0">
+				<a th:href="@{/mi-cuenta/suscripcion}" class="btn btn-outline-secondary">
+					<i class="fas fa-arrow-left me-1"></i>
+					Volver
+				</a>
+			</div>
+		</div>
+
+		<!-- Método de Pago Actual -->
+		<div class="card mb-4" th:if="${metodoPagoActual != null}">
+			<div class="card-header bg-primary text-white">
+				<h5 class="mb-0">
+					<i class="fas fa-credit-card me-2"></i>
+					Método de Pago Actual
+				</h5>
+			</div>
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-md-8">
+						<div class="d-flex align-items-center">
+							<i class="fas fa-credit-card fa-2x text-primary me-3"></i>
+							<div>
+								<h5 class="mb-1" th:text="${metodoPagoActual.tipo}"></h5>
+								<p class="mb-1" th:text="'**** **** **** ' + ${metodoPagoActual.ultimosDigitos}"></p>
+								<small class="text-muted" th:text="'Vence: ' + ${metodoPagoActual.fechaVencimiento}"></small>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 text-end">
+						<span class="badge bg-success">Activo</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Formulario para Nuevo Método de Pago -->
+		<div class="card">
+			<div class="card-header">
+				<h5 class="mb-0">
+					<i class="fas fa-plus me-2"></i>
+					Agregar Nuevo Método de Pago
+				</h5>
+			</div>
+			<div class="card-body">
+				<form th:action="@{/mi-cuenta/suscripcion/metodo-pago}" method="post" th:object="${metodoPagoForm}">
+
+					<!-- Tipo de Tarjeta -->
+					<div class="row mb-3">
+						<div class="col-md-12">
+							<label for="tipo" class="form-label">Tipo de Tarjeta *</label>
+							<select class="form-select" id="tipo" th:field="*{tipo}" required>
+								<option value="">Seleccione el tipo de tarjeta</option>
+								<option value="VISA">Visa</option>
+								<option value="MASTERCARD">Mastercard</option>
+								<option value="AMERICAN_EXPRESS">American Express</option>
+							</select>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}">
+							</div>
+						</div>
+					</div>
+
+					<!-- Número de Tarjeta -->
+					<div class="row mb-3">
+						<div class="col-md-12">
+							<label for="numeroTarjeta" class="form-label">Número de Tarjeta *</label>
+							<input type="text" class="form-control" id="numeroTarjeta" th:field="*{numeroTarjeta}"
+								placeholder="1234 5678 9012 3456" maxlength="19" required>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('numeroTarjeta')}" th:errors="*{numeroTarjeta}">
+							</div>
+						</div>
+					</div>
+
+					<!-- Nombre del Titular -->
+					<div class="row mb-3">
+						<div class="col-md-12">
+							<label for="nombreTitular" class="form-label">Nombre del Titular *</label>
+							<input type="text" class="form-control" id="nombreTitular" th:field="*{nombreTitular}"
+								placeholder="Como aparece en la tarjeta" required>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('nombreTitular')}" th:errors="*{nombreTitular}">
+							</div>
+						</div>
+					</div>
+
+					<!-- Fecha de Vencimiento y CVV -->
+					<div class="row mb-3">
+						<div class="col-md-6">
+							<label for="fechaVencimiento" class="form-label">Fecha de Vencimiento *</label>
+							<input type="text" class="form-control" id="fechaVencimiento" th:field="*{fechaVencimiento}"
+								placeholder="MM/AA" maxlength="5" required>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('fechaVencimiento')}"
+								th:errors="*{fechaVencimiento}"></div>
+						</div>
+						<div class="col-md-6">
+							<label for="cvv" class="form-label">CVV *</label>
+							<input type="text" class="form-control" id="cvv" th:field="*{cvv}" placeholder="123" maxlength="4"
+								required>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('cvv')}" th:errors="*{cvv}"></div>
+						</div>
+					</div>
+
+					<!-- Dirección de Facturación -->
+					<h6 class="mb-3">Dirección de Facturación</h6>
+
+					<div class="row mb-3">
+						<div class="col-md-12">
+							<label for="direccion" class="form-label">Dirección *</label>
+							<input type="text" class="form-control" id="direccion" th:field="*{direccion}"
+								placeholder="Calle, número, apartamento" required>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<div class="col-md-6">
+							<label for="ciudad" class="form-label">Ciudad *</label>
+							<input type="text" class="form-control" id="ciudad" th:field="*{ciudad}" required>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('ciudad')}" th:errors="*{ciudad}">
+							</div>
+						</div>
+						<div class="col-md-3">
+							<label for="codigoPostal" class="form-label">Código Postal *</label>
+							<input type="text" class="form-control" id="codigoPostal" th:field="*{codigoPostal}" required>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('codigoPostal')}" th:errors="*{codigoPostal}">
+							</div>
+						</div>
+						<div class="col-md-3">
+							<label for="pais" class="form-label">País *</label>
+							<select class="form-select" id="pais" th:field="*{pais}" required>
+								<option value="">Seleccione país</option>
+								<option value="CO">Colombia</option>
+								<option value="MX">México</option>
+								<option value="AR">Argentina</option>
+								<option value="PE">Perú</option>
+								<option value="CL">Chile</option>
+								<option value="US">Estados Unidos</option>
+							</select>
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('pais')}" th:errors="*{pais}">
+							</div>
+						</div>
+					</div>
+
+					<!-- Checkbox para establecer como predeterminado -->
+					<div class="form-check mb-4">
+						<input class="form-check-input" type="checkbox" id="predeterminado" th:field="*{predeterminado}">
+						<label class="form-check-label" for="predeterminado">
+							Establecer como método de pago predeterminado
+						</label>
+					</div>
+
+					<!-- Botones -->
+					<div class="row">
+						<div class="col-md-6">
+							<div class="d-grid">
+								<button type="submit" class="btn btn-primary">
+									<i class="fas fa-save me-2"></i>
+									Guardar Método de Pago
+								</button>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="d-grid">
+								<a th:href="@{/mi-cuenta/suscripcion}" class="btn btn-outline-secondary">
+									<i class="fas fa-times me-2"></i>
+									Cancelar
+								</a>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Información de Seguridad -->
+		<div class="alert alert-info mt-4">
+			<h6><i class="fas fa-shield-alt me-2"></i>Seguridad</h6>
+			<p class="mb-0">
+				Tu información de pago está protegida con encriptación de nivel bancario (SSL 256-bit).
+				No almacenamos tu número de tarjeta completo ni el código CVV en nuestros servidores.
+			</p>
+		</div>
+	</div>
+
+	<th:block layout:fragment="pageSpecificScripts">
+		<script>
+			// Formatear número de tarjeta
+			document.getElementById('numeroTarjeta').addEventListener('input', function (e) {
+				let value = e.target.value.replace(/\s/g, '');
+				let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+				if (formattedValue !== e.target.value) {
+					e.target.value = formattedValue;
+				}
+			});
+
+			// Formatear fecha de vencimiento
+			document.getElementById('fechaVencimiento').addEventListener('input', function (e) {
+				let value = e.target.value.replace(/\D/g, '');
+				if (value.length >= 2) {
+					value = value.substring(0, 2) + '/' + value.substring(2, 4);
+				}
+				e.target.value = value;
+			});
+
+			// Solo números en CVV
+			document.getElementById('cvv').addEventListener('input', function (e) {
+				e.target.value = e.target.value.replace(/\D/g, '');
+			});
+
+			// Validación del formulario
+			document.querySelector('form').addEventListener('submit', function (e) {
+				e.preventDefault();
+				if (confirm('¿Está seguro de que desea agregar este método de pago?')) {
+					this.submit();
+				}
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

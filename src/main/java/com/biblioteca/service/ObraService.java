@@ -7,7 +7,7 @@ import java.util.Optional;
 import com.biblioteca.dto.ObraPopularDTO;
 import com.biblioteca.dto.ObraRequestDTO;
 import com.biblioteca.dto.ObraResponseDTO;
-import com.biblioteca.models.Obra;
+import com.biblioteca.models.contenido.Obra;
 
 public interface ObraService {
   /**

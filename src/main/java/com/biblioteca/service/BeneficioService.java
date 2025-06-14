@@ -18,12 +18,9 @@ public interface BeneficioService {
 
   boolean eliminarBeneficio(Long id);
 
-  // Para uso interno principalmente
   Optional<Beneficio> obtenerEntidadBeneficioPorId(Long id);
 
-  // Obtener beneficios por tipo
-  List<BeneficioResponseDTO> obtenerBeneficiosPorTipo(String tipo);
+  List<BeneficioResponseDTO> obtenerBeneficiosPorTipo(String tipoDato);
 
-  // Obtener beneficios activos
   List<BeneficioResponseDTO> obtenerBeneficiosActivos();
 }

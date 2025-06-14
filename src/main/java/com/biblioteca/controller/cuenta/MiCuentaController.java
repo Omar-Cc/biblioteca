@@ -4,7 +4,7 @@ import com.biblioteca.dto.LectorRequestDTO;
 import com.biblioteca.dto.UsuarioCombinedDTO;
 import com.biblioteca.dto.UsuarioDataDTO;
 import com.biblioteca.dto.UsuarioPasswordDTO;
-import com.biblioteca.models.Usuario;
+import com.biblioteca.models.acceso.Usuario;
 import com.biblioteca.service.LectorService;
 import com.biblioteca.service.UsuarioService;
 
@@ -21,11 +21,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Controller
 @RequestMapping("/mi-cuenta")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER', 'LECTOR')")
+@PreAuthorize("hasRole('LECTOR')")
 public class MiCuentaController {
 
   private final UsuarioService usuarioService;
@@ -38,7 +40,16 @@ public class MiCuentaController {
       // Cargar datos del usuario
       Usuario usuario = usuarioService.buscarPorUsername(username)
           .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+      long diasComoMiembro = 0;
+      if (usuario.getFechaRegistro() != null) {
+        diasComoMiembro = ChronoUnit.DAYS.between(
+            usuario.getFechaRegistro().toLocalDate(),
+            LocalDate.now());
+      }
+
       model.addAttribute("usuario", usuario);
+      model.addAttribute("diasComoMiembro", diasComoMiembro);
 
       // Cargar datos del lector si existen
       lectorService.obtenerPerfilLectorPorUsername(username).ifPresent(lector -> {
@@ -48,7 +59,7 @@ public class MiCuentaController {
       return "usuarios/mi-cuenta";
     } catch (Exception e) {
       model.addAttribute("error", "No se pudo cargar la información de tu cuenta: " + e.getMessage());
-      return "error";
+      return "redirect:/error";
     }
   }
 
@@ -115,7 +126,7 @@ public class MiCuentaController {
       // Actualizar datos del usuario
       UsuarioDataDTO usuarioDTO = new UsuarioDataDTO();
       usuarioDTO.setEmail(combinedDTO.getEmail());
-      usuarioService.actualizarUsuario(username, usuarioDTO);
+      usuarioService.actualizarDatosUsuario(username, usuarioDTO);
 
       // Actualizar datos del lector si existen
       if (combinedDTO.getLectorDTO() != null) {

@@ -19,6 +19,61 @@
   <link rel="stylesheet" th:href="@{/css/admin.css}">
   <!-- DataTables -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+
+  <!-- CSS para ajustar el layout del admin -->
+  <style>
+    .admin-layout {
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .admin-content {
+      margin-left: 280px;
+      /* Ancho del sidebar expandido */
+      min-height: 100vh;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      /* Menor que el sidebar */
+    }
+
+    /* Cuando el sidebar está colapsado */
+    body:has(.admin-sidebar.collapsed) .admin-content {
+      margin-left: 80px;
+      /* Ancho del sidebar colapsado */
+    }
+
+    /* Para navegadores que no soportan :has() */
+    .admin-content.sidebar-collapsed {
+      margin-left: 80px;
+    }
+
+    .admin-content.sidebar-expanded {
+      margin-left: 280px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .admin-content {
+        margin-left: 0;
+      }
+    }
+
+    /* Navbar con z-index correcto */
+    .admin-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1020;
+      /* Menor que el sidebar pero mayor que el contenido */
+    }
+
+    /* Contenido principal */
+    main {
+      padding: 1rem;
+      position: relative;
+      z-index: 1000;
+    }
+  </style>
 </head>
 
 <body class="admin-layout">
@@ -26,7 +81,7 @@
   <!-- Sidebar -->
   <nav th:replace="~{fragmentos/componentes/sidebar :: sidebar}"></nav>
 
-  <div class="admin-content">
+  <div class="admin-content" id="adminContent">
     <!-- Navbar -->
     <nav th:replace="~{fragmentos/componentes/navbarAdmin :: navbarAdmin}"></nav>
 
@@ -39,8 +94,54 @@
       </div>
     </main>
   </div>
+
   <!-- Scripts base -->
   <div th:replace="~{fragmentos/componentes/scriptsAdmin :: scriptsAdmin} ?: ~{}"></div>
+
+  <!-- Script para sincronizar el margen del contenido con el estado del sidebar -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const sidebar = document.querySelector('.admin-sidebar');
+      const adminContent = document.getElementById('adminContent');
+      const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+
+      // Función para actualizar el margen del contenido
+      function updateContentMargin() {
+        if (sidebar.classList.contains('collapsed')) {
+          adminContent.classList.add('sidebar-collapsed');
+          adminContent.classList.remove('sidebar-expanded');
+        } else {
+          adminContent.classList.add('sidebar-expanded');
+          adminContent.classList.remove('sidebar-collapsed');
+        }
+      }
+
+      // Escuchar cambios en el estado del sidebar
+      if (sidebarToggleBtn) {
+        sidebarToggleBtn.addEventListener('click', function () {
+          // Usar setTimeout para esperar a que la clase se aplique
+          setTimeout(updateContentMargin, 10);
+        });
+      }
+
+      // Aplicar estado inicial
+      updateContentMargin();
+
+      // Observer para detectar cambios en las clases del sidebar
+      const observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            updateContentMargin();
+          }
+        });
+      });
+
+      observer.observe(sidebar, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    });
+  </script>
 
   <!-- Scripts adicionales específicos de la página -->
   <th:block th:if="${pageAdditionalScripts != null}" th:insert="${pageAdditionalScripts}"></th:block>

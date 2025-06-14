@@ -11,33 +11,25 @@ import com.biblioteca.models.comercial.Factura;
 import com.biblioteca.models.comercial.Orden;
 
 public interface FacturaService {
-  // Crear factura a partir de un carrito
-  FacturaResponseDTO crearFactura(String username, FacturaRequestDTO facturaDTO);
+  // Crear factura a partir de un DTO que referencia una Orden
+  FacturaResponseDTO crearFactura(FacturaRequestDTO facturaDTO);
 
-  // Crear factura desde una Orden de compra
+  // Crear factura desde una Orden de compra (usado internamente, por ejemplo, después de un pago exitoso)
   Optional<Factura> generarFacturaDesdeOrden(Orden orden);
 
-  // Obtener una factura específica
   Optional<FacturaResponseDTO> obtenerFacturaPorId(Long id);
 
-  // Obtener facturas de un perfil
   List<FacturaResponseDTO> obtenerFacturasPorPerfil(Long perfilId);
 
-  // Obtener todas las facturas (admin)
   List<FacturaResponseDTO> obtenerTodasLasFacturas();
 
-  // Buscar facturas por rango de fechas
   List<FacturaResponseDTO> buscarFacturasPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin);
 
-  // Anular una factura
   boolean anularFactura(Long id, String motivo);
 
-  // Para uso interno principalmente
   Optional<Factura> obtenerEntidadFacturaPorId(Long id);
 
-  // Generar reporte de ventas
   Map<String, Object> generarReporteVentas(LocalDate fechaInicio, LocalDate fechaFin);
 
-  // Obtener estadísticas de ventas para dashboard
   Map<String, Object> obtenerEstadisticasVentas();
 }

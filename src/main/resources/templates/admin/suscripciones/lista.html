@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/admin-layout :: fullPage(
+          pageTitle='Gestión de Suscripciones',
+          pageAdditionalCss=~{::listaCss},
+          pageContent=~{::listaContent},
+          pageAdditionalScripts=~{::listaScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="listaCss">
+    <style>
+      :root {
+        --status-active: var(--bs-success);
+        --status-pending: var(--bs-warning);
+        --status-expired: var(--bs-danger);
+        --status-cancelled: var(--bs-secondary);
+        --status-paused: var(--bs-info);
+      }
+
+      .status-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .status-activa {
+        background: linear-gradient(135deg, var(--bs-success), #20c997);
+        color: white;
+        box-shadow: 0 2px 4px rgba(42, 98, 70, 0.3);
+      }
+
+      .status-pendiente {
+        background: linear-gradient(135deg, var(--bs-warning), #fd7e14);
+        color: var(--bs-dark);
+        box-shadow: 0 2px 4px rgba(221, 164, 72, 0.3);
+      }
+
+      .status-vencida {
+        background: linear-gradient(135deg, var(--bs-danger), #e74c3c);
+        color: white;
+        box-shadow: 0 2px 4px rgba(192, 107, 62, 0.3);
+      }
+
+      .status-cancelada {
+        background: linear-gradient(135deg, var(--bs-secondary), #495057);
+        color: var(--bs-dark);
+        box-shadow: 0 2px 4px rgba(217, 165, 102, 0.3);
+      }
+
+      .status-pausada {
+        background: linear-gradient(135deg, var(--bs-info), #138496);
+        color: white;
+        box-shadow: 0 2px 4px rgba(91, 125, 135, 0.3);
+      }
+
+      /* Sección de filtros */
+      .filter-section {
+        background: linear-gradient(135deg, var(--bs-light), #e9ecef);
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      .filter-section .filter-title {
+        color: var(--bs-dark);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .quick-stats .stat-card {
+        border: none;
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        position: relative;
+      }
+
+      .quick-stats .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      .quick-stats .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-icon {
+        font-size: 3rem;
+        opacity: 0.3;
+      }
+
+      /* Plan badges usando colores del theme */
+      .plan-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        background: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-darker));
+        color: white;
+        box-shadow: 0 2px 4px rgba(45, 110, 126, 0.3);
+      }
+
+      .plan-badge.premium {
+        background: linear-gradient(135deg, var(--bs-secondary), var(--bs-secondary-darker));
+        color: var(--bs-dark);
+        box-shadow: 0 2px 4px rgba(217, 165, 102, 0.3);
+      }
+
+      .plan-badge.basic {
+        background: linear-gradient(135deg, var(--bs-success), var(--bs-success-darker));
+        box-shadow: 0 2px 4px rgba(42, 98, 70, 0.3);
+      }
+
+      .modern-table {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border: 1px solid #dee2e6;
+      }
+
+      .modern-table .table {
+        margin-bottom: 0;
+      }
+
+      .modern-table thead th {
+        background: linear-gradient(135deg, var(--bs-dark), var(--bs-dark-darker));
+        color: white;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.8rem;
+        padding: 1rem 0.75rem;
+      }
+
+      .modern-table tbody tr {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f3f4;
+      }
+
+      .modern-table tbody tr:hover {
+        background-color: var(--bs-light);
+        transform: scale(1.01);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .modern-table tbody td {
+        padding: 1rem 0.75rem;
+        vertical-align: middle;
+        border: none;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+
+      .action-buttons .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: none;
+      }
+
+      .action-buttons .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .page-header {
+        background: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-darker));
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      .page-header h2 {
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+      }
+
+      .page-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
+      }
+
+      /* Botones del header */
+      .header-actions .btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        padding: 0.625rem 1.25rem;
+        transition: all 0.2s ease;
+      }
+
+      .header-actions .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Formulario de filtros */
+      .form-label {
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 0.5rem;
+        border: 2px solid #e9ecef;
+        transition: all 0.2s ease;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.2rem rgba(45, 110, 126, 0.15);
+      }
+
+      /* Avatar para usuarios */
+      .avatar-sm {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      /* Animaciones */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .fade-in-up {
+        animation: fadeInUp 0.6s ease;
+      }
+
+      /* Responsive improvements */
+      @media (max-width: 768px) {
+        .filter-section {
+          padding: 1.5rem;
+        }
+
+        .stat-number {
+          font-size: 2rem;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .header-actions {
+          margin-top: 1rem;
+        }
+
+        .page-header {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="listaContent" class="container-fluid">
+    <!-- Alertas -->
+    <div th:replace="~{fragmentos/componentes/alerts :: alerts}"></div>
+
+    <div class="page-header fade-in-up">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+        <div>
+          <h2 class="mb-1">
+            <i class="bi bi-credit-card-2-front me-3"></i>
+            Gestión de Suscripciones
+          </h2>
+          <p class="mb-0">Administra y monitorea todas las suscripciones del sistema</p>
+        </div>
+        <div class="header-actions mt-3 mt-md-0">
+          <div class="btn-group" role="group">
+            <a href="/admin/suscripciones/por-vencer" class="btn btn-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Por Vencer
+            </a>
+            <a href="/admin/suscripciones/vencidas" class="btn btn-danger">
+              <i class="bi bi-x-circle me-2"></i>
+              Vencidas
+            </a>
+            <a href="/admin/suscripciones/nueva" class="btn btn-success">
+              <i class="bi bi-plus-circle me-2"></i>
+              Nueva
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-stats fade-in-up">
+      <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+          <div class="card stat-card bg-success text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="stat-number" th:text="${estadisticas != null ? estadisticas.activas : '0'}">0</div>
+                  <div class="stat-label">Activas</div>
+                </div>
+                <i class="bi bi-check-circle stat-icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card stat-card bg-warning text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="stat-number" th:text="${estadisticas != null ? estadisticas.pendientes : '0'}">0</div>
+                  <div class="stat-label">Pendientes</div>
+                </div>
+                <i class="bi bi-clock stat-icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card stat-card bg-danger text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="stat-number" th:text="${estadisticas != null ? estadisticas.vencidas : '0'}">0</div>
+                  <div class="stat-label">Vencidas</div>
+                </div>
+                <i class="bi bi-exclamation-triangle stat-icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card stat-card bg-secondary text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="stat-number" th:text="${estadisticas != null ? estadisticas.totalSuscripciones : '0'}">0
+                  </div>
+                  <div class="stat-label">Total</div>
+                </div>
+                <i class="bi bi-collection stat-icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-section fade-in-up">
+      <h5 class="filter-title">
+        <i class="bi bi-funnel"></i>
+        Filtros de Búsqueda
+      </h5>
+      <form method="get" action="/admin/suscripciones" id="filtrosForm">
+        <div class="row g-3">
+          <div class="col-lg-3 col-md-6">
+            <label for="estado" class="form-label">
+              <i class="bi bi-flag me-1"></i>
+              Estado
+            </label>
+            <select class="form-select" id="estado" name="estado" th:value="${param.estado}">
+              <option value="">Todos los estados</option>
+              <option value="ACTIVA" th:selected="${param.estado == 'ACTIVA'}">Activa</option>
+              <option value="PENDIENTE" th:selected="${param.estado == 'PENDIENTE'}">Pendiente</option>
+              <option value="VENCIDA" th:selected="${param.estado == 'VENCIDA'}">Vencida</option>
+              <option value="CANCELADA" th:selected="${param.estado == 'CANCELADA'}">Cancelada</option>
+              <option value="PAUSADA" th:selected="${param.estado == 'PAUSADA'}">Pausada</option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <label for="plan" class="form-label">
+              <i class="bi bi-card-list me-1"></i>
+              Plan
+            </label>
+            <select class="form-select" id="plan" name="planId" th:value="${param.planId}">
+              <option value="">Todos los planes</option>
+              <option th:each="plan : ${planes ?: {}}" th:value="${plan.id}" th:text="${plan.nombre}"
+                th:selected="${param.planId == plan.id}">Plan</option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <label for="fechaDesde" class="form-label">
+              <i class="bi bi-calendar me-1"></i>
+              Desde
+            </label>
+            <input type="date" class="form-control" id="fechaDesde" name="fechaDesde" th:value="${param.fechaDesde}">
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <label for="fechaHasta" class="form-label">
+              <i class="bi bi-calendar-check me-1"></i>
+              Hasta
+            </label>
+            <input type="date" class="form-control" id="fechaHasta" name="fechaHasta" th:value="${param.fechaHasta}">
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary me-2">
+              <i class="bi bi-search me-2"></i>
+              Buscar
+            </button>
+            <a href="/admin/suscripciones" class="btn btn-outline-secondary me-2">
+              <i class="bi bi-arrow-clockwise me-2"></i>
+              Limpiar
+            </a>
+            <button type="button" class="btn btn-outline-success" onclick="exportarExcel()">
+              <i class="bi bi-file-earmark-excel me-2"></i>
+              Exportar Excel
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modern-table fade-in-up">
+      <div class="card">
+        <div class="card-header bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-list-ul me-2"></i>
+              Lista de Suscripciones
+              <span class="badge bg-primary ms-2" th:text="${#lists.size(suscripciones ?: {})}">0</span>
+            </h5>
+          </div>
+        </div>
+        <div class="card-body p-3">
+          <div class="table-responsive">
+            <table class="table table-hover datatable mb-0">
+              <thead>
+                <tr>
+                  <th><i class="bi bi-hash me-1"></i>ID</th>
+                  <th><i class="bi bi-person me-1"></i>Usuario</th>
+                  <th><i class="bi bi-card-list me-1"></i>Plan</th>
+                  <th><i class="bi bi-flag me-1"></i>Estado</th>
+                  <th><i class="bi bi-calendar me-1"></i>Inicio</th>
+                  <th><i class="bi bi-calendar-check me-1"></i>Renovación</th>
+                  <th><i class="bi bi-currency-dollar me-1"></i>Precio</th>
+                  <th><i class="bi bi-gear me-1"></i>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="suscripcion : ${suscripciones ?: {}}" th:if="${!#lists.isEmpty(suscripciones)}">
+                  <td>
+                    <strong th:text="${suscripcion.id}">#001</strong>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-primary text-white rounded-circle me-2">
+                        <span th:text="${#strings.substring(suscripcion.usuarioNombre ?: 'U', 0, 1)}">U</span>
+                      </div>
+                      <div>
+                        <div class="fw-bold" th:text="${suscripcion.usuarioNombre ?: 'Usuario'}">Usuario</div>
+                        <small class="text-muted"
+                          th:text="${suscripcion.emailUsuario ?: 'email@ejemplo.com'}">email@ejemplo.com</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="plan-badge" th:text="${suscripcion.planNombre ?: 'Plan Básico'}">Plan Básico</span>
+                    <div>
+                      <small class="text-muted" th:text="${suscripcion.modalidadPago ?: 'Mensual'}">Mensual</small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="status-badge"
+                      th:class="'status-badge status-' + ${#strings.toLowerCase(suscripcion.estado ?: 'activa')}"
+                      th:text="${suscripcion.estado ?: 'ACTIVA'}">
+                      <i class="bi bi-circle-fill me-1"></i>
+                      Activa
+                    </span>
+                  </td>
+                  <td>
+                    <div class="text-center">
+                      <div
+                        th:text="${suscripcion.fechaInicio != null ? #temporals.format(suscripcion.fechaInicio, 'dd/MM/yyyy') : '01/01/2024'}">
+                        01/01/2024</div>
+                      <small class="text-muted"
+                        th:text="${suscripcion.fechaInicio != null ? #temporals.format(suscripcion.fechaInicio, 'HH:mm') : '00:00'}">00:00</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="text-center">
+                      <div
+                        th:text="${suscripcion.fechaRenovacion != null ? #temporals.format(suscripcion.fechaRenovacion, 'dd/MM/yyyy') : '01/02/2024'}">
+                        01/02/2024</div>
+                      <small class="text-muted"
+                        th:text="${suscripcion.fechaRenovacion != null ? #temporals.format(suscripcion.fechaRenovacion, 'HH:mm') : '00:00'}">00:00</small>
+                      <div th:if="${suscripcion.diasParaRenovacion != null}">
+                        <small class="text-muted" th:text="'En ' + ${suscripcion.diasParaRenovacion} + ' días'">En 15
+                          días</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td th:switch="${suscripcion.modalidadPago ?: 'MENSUAL'}">
+                    <strong class="text-success" th:case="'MENSUAL'"
+                      th:text="'S/. ' + ${suscripcion.precioMensual != null ? #numbers.formatDecimal(suscripcion.precioMensual/100, 1, 2) : '29.99'}">S/.
+                      29.99</strong>
+                    <strong class="text-success" th:case="'ANUAL'"
+                      th:text="'S/. ' + ${suscripcion.precioAnual != null ? #numbers.formatDecimal(suscripcion.precioAnual/100, 1, 2) : '299.99'}">S/.
+                      299.99</strong>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <a th:href="@{/admin/suscripciones/{id}(id=${suscripcion.id})}"
+                        class="btn btn-outline-primary btn-sm" title="Ver detalles">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                      <a th:href="@{/admin/usuarios/{id}(id=${suscripcion.usuarioId})}"
+                        class="btn btn-outline-info btn-sm" title="Ver usuario">
+                        <i class="bi bi-person"></i>
+                      </a>
+                      <button type="button" class="btn btn-outline-warning btn-sm"
+                        th:onclick="'editarSuscripcion(' + ${suscripcion.id} + ')'" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="listaScripts">
+    <script>
+      // Función para editar suscripción
+      function editarSuscripcion(id) {
+        console.log('Editando suscripción:', id);
+        alert('Función de edición en desarrollo para suscripción #' + id);
+      }
+
+      // Función para exportar a Excel
+      function exportarExcel() {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = `/admin/suscripciones/exportar?${params.toString()}`;
+      }
+    </script>
+  </th:block>
+</body>
+
+</html>

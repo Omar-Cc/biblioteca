@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -19,4 +20,14 @@ public class ObraRequestDTO {
   private List<Long> autorIds;
   private List<String> autorRoles;
   private List<Long> generoIds;
+  
+  // Nuevos campos para versionado
+  private String version;
+  private Long obraOriginalId;
+  
+  // Metadatos como Map<clave, valor>
+  private Map<String, String> metadatos;
+  
+  // Relaciones con otras obras
+  private List<RelacionObraRequestDTO> obrasRelacionadas;
 }

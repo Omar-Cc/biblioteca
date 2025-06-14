@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Problema con el pago de tu suscripción</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #dc3545;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+
+    .error-box {
+      background: #f8d7da;
+      border-left: 4px solid #dc3545;
+      padding: 15px;
+      margin: 20px 0;
+      color: #721c24;
+    }
+
+    .grace-period {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      color: #856404;
+    }
+
+    .footer {
+      background: #343a40;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>⚠️ Biblioteca Digital</h1>
+      <p>Problema con tu pago</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <h2 style="color: #dc3545;">Hola <span th:text="${nombreUsuario}">Usuario</span>,</h2>
+
+      <div class="error-box">
+        <h4>❌ No pudimos procesar tu pago</h4>
+        <p>Intentamos renovar tu suscripción al <strong><span th:text="${nombrePlan}">Plan Premium</span></strong>, pero
+          no pudimos completar el pago.</p>
+      </div>
+
+      <p>Esto puede deberse a varios motivos:</p>
+      <ul>
+        <li>💳 Tarjeta vencida o bloqueada</li>
+        <li>💰 Fondos insuficientes</li>
+        <li>🏦 Restricciones bancarias</li>
+        <li>📝 Información de facturación incorrecta</li>
+      </ul>
+
+      <div class="grace-period">
+        <h4>🕐 Período de gracia</h4>
+        <p>Tienes <strong><span th:text="${diasGracia}">3</span> días</strong> para actualizar tu método de pago antes
+          de que tu suscripción sea suspendida.</p>
+        <p>Durante este tiempo, mantienes acceso completo a tu biblioteca.</p>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="#" class="btn">💳 Actualizar método de pago</a>
+        <a href="#" class="btn" style="background: #007bff; margin-left: 10px;">💬 Contactar soporte</a>
+      </div>
+
+      <div style="background: #e9ecef; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <h4>🔧 Pasos para resolver:</h4>
+        <ol>
+          <li>Verifica que tu tarjeta no esté vencida</li>
+          <li>Confirma que tengas fondos suficientes</li>
+          <li>Actualiza tu información de facturación</li>
+          <li>Contacta a tu banco si persiste el problema</li>
+        </ol>
+      </div>
+
+      <p><strong>¿Necesitas ayuda?</strong> Nuestro equipo está disponible 24/7 para asistirte:</p>
+      <ul>
+        <li>📧 <a href="mailto:soporte@biblioteca.com">soporte@biblioteca.com</a></li>
+        <li>📞 (123) 456-7890</li>
+        <li>💬 Chat en vivo en nuestra web</li>
+      </ul>
+
+      <p>
+        Esperamos resolver esto pronto,<br>
+        <strong>El equipo de Biblioteca Digital</strong>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>📧 contacto@biblioteca.com | 📞 (123) 456-7890</p>
+      <p>© 2024 Biblioteca Digital. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</body>
+
+</html>

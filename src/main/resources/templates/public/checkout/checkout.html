@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Biblioteca Virtual - Checkout',
+          pageAdditionalCss=~{::checkoutCss},
+          pageContent=~{::checkoutContent},
+          pageAdditionalScripts=~{::checkoutScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="checkoutCss">
+    <style>
+      :root {
+        --checkout-primary: #2d6e7e;
+        --checkout-success: #28a745;
+        --checkout-warning: #ffc107;
+        --checkout-danger: #dc3545;
+        --gradient-primary: linear-gradient(135deg, var(--checkout-primary), #1e4a54);
+        --shadow-card: 0 8px 25px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 12px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .checkout-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+      }
+
+      .checkout-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .checkout-card:hover {
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-2px);
+      }
+
+      .checkout-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .checkout-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+        animation: shimmer 3s infinite;
+      }
+
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+
+      .plan-summary {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .price-display {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin: 1rem 0;
+      }
+
+      .original-price {
+        text-decoration: line-through;
+        font-size: 1.2rem;
+        opacity: 0.7;
+        margin-right: 1rem;
+      }
+
+      .discount-badge {
+        background: var(--checkout-success);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 0.5rem;
+      }
+
+      .benefits-list {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .benefit-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .benefit-item:last-child {
+        border-bottom: none;
+      }
+
+      .benefit-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--checkout-success);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+
+      .payment-method {
+        background: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 15px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+      }
+
+      .payment-method:hover {
+        border-color: var(--checkout-primary);
+        background: #e3f2fd;
+        transform: translateY(-2px);
+      }
+
+      .payment-method.selected {
+        border-color: var(--checkout-primary);
+        background: linear-gradient(135deg, #e3f2fd, #f3f9ff);
+        box-shadow: 0 4px 15px rgba(45, 110, 126, 0.2);
+      }
+
+      .payment-method input[type="radio"] {
+        margin-right: 1rem;
+        transform: scale(1.2);
+      }
+
+      .security-info {
+        background: linear-gradient(135deg, #e8f5e8, #f0fff0);
+        border: 1px solid #d4edda;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+
+      .checkout-btn {
+        background: var(--gradient-primary);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+
+      .checkout-btn:hover {
+        background: linear-gradient(135deg, #1e4a54, #2d6e7e);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(45, 110, 126, 0.3);
+      }
+
+      .checkout-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .trial-badge {
+        background: var(--checkout-warning);
+        color: #333;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 0.5rem;
+      }
+
+      .upgrade-notice {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .checkout-container {
+          padding: 1rem 0;
+        }
+        
+        .checkout-header {
+          padding: 1.5rem;
+        }
+        
+        .price-display {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </th:block>
+</head>
+
+<th:block th:fragment="checkoutContent">
+  <div class="checkout-container">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          
+          <!-- Notificación de upgrade/cambio -->
+          <div th:if="${esUpgrade}" class="upgrade-notice mb-4">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-arrow-up-circle-fill fs-4 me-3 text-warning"></i>
+              <div>
+                <h6 class="mb-1">Cambio de Plan</h6>
+                <p class="mb-0 small">
+                  Estás cambiando tu plan actual por <strong th:text="${plan.nombre}">Plan Premium</strong>.
+                  Tu suscripción anterior será cancelada automáticamente.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card principal de checkout -->
+          <div class="checkout-card">
+            <!-- Header -->
+            <div class="checkout-header">
+              <h1 class="mb-3">
+                <i class="bi bi-cart-check-fill me-3"></i>
+                Finalizar Suscripción
+              </h1>
+              <p class="lead mb-0">Estás a un paso de acceder a todo el contenido</p>
+
+              <!-- Resumen del plan -->
+              <div class="plan-summary">
+                <h3 th:text="${plan.nombre}">Plan Premium</h3>
+                <p th:text="${plan.descripcionCorta ?: plan.descripcion}" class="mb-2">
+                  Acceso ilimitado y funciones exclusivas
+                </p>
+                  <!-- Precio -->
+                <div class="price-display">
+                  <!-- Mostrar precio con descuento si es anual -->
+                  <div th:if="${modalidad == 'ANUAL' && descuento > 0}">
+                    <span class="original-price" th:text="'S/ ' + ${#numbers.formatDecimal(precio.add(descuento), 1, 2)}">S/ 179.88</span>
+                    <span th:text="'S/ ' + ${#numbers.formatDecimal(precio, 1, 2)}">S/ 149.90</span>
+                    <div class="discount-badge">
+                      <i class="bi bi-percent me-1"></i>
+                      Ahorras S/ <span th:text="${#numbers.formatDecimal(descuento, 1, 2)}">29.98</span>
+                    </div>
+                  </div>                  
+                  <!-- Precio normal -->
+                  <div th:unless="${modalidad == 'ANUAL' && descuento > 0}">
+                    <span th:text="${precio == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(precio, 1, 2)}">S/ 14.99</span>
+                  </div>
+                </div>
+                
+                <div class="small opacity-75">
+                  <span th:text="'Modalidad: ' + ${modalidad == 'ANUAL' ? 'Anual' : 'Mensual'}">Modalidad: Mensual</span>
+                  <span th:if="${plan.diasPrueba > 0 && !esUpgrade}" class="ms-3">
+                    • <span th:text="${plan.diasPrueba}">14</span> días de prueba gratis
+                  </span>
+                </div>
+
+                <!-- Badge de trial -->
+                <div th:if="${plan.diasPrueba > 0 && !esUpgrade}" class="trial-badge mt-2">
+                  <i class="bi bi-gift-fill me-1"></i>
+                  <span th:text="${plan.diasPrueba + ' días gratis'}">14 días gratis</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cuerpo del checkout -->
+            <div class="p-4">
+              <form th:action="@{/checkout/procesar}" method="post" id="checkoutForm">
+                <input type="hidden" name="planId" th:value="${plan.id}">
+                <input type="hidden" name="modalidad" th:value="${modalidad}">
+
+                <!-- Beneficios incluidos -->
+                <div class="mb-4">
+                  <h5 class="mb-3">
+                    <i class="bi bi-star-fill text-warning me-2"></i>
+                    Beneficios Incluidos
+                  </h5>
+                  <div class="benefits-list">
+                    <!-- Si no hay beneficios -->
+                    <div th:if="${beneficios == null || #lists.isEmpty(beneficios)}" 
+                         class="text-center text-muted py-3">
+                      <i class="bi bi-info-circle fs-2 mb-2 d-block"></i>
+                      <em>Beneficios en configuración</em>
+                    </div>
+
+                    <!-- Lista de beneficios -->
+                    <div th:each="pb : ${beneficios}" class="benefit-item">
+                      <div class="benefit-icon">
+                        <i class="bi bi-check"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <strong th:text="${pb.beneficio.nombre}">Beneficio</strong>
+                        <div th:if="${pb.valor != null && pb.valor != '' && pb.valor != 'true' && pb.valor != 'false'}" 
+                             class="text-muted small">
+                          <span th:text="${pb.valor}">Valor</span>
+                        </div>
+                        <div th:if="${pb.beneficio.descripcion != null && pb.beneficio.descripcion != ''}" 
+                             class="text-muted small">
+                          <span th:text="${pb.beneficio.descripcion}">Descripción</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Método de pago -->
+                <div class="mb-4">                  <h5 class="mb-3">
+                    <i class="bi bi-credit-card-fill me-2"></i>
+                    Método de Pago
+                  </h5>
+
+                  <!-- Métodos de pago dinámicos -->
+                  <div th:each="metodo, iterStat : ${metodosPago}" 
+                       class="payment-method" 
+                       th:classappend="${iterStat.first} ? 'selected' : ''"
+                       th:onclick="'selectPaymentMethod(this, \'' + ${metodo.id} + '\')'">
+                    <input type="radio" name="metodoPagoId" th:value="${metodo.id}" th:checked="${iterStat.first}">
+                    <div class="d-flex align-items-center">
+                      <i th:class="'bi ' + ${metodo.nombre == 'Tarjeta de Crédito/Débito' ? 'bi-credit-card' : 
+                                          metodo.nombre == 'PayPal' ? 'bi-paypal' : 
+                                          metodo.nombre == 'Transferencia Bancaria' ? 'bi-bank' :
+                                          metodo.nombre == 'Simulado' ? 'bi-credit-card-2-front' : 'bi-credit-card'} + ' fs-4 me-3'"
+                         th:style="${metodo.nombre == 'PayPal' ? 'color: #0070ba;' : 
+                                   metodo.nombre == 'Transferencia Bancaria' ? 'color: var(--bs-success);' : 
+                                   'color: var(--bs-primary);'}"></i>
+                      <div>
+                        <strong th:text="${metodo.nombre}">Método de Pago</strong>
+                        <div class="small text-muted" th:text="${metodo.descripcion}">Descripción del método</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Información de seguridad -->
+                <div class="security-info mb-4">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-shield-check fs-4 me-3 text-success"></i>
+                    <div>
+                      <strong>Pago 100% Seguro</strong>
+                      <div class="small text-muted">
+                        Tus datos están protegidos con encriptación SSL de 256 bits.
+                        No almacenamos información de tarjetas.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Términos y condiciones -->
+                <div class="form-check mb-4">
+                  <input class="form-check-input" type="checkbox" id="terminos" required>
+                  <label class="form-check-label" for="terminos">
+                    Acepto los <a href="#" class="text-decoration-none">términos y condiciones</a> 
+                    y la <a href="#" class="text-decoration-none">política de privacidad</a>
+                  </label>
+                </div>
+
+                <!-- Botón de checkout -->
+                <button type="submit" class="checkout-btn" id="btnCheckout">
+                  <i class="bi bi-lock-fill me-2"></i>
+                  <span th:if="${plan.diasPrueba > 0 && !esUpgrade}">Iniciar Prueba Gratis</span>
+                  <span th:unless="${plan.diasPrueba > 0 && !esUpgrade}">
+                    Confirmar Suscripción
+                    <span th:if="${precio > 0}" th:text="' - S/ ' + ${#numbers.formatDecimal(precio, 1, 2)}"> - S/ 14.99</span>
+                  </span>
+                </button>
+
+                <!-- Información adicional -->
+                <div class="text-center mt-3 small text-muted">
+                  <div class="mb-1">
+                    <i class="bi bi-arrow-repeat me-1"></i>
+                    Cancela cuando quieras, sin compromisos
+                  </div>
+                  <div class="mb-1">
+                    <i class="bi bi-headset me-1"></i>
+                    Soporte 24/7 disponible
+                  </div>                  <div th:if="${modalidad == 'MENSUAL'}">
+                    <i class="bi bi-calendar-check me-1"></i>
+                    Se renovará automáticamente cada mes
+                  </div>
+                  <div th:if="${modalidad == 'ANUAL'}">
+                    <i class="bi bi-calendar-check me-1"></i>
+                    Se renovará automáticamente cada año
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Enlaces adicionales -->
+          <div class="text-center mt-4">
+            <a th:href="@{/planes/{id}(id=${plan.id})}" class="btn btn-outline-secondary me-3">
+              <i class="bi bi-arrow-left me-1"></i>
+              Volver al Plan
+            </a>
+            <a th:href="@{/planes}" class="btn btn-outline-primary">
+              <i class="bi bi-grid me-1"></i>
+              Ver Otros Planes
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<th:block th:fragment="checkoutScripts">
+  <script>
+    function selectPaymentMethod(element, method) {
+      // Remover selección anterior
+      document.querySelectorAll('.payment-method').forEach(pm => {
+        pm.classList.remove('selected');
+      });
+      
+      // Seleccionar nuevo método
+      element.classList.add('selected');
+      element.querySelector('input[type="radio"]').checked = true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('checkoutForm');
+      const btnCheckout = document.getElementById('btnCheckout');
+      const terminosCheck = document.getElementById('terminos');
+
+      // Validar términos y condiciones
+      terminosCheck.addEventListener('change', function() {
+        btnCheckout.disabled = !this.checked;
+      });
+
+      // Manejar envío del formulario
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!terminosCheck.checked) {
+          alert('Debes aceptar los términos y condiciones para continuar.');
+          return;
+        }
+
+        // Deshabilitar botón y mostrar loading
+        btnCheckout.disabled = true;
+        btnCheckout.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
+
+        // Simular procesamiento (en producción esto sería real)
+        setTimeout(() => {
+          form.submit();
+        }, 1000);
+      });
+
+      // Animaciones
+      const checkoutCard = document.querySelector('.checkout-card');
+      checkoutCard.style.opacity = '0';
+      checkoutCard.style.transform = 'translateY(30px)';
+      
+      setTimeout(() => {
+        checkoutCard.style.transition = 'all 0.8s ease';
+        checkoutCard.style.opacity = '1';
+        checkoutCard.style.transform = 'translateY(0)';
+      }, 100);
+    });
+  </script>
+</th:block>
+
+</html>

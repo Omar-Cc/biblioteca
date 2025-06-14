@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragmentos/layouts/base-layout :: fullPage(
+          pageTitle='Contacto - Biblioteca Virtual',
+          pageAdditionalCss=~{::contactoCss},
+          pageContent=~{::contactoContent},
+          pageAdditionalScripts=~{::contactoScripts}
+      )}">
+
+<head>
+  <th:block th:fragment="contactoCss">
+    <style>
+      .contact-hero {
+        background: linear-gradient(135deg, rgba(45, 110, 126, 0.9), rgba(91, 125, 135, 0.8)),
+          url('https://images.unsplash.com/photo-1423666639041-f56000c27a9a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 6rem 0 4rem 0;
+      }
+
+      .contact-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(45, 110, 126, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
+
+      .contact-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+      }
+
+      .contact-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2rem;
+        background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+        color: white;
+        box-shadow: 0 10px 20px rgba(45, 110, 126, 0.3);
+      }
+
+      .form-floating > .form-control:focus,
+      .form-floating > .form-select:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(45, 110, 126, 0.25);
+      }
+
+      .form-floating > label {
+        color: #6c757d;
+      }
+
+      .contact-form {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      }
+
+      .social-links a {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 10px;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+      }
+
+      .social-links a.facebook {
+        background: #1877f2;
+        color: white;
+      }
+
+      .social-links a.twitter {
+        background: #1da1f2;
+        color: white;
+      }
+
+      .social-links a.instagram {
+        background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
+        color: white;
+      }
+
+      .social-links a.linkedin {
+        background: #0077b5;
+        color: white;
+      }
+
+      .social-links a:hover {
+        transform: translateY(-3px) scale(1.1);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .map-container {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </th:block>
+</head>
+
+<body>
+  <th:block th:fragment="contactoContent">
+    <!-- Hero Section -->
+    <section class="contact-hero">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <h1 class="display-3 fw-bold mb-4">Contáctanos</h1>
+            <p class="lead fs-4 mb-5">
+              ¿Tienes preguntas, sugerencias o necesitas ayuda? Estamos aquí para ti
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Información de Contacto -->
+    <section class="container py-5">
+      <div class="row g-4 mb-5">
+        <div class="col-lg-4 col-md-6">
+          <div class="contact-card text-center h-100 p-4">
+            <div class="contact-icon">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <h5 class="fw-bold">Ubicación</h5>
+            <p class="text-muted mb-0">
+              Av. Tecnológica 123<br>
+              Lima, Perú 15001
+            </p>
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6">
+          <div class="contact-card text-center h-100 p-4">
+            <div class="contact-icon">
+              <i class="bi bi-telephone"></i>
+            </div>
+            <h5 class="fw-bold">Teléfono</h5>
+            <p class="text-muted mb-2">
+              <a href="tel:+51987654321" class="text-decoration-none">+51 987 654 321</a>
+            </p>
+            <p class="text-muted mb-0">
+              <a href="tel:+5114567890" class="text-decoration-none">+51 1 456 7890</a>
+            </p>
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6">
+          <div class="contact-card text-center h-100 p-4">
+            <div class="contact-icon">
+              <i class="bi bi-envelope"></i>
+            </div>
+            <h5 class="fw-bold">Email</h5>
+            <p class="text-muted mb-2">
+              <a href="mailto:contacto@bibliovirtual.com" class="text-decoration-none">contacto@bibliovirtual.com</a>
+            </p>
+            <p class="text-muted mb-0">
+              <a href="mailto:soporte@bibliovirtual.com" class="text-decoration-none">soporte@bibliovirtual.com</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Horarios de Atención -->
+      <div class="row mb-5">
+        <div class="col-lg-6 mx-auto">
+          <div class="contact-card text-center p-4">
+            <div class="contact-icon">
+              <i class="bi bi-clock"></i>
+            </div>
+            <h5 class="fw-bold">Horarios de Atención</h5>
+            <div class="row text-start">
+              <div class="col-6">
+                <p class="text-muted mb-1"><strong>Lunes - Viernes:</strong></p>
+                <p class="text-muted mb-1"><strong>Sábados:</strong></p>
+                <p class="text-muted mb-0"><strong>Domingos:</strong></p>
+              </div>
+              <div class="col-6">
+                <p class="text-muted mb-1">9:00 AM - 6:00 PM</p>
+                <p class="text-muted mb-1">10:00 AM - 4:00 PM</p>
+                <p class="text-muted mb-0">Cerrado</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formulario de Contacto -->
+    <section class="container py-5">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <div class="contact-form">
+            <div class="text-center mb-5">
+              <h2 class="fw-bold">Envíanos un Mensaje</h2>
+              <p class="text-muted">Completa el formulario y te responderemos en menos de 24 horas</p>
+            </div>
+            
+            <form id="contactForm" novalidate>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Tu nombre" required>
+                    <label for="nombre">Nombre completo *</label>
+                    <div class="invalid-feedback">
+                      Por favor, ingresa tu nombre completo.
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="tu@email.com" required>
+                    <label for="email">Correo electrónico *</label>
+                    <div class="invalid-feedback">
+                      Por favor, ingresa un correo electrónico válido.
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Tu teléfono">
+                    <label for="telefono">Teléfono (opcional)</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-select" id="asunto" name="asunto" required>
+                      <option value="">Selecciona un asunto</option>
+                      <option value="soporte">Soporte Técnico</option>
+                      <option value="suscripcion">Consultas sobre Suscripciones</option>
+                      <option value="contenido">Sugerencias de Contenido</option>
+                      <option value="colaboracion">Propuesta de Colaboración</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                    <label for="asunto">Asunto *</label>
+                    <div class="invalid-feedback">
+                      Por favor, selecciona un asunto.
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-12">
+                  <div class="form-floating">
+                    <textarea class="form-control" id="mensaje" name="mensaje" 
+                              placeholder="Escribe tu mensaje aquí..." 
+                              style="height: 150px" required></textarea>
+                    <label for="mensaje">Tu mensaje *</label>
+                    <div class="invalid-feedback">
+                      Por favor, escribe tu mensaje.
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="privacidad" required>
+                    <label class="form-check-label" for="privacidad">
+                      Acepto la <a th:href="@{/privacidad}" target="_blank">Política de Privacidad</a> 
+                      y el tratamiento de mis datos personales *
+                    </label>
+                    <div class="invalid-feedback">
+                      Debes aceptar la política de privacidad.
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-12 text-center">
+                  <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-send me-2"></i>Enviar Mensaje
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Redes Sociales y Mapa -->
+    <section class="bg-light py-5">
+      <div class="container">
+        <div class="row g-5">
+          <div class="col-lg-6">
+            <div class="text-center">
+              <h3 class="fw-bold mb-4">Síguenos en Redes Sociales</h3>
+              <p class="text-muted mb-4">
+                Mantente conectado con nosotros para recibir las últimas novedades, 
+                recomendaciones de libros y actualizaciones de la plataforma.
+              </p>
+              <div class="social-links">
+                <a href="#" class="facebook" title="Facebook">
+                  <i class="bi bi-facebook"></i>
+                </a>
+                <a href="#" class="twitter" title="Twitter">
+                  <i class="bi bi-twitter"></i>
+                </a>
+                <a href="#" class="instagram" title="Instagram">
+                  <i class="bi bi-instagram"></i>
+                </a>
+                <a href="#" class="linkedin" title="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <h3 class="fw-bold mb-4 text-center">Nuestra Ubicación</h3>
+            <div class="map-container">
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.3183973145827!2d-77.04282748570573!3d-12.046299345181887!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c6f5d3b3f3f3%3A0x3f3f3f3f3f3f3f3f!2sLima%2C%20Peru!5e0!3m2!1sen!2sus!4v1635789012345!5m2!1sen!2sus" 
+                      width="100%" 
+                      height="300" 
+                      style="border:0;" 
+                      allowfullscreen="" 
+                      loading="lazy" 
+                      referrerpolicy="no-referrer-when-downgrade">
+              </iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Rápido -->
+    <section class="container py-5">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">Preguntas Frecuentes</h2>
+        <p class="text-muted">Encuentra respuestas rápidas a las consultas más comunes</p>
+      </div>
+      
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                        data-bs-target="#faq1" aria-expanded="true">
+                  ¿Cómo puedo cancelar mi suscripción?
+                </button>
+              </h2>
+              <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Puedes cancelar tu suscripción en cualquier momento desde tu panel de usuario 
+                  en la sección "Mi Suscripción" o contactándonos directamente.
+                </div>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                        data-bs-target="#faq2">
+                  ¿Puedo leer offline?
+                </button>
+              </h2>
+              <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Sí, puedes descargar libros para leer offline a través de nuestra aplicación móvil. 
+                  La cantidad de descargas depende de tu plan de suscripción.
+                </div>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                        data-bs-target="#faq3">
+                  ¿Ofrecen descuentos para estudiantes?
+                </button>
+              </h2>
+              <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Sí, ofrecemos descuentos especiales para estudiantes universitarios. 
+                  Contacta a nuestro equipo de soporte con tu credencial estudiantil para más información.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </th:block>
+
+  <th:block th:fragment="contactoScripts">
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('contactForm');
+        
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Validación del formulario
+          if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+          }
+          
+          // Simular envío exitoso
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalText = submitBtn.innerHTML;
+          
+          submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Enviando...';
+          submitBtn.disabled = true;
+          
+          setTimeout(() => {
+            alert('¡Mensaje enviado exitosamente! Te responderemos pronto.');
+            form.reset();
+            form.classList.remove('was-validated');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }, 2000);
+        });
+
+        // Validación en tiempo real
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+          input.addEventListener('blur', function() {
+            if (this.checkValidity()) {
+              this.classList.remove('is-invalid');
+              this.classList.add('is-valid');
+            } else {
+              this.classList.remove('is-valid');
+              this.classList.add('is-invalid');
+            }
+          });
+        });
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

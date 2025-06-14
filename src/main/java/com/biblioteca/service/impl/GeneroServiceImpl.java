@@ -1,141 +1,147 @@
 package com.biblioteca.service.impl;
 
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.biblioteca.dto.GeneroRequestDTO;
 import com.biblioteca.dto.GeneroResponseDTO;
+import com.biblioteca.exceptions.RecursoNoEncontradoException;
 import com.biblioteca.mapper.GeneroMapper;
-import com.biblioteca.models.Genero;
+import com.biblioteca.models.contenido.Genero;
+import com.biblioteca.repositories.GeneroRepository;
 import com.biblioteca.service.GeneroService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class GeneroServiceImpl implements GeneroService {
-  private final List<Genero> generos = new ArrayList<>();
-  private final AtomicLong generoIdCounter = new AtomicLong();
+
+  private final GeneroRepository generoRepository;
   private final GeneroMapper generoMapper;
-  private final ObjectMapper objectMapper; // Para leer JSON
-  private final ResourceLoader resourceLoader; // Para cargar el archivo
-
-  // Modificar constructor para inyectar ObjectMapper y ResourceLoader
-  GeneroServiceImpl(GeneroMapper generoMapper, ObjectMapper objectMapper, ResourceLoader resourceLoader) {
-    this.generoMapper = generoMapper;
-    this.objectMapper = objectMapper;
-    this.resourceLoader = resourceLoader;
-  }
-
-  @PostConstruct
-  public void initGenerosData() {
-    try {
-      InputStream inputStream = resourceLoader.getResource("classpath:data/generos-data.json").getInputStream();
-      List<GeneroRequestDTO> generoDTOs = objectMapper.readValue(inputStream,
-          new TypeReference<List<GeneroRequestDTO>>() {
-          });
-      generoDTOs.forEach(this::crearGenero); // Usar un método auxiliar o directamente crearGenero
-      System.out.println("Datos iniciales de Géneros cargados desde JSON: " + generos.size() + " géneros.");
-    } catch (Exception e) {
-      System.err.println("Error al cargar datos iniciales de géneros desde JSON: " + e.getMessage());
-    }
-  }
 
   @Override
+  @Transactional
   public GeneroResponseDTO crearGenero(GeneroRequestDTO dto) {
     Genero genero = generoMapper.generoRequestDTOToGenero(dto);
-    genero.setId(generoIdCounter.incrementAndGet());
-    generos.add(genero);
+
+    if (dto.getParentId() != null) {
+      Genero padre = generoRepository.findById(dto.getParentId())
+          .orElseThrow(
+              () -> new RecursoNoEncontradoException("Género padre no encontrado con ID: " + dto.getParentId()));
+      genero.setPadre(padre);
+    }
+
+    genero = generoRepository.save(genero);
     return generoMapper.generoToGeneroResponseDTO(genero);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<GeneroResponseDTO> obtenerGeneroPorId(Long id) {
-    return generos.stream()
-        .filter(g -> g.getId().equals(id))
-        .map(generoMapper::generoToGeneroResponseDTO)
-        .findFirst();
+    return generoRepository.findById(id)
+        .map(generoMapper::generoToGeneroResponseDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<GeneroResponseDTO> obtenerTodosLosGeneros() {
-    return generos.stream()
+    return generoRepository.findAll().stream()
         .map(generoMapper::generoToGeneroResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional
   public Optional<GeneroResponseDTO> actualizarGenero(Long id, GeneroRequestDTO dto) {
-    Optional<Genero> generoOpt = obtenerEntidadGeneroPorId(id);
+    return generoRepository.findById(id).map(genero -> {
+      genero.setNombre(dto.getNombre());
+      genero.setDescripcion(dto.getDescripcion());
+      genero.setNivel(dto.getNivel());
+
+      if (dto.getParentId() != null) {
+        if (genero.getPadre() == null || !dto.getParentId().equals(genero.getPadre().getId())) {
+          Genero padre = generoRepository.findById(dto.getParentId())
+              .orElseThrow(
+                  () -> new RecursoNoEncontradoException("Género padre no encontrado con ID: " + dto.getParentId()));
+          genero.setPadre(padre);
+        }
+      } else {
+        genero.setPadre(null);
+      }
+
+      Genero generoActualizado = generoRepository.save(genero);
+      return generoMapper.generoToGeneroResponseDTO(generoActualizado);
+    });
+  }
+
+  @Override
+  @Transactional
+  public boolean eliminarGenero(Long id) {
+    Optional<Genero> generoOpt = generoRepository.findById(id);
     if (generoOpt.isPresent()) {
       Genero genero = generoOpt.get();
-
-      generoMapper.updateGeneroFromDto(dto, genero);
-
-      return Optional.of(generoMapper.generoToGeneroResponseDTO(genero));
+      // Antes de eliminar, desvincular subgéneros para evitar errores de FK
+      // o asegurarse que la BD maneje la eliminación en cascada o SET NULL.
+      // La lógica actual de establecer padre a null en subgéneros es una forma de
+      // manejarlo.
+      if (genero.getSubgeneros() != null && !genero.getSubgeneros().isEmpty()) {
+        for (Genero subgenero : genero.getSubgeneros()) {
+          subgenero.setPadre(null); // Desvincular subgénero
+          generoRepository.save(subgenero); // Guardar el subgénero desvinculado
+        }
+      }
+      generoRepository.deleteById(id);
+      return true;
     }
-    return Optional.empty();
+    return false;
   }
 
   @Override
-  public boolean eliminarGenero(Long id) {
-    return generos.removeIf(g -> g.getId().equals(id));
-  }
-
-  @Override
+  @Transactional(readOnly = true)
   public Optional<Genero> obtenerEntidadGeneroPorId(Long id) {
-    return generos.stream()
-        .filter(e -> e.getId().equals(id))
-        .findFirst();
+    return generoRepository.findById(id);
   }
 
-  // Método para obtener todos los géneros principales (sin padre) con subgéneros
   @Override
+  @Transactional(readOnly = true) // Añadir readOnly = true
   public List<GeneroResponseDTO> obtenerGenerosPrincipalesConSubgeneros() {
-    construirJerarquia(); // Asegúrate de que la jerarquía esté construida antes de obtener los géneros
-    return generos.stream()
-        .filter(g -> g.getParentId() == null)
-        .map(g -> {
-          GeneroResponseDTO generoDTO = generoMapper.generoToGeneroResponseDTO(g);
-          generoDTO.setSubgeneros(g.getSubgeneros().stream()
-              .map(generoMapper::generoToGeneroResponseDTO)
-              .collect(Collectors.toList()));
-          return generoDTO;
+    List<Genero> generosPrincipales = generoRepository.findByPadreIsNull();
+    return generosPrincipales.stream()
+        .map(genero -> {
+          // Usar el mapper para convertir la entidad y luego poblar los subgéneros si es
+          // necesario
+          // El mapper ya debería manejar la conversión de subgéneros si está configurado
+          // para ello.
+          // Si el mapper no carga los subgéneros por defecto (ej. por
+          // @Mapping(ignore=true)),
+          // entonces se deben cargar explícitamente como se hace aquí.
+          GeneroResponseDTO dto = generoMapper.generoToGeneroResponseDTO(genero);
+          if (genero.getSubgeneros() != null) {
+            dto.setSubgeneros(genero.getSubgeneros().stream()
+                .map(generoMapper::generoToGeneroResponseDTO)
+                .collect(Collectors.toList()));
+          }
+          return dto;
         })
         .collect(Collectors.toList());
   }
 
-  // Método para obtener solo géneros de nivel superior (sin padre) sin subgéneros
   @Override
+  @Transactional(readOnly = true)
   public List<GeneroResponseDTO> obtenerGenerosPrincipalesSinSubgeneros() {
-    return generos.stream()
-        .filter(g -> g.getParentId() == null && g.getSubgeneros().isEmpty())
+    return generoRepository.findByPadreIsNullAndSubgenerosIsEmpty().stream()
         .map(generoMapper::generoToGeneroResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional(readOnly = true)
   public long contarGeneros() {
-    return generos.size();
+    return generoRepository.count();
   }
-
-  // Método para construir la jerarquía después de cargar todos los géneros
-  private void construirJerarquia() {
-    for (Genero genero : generos) {
-      if (genero.getParentId() != null) {
-        obtenerEntidadGeneroPorId(genero.getParentId()).ifPresent(padre -> {
-          padre.getSubgeneros().add(genero);
-        });
-      }
-    }
-  }
-
 }

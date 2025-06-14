@@ -1,164 +1,95 @@
 package com.biblioteca.service.impl;
 
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.biblioteca.dto.comercial.BeneficioRequestDTO;
 import com.biblioteca.dto.comercial.BeneficioResponseDTO;
 import com.biblioteca.mapper.comercial.BeneficioMapper;
 import com.biblioteca.models.comercial.Beneficio;
+import com.biblioteca.repositories.comercial.BeneficioRepository;
 import com.biblioteca.service.BeneficioService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class BeneficioServiceImpl implements BeneficioService {
 
-  private final List<Beneficio> beneficios = new ArrayList<>();
-  private final AtomicLong beneficioIdCounter = new AtomicLong(0);
+  private final BeneficioRepository beneficioRepository;
   private final BeneficioMapper beneficioMapper;
-  private final ObjectMapper objectMapper;
-  private final ResourceLoader resourceLoader;
 
-  @PostConstruct
-  public void initBeneficiosData() {
-    try {
-      InputStream inputStream = resourceLoader.getResource("classpath:data/beneficios-data.json").getInputStream();
-      List<BeneficioRequestDTO> beneficiosDTOs = objectMapper.readValue(inputStream,
-          new TypeReference<List<BeneficioRequestDTO>>() {
-          });
-      beneficiosDTOs.forEach(this::crearBeneficio);
-      System.out.println("Datos iniciales de Beneficios cargados desde JSON: " + beneficios.size() + " beneficios.");
-    } catch (Exception e) {
-      System.err.println("Error al cargar datos iniciales de beneficios desde JSON: " + e.getMessage());
-      e.printStackTrace();
-
-      // Si no se pueden cargar datos desde JSON, crear beneficios por defecto
-      if (beneficios.isEmpty()) {
-        crearBeneficiosPorDefecto();
-      }
-    }
-  }
-
-  private void crearBeneficiosPorDefecto() {
-    // Beneficios básicos
-    crearBeneficio(BeneficioRequestDTO.builder()
-        .nombre("Acceso a libros digitales")
-        .descripcion("Acceso ilimitado a la biblioteca digital")
-        .icono("book")
-        .tipoDato("booleano")
-        .categoriaId(1L)
-        .activo(true)
-        .build());
-
-    crearBeneficio(BeneficioRequestDTO.builder()
-        .nombre("Préstamos simultáneos")
-        .descripcion("Número de libros que se pueden prestar a la vez")
-        .icono("list")
-        .tipoDato("numerico")
-        .categoriaId(1L)
-        .activo(true)
-        .build());
-
-    crearBeneficio(BeneficioRequestDTO.builder()
-        .nombre("Descarga de contenido")
-        .descripcion("Posibilidad de descargar contenido para lectura offline")
-        .icono("download")
-        .tipoDato("booleano")
-        .categoriaId(2L)
-        .activo(true)
-        .build());
-
-    crearBeneficio(BeneficioRequestDTO.builder()
-        .nombre("Acceso a contenido exclusivo")
-        .descripcion("Acceso a material y lanzamientos exclusivos")
-        .icono("star")
-        .tipoDato("booleano")
-        .categoriaId(2L)
-        .activo(true)
-        .build());
-
-    crearBeneficio(BeneficioRequestDTO.builder()
-        .nombre("Duración máxima de préstamo")
-        .descripcion("Días máximos de préstamo")
-        .icono("calendar")
-        .tipoDato("numerico")
-        .categoriaId(1L)
-        .activo(true)
-        .build());
-
-    System.out.println("Beneficios por defecto creados: " + beneficios.size() + " beneficios.");
+  public BeneficioServiceImpl(BeneficioRepository beneficioRepository, BeneficioMapper beneficioMapper) {
+    this.beneficioRepository = beneficioRepository;
+    this.beneficioMapper = beneficioMapper;
   }
 
   @Override
+  @Transactional
   public BeneficioResponseDTO crearBeneficio(BeneficioRequestDTO beneficioDTO) {
     Beneficio beneficio = beneficioMapper.toEntity(beneficioDTO);
-    beneficio.setId(beneficioIdCounter.incrementAndGet());
-    beneficios.add(beneficio);
-    return beneficioMapper.toResponseDTO(beneficio);
+    // El ID será generado por la base de datos
+    Beneficio beneficioGuardado = beneficioRepository.save(beneficio);
+    return beneficioMapper.toResponseDTO(beneficioGuardado);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<BeneficioResponseDTO> obtenerBeneficioPorId(Long id) {
-    return beneficios.stream()
-        .filter(b -> b.getId().equals(id))
-        .findFirst()
+    return beneficioRepository.findById(id)
         .map(beneficioMapper::toResponseDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<BeneficioResponseDTO> obtenerTodosLosBeneficios() {
-    return beneficios.stream()
+    return beneficioRepository.findAll().stream()
         .map(beneficioMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional
   public Optional<BeneficioResponseDTO> actualizarBeneficio(Long id, BeneficioRequestDTO beneficioDTO) {
-    return beneficios.stream()
-        .filter(b -> b.getId().equals(id))
-        .findFirst()
-        .map(beneficio -> {
-          beneficioMapper.updateEntityFromDTO(beneficioDTO, beneficio);
-          return beneficioMapper.toResponseDTO(beneficio);
-        });
+    Optional<Beneficio> beneficioOpt = beneficioRepository.findById(id);
+    if (beneficioOpt.isPresent()) {
+      Beneficio beneficio = beneficioOpt.get();
+      beneficioMapper.updateEntityFromDTO(beneficioDTO, beneficio);
+      Beneficio beneficioActualizado = beneficioRepository.save(beneficio);
+      return Optional.of(beneficioMapper.toResponseDTO(beneficioActualizado));
+    }
+    return Optional.empty();
   }
 
   @Override
+  @Transactional
   public boolean eliminarBeneficio(Long id) {
-    return beneficios.removeIf(b -> b.getId().equals(id));
+    if (beneficioRepository.existsById(id)) {
+      beneficioRepository.deleteById(id);
+      return true;
+    }
+    return false;
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Beneficio> obtenerEntidadBeneficioPorId(Long id) {
-    return beneficios.stream()
-        .filter(b -> b.getId().equals(id))
-        .findFirst();
+    return beneficioRepository.findById(id);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<BeneficioResponseDTO> obtenerBeneficiosPorTipo(String tipoDato) {
-    return beneficios.stream()
-        .filter(b -> tipoDato.equals(b.getTipoDato()))
+    return beneficioRepository.findByTipoDato(tipoDato).stream()
         .map(beneficioMapper::toResponseDTO)
         .collect(Collectors.toList());
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<BeneficioResponseDTO> obtenerBeneficiosActivos() {
-    return beneficios.stream()
-        .filter(Beneficio::isActivo)
+    return beneficioRepository.findByActivoTrue().stream()
         .map(beneficioMapper::toResponseDTO)
         .collect(Collectors.toList());
   }

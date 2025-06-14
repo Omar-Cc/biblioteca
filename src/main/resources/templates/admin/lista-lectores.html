@@ -92,9 +92,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr th:if="${lectores.empty}">
-                <td colspan="7" class="text-center py-4">No hay lectores registrados</td>
-              </tr>
               <tr th:each="lector : ${lectores}">
                 <td th:text="${lector.id}">1</td>
                 <td>
@@ -104,16 +101,16 @@
                 <td th:text="${lector.email}">email@example.com</td>
                 <td>
                   <span class="badge rounded-pill" th:classappend="${lector.estadoCuenta == 'ACTIVO' ? 'bg-success' : 
-                                      lector.estadoCuenta == 'SUSPENDIDO' ? 'bg-danger' : 
-                                      lector.estadoCuenta == 'MULTADO' ? 'bg-warning text-dark' : 'bg-secondary'}"
+                          lector.estadoCuenta == 'SUSPENDIDO' ? 'bg-danger' : 
+                          lector.estadoCuenta == 'MULTADO' ? 'bg-warning text-dark' : 'bg-secondary'}"
                     th:text="${lector.estadoCuenta}">ACTIVO</span>
                 </td>
                 <td th:text="${lector.multasPendientes}">0</td>
                 <td th:text="${#dates.format(lector.fechaRegistro, 'dd/MM/yyyy')}">01/01/2025</td>
                 <td>
                   <div class="btn-group btn-group-sm">
-                    <a th:href="@{/admin/lectores/{username}(username=${lector.username})}"
-                      class="btn btn-primary" title="Ver detalles">
+                    <a th:href="@{/admin/lectores/{username}(username=${lector.username})}" class="btn btn-primary"
+                      title="Ver detalles">
                       <i class="bi bi-eye"></i>
                     </a>
                   </div>
